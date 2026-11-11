@@ -1,0 +1,227 @@
+#!/usr/bin/env python3
+"""Günlük senaryo dosyasından (scripts/TARIH.json) Shorts videoları üretir.
+
+Kullanım:  python3 pipeline/build.py scripts/2026-11-11.json [--only 1,3]
+
+Her video için: Türkçe seslendirme -> altyazı zamanlaması ->
+Remotion ile 1080x1920 MP4 (out/TARIH/N-slug.mp4).
+
+Seslendirme motoru config.json içindeki "tts" ile seçilir:
+  "piper"  : çevrimdışı, ücretsiz (tr_TR-dfki sesi; lisansı CC BY-NC-SA, ticari değil)
+  "google" : Google Cloud Text-to-Speech (resmi API, ticari kullanım serbest)
+"""
+import base64
+import glob
+import io
+import json
+import os
+import re
+import subprocess
+import sys
+import wave
+from pathlib import Path
+
+import numpy as np
+import requests
+
+ROOT = Path(__file__).resolve().parent.parent
+VIDEO = ROOT / "video"
+VOICE = ROOT / "voices" / "tr_TR-dfki-medium.onnx"
+CONFIG = json.loads((ROOT / "config.json").read_text(encoding="utf-8"))
+FPS = 30
+MONTHS = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz",
+          "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"]
+ACCENTS = {
+    "EKONOMİ": "#34d399", "SPOR": "#fb923c", "SİYASET": "#f87171",
+    "TEKNOLOJİ": "#22d3ee", "MAGAZİN": "#f472b6", "DÜNYA": "#a78bfa",
+    "GÜNDEM": "#facc15", "SAĞLIK": "#4ade80", "EĞİTİM": "#60a5fa",
+    "YAŞAM": "#fbbf24", "BİLİM": "#38bdf8", "KÜLTÜR": "#e879f9",
+}
+
+
+class PiperTTS:
+    def __init__(self):
+        from piper import PiperVoice, SynthesisConfig
+        self.voice = PiperVoice.load(str(VOICE))
+        self.cfg = SynthesisConfig(length_scale=CONFIG.get("speech_length_scale", 0.95))
+        self.sr = self.voice.config.sample_rate
+
+    def synth(self, text):
+        audio = [c.audio_int16_array for c in self.voice.synthesize(text, syn_config=self.cfg)]
+        return np.concatenate(audio) if audio else np.zeros(0, dtype=np.int16)
+
+
+class GoogleTTS:
+    """Google Cloud Text-to-Speech. Anahtar: GOOGLE_TTS_API_KEY ortam değişkeni ya da
+    texttospeech.googleapis.com için ortamda kayıtlı ağ kimliği (X-Goog-Api-Key)."""
+    URL = "https://texttospeech.googleapis.com/v1/text:synthesize"
+
+    def __init__(self):
+        self.sr = 24000
+        self.voice = CONFIG.get("google_voice", "tr-TR-Wavenet-E")
+        self.rate = CONFIG.get("google_speaking_rate", 1.05)
+        self.key = os.environ.get("GOOGLE_TTS_API_KEY", "proxy-tarafindan-eklenir")
+
+    def synth(self, text):
+        r = requests.post(self.URL, headers={"X-Goog-Api-Key": self.key}, timeout=120, json={
+            "input": {"text": text},
+            "voice": {"languageCode": "tr-TR", "name": self.voice},
+            "audioConfig": {"audioEncoding": "LINEAR16", "sampleRateHertz": self.sr,
+                            "speakingRate": self.rate},
+        })
+        if r.status_code != 200:
+            sys.exit(f"[hata] Google TTS ({r.status_code}): {r.text[:300]}")
+        with wave.open(io.BytesIO(base64.b64decode(r.json()["audioContent"]))) as w:
+            return np.frombuffer(w.readframes(w.getnframes()), dtype=np.int16)
+
+
+def chrome_path():
+    """Önceden kurulu headless Chrome'u bulur (sürüm numarası imaja göre değişebilir)."""
+    if CONFIG.get("chrome"):
+        return CONFIG["chrome"]
+    hits = sorted(glob.glob(
+        "/opt/pw-browsers/chromium_headless_shell-*/chrome-headless-shell-linux64/chrome-headless-shell"))
+    return hits[-1] if hits else None
+
+
+def tr_upper(s):
+    return s.replace("i", "İ").replace("ı", "I").upper()
+
+
+def sentences(text):
+    parts = re.split(r"(?<=[.!?…])\s+", text.strip())
+    return [p for p in parts if p]
+
+
+def chunk_words(sentence, max_words=3, max_chars=20):
+    """Cümleyi ekranda aynı anda görünecek kısa altyazı parçalarına böler."""
+    chunks, cur = [], []
+    for w in sentence.split():
+        trial = " ".join(cur + [w])
+        if cur and (len(cur) >= max_words or len(trial) > max_chars):
+            chunks.append(" ".join(cur))
+            cur = [w]
+        else:
+            cur.append(w)
+        if cur and re.search(r"[,;:]$", w) and len(" ".join(cur)) >= 9:
+            chunks.append(" ".join(cur))
+            cur = []
+    if cur:
+        chunks.append(" ".join(cur))
+    return chunks
+
+
+def trim(a, sr, thresh=250, pad=0.04):
+    """Baştaki/sondaki sessizliği kırpar ki altyazı sese otursun."""
+    loud = np.where(np.abs(a) > thresh)[0]
+    if not len(loud):
+        return a
+    p = int(pad * sr)
+    return a[max(0, loud[0] - p): loud[-1] + p]
+
+
+def build_video(tts, day, n, total, v, out_dir):
+    sr = tts.sr
+    gap_sentence = np.zeros(int(0.16 * sr), dtype=np.int16)
+    gap_scene = np.zeros(int(0.42 * sr), dtype=np.int16)
+    track = [np.zeros(int(0.25 * sr), dtype=np.int16)]
+    pos = track[0].size
+    scenes = []
+    for sc in v["scenes"]:
+        shown = sentences(sc["text"])
+        spoken = sentences(sc.get("say") or sc["text"])
+        if len(spoken) != len(shown):  # hizalanamıyorsa tek blok olarak ele al
+            shown, spoken = [sc["text"]], [sc.get("say") or sc["text"]]
+        start = pos / sr
+        chunks = []
+        for shown_s, spoken_s in zip(shown, spoken):
+            a = trim(tts.synth(spoken_s), sr)
+            parts = chunk_words(shown_s)
+            weights = [len(p) + 2 for p in parts]
+            t0, dur = pos / sr, a.size / sr
+            acc = 0
+            for p, w in zip(parts, weights):
+                c0 = t0 + dur * acc / sum(weights)
+                acc += w
+                c1 = t0 + dur * acc / sum(weights)
+                chunks.append({"text": p, "start": round(c0, 3), "end": round(c1, 3)})
+            track += [a, gap_sentence]
+            pos += a.size + gap_sentence.size
+        track.append(gap_scene)
+        pos += gap_scene.size
+        # Altyazı, bir sonraki parça başlayana (son parçada sahne bitene) kadar ekranda kalır
+        for c, nxt in zip(chunks, chunks[1:]):
+            c["until"] = nxt["start"]
+        chunks[-1]["until"] = round(pos / sr, 3)
+        scene = {"heading": sc.get("heading", ""), "start": round(start, 3),
+                 "end": round(pos / sr, 3), "chunks": chunks}
+        if sc.get("stat"):
+            scene["stat"] = sc["stat"]
+        scenes.append(scene)
+    track.append(np.zeros(int(0.5 * sr), dtype=np.int16))
+    audio = np.concatenate(track)
+    duration = audio.size / sr
+
+    slug = v["slug"]
+    pub = VIDEO / "public" / day
+    pub.mkdir(parents=True, exist_ok=True)
+    with wave.open(str(pub / f"{slug}.wav"), "wb") as w:
+        w.setnchannels(1)
+        w.setsampwidth(2)
+        w.setframerate(sr)
+        w.writeframes(audio.tobytes())
+
+    # Kare başına ses seviyesi (görsel ses çubukları için)
+    hop = sr / FPS
+    nframes = int(np.ceil(duration * FPS))
+    f = audio.astype(np.float32) / 32768
+    rms = np.array([np.sqrt(np.mean(f[int(i * hop): int((i + 1) * hop)] ** 2) + 1e-9)
+                    for i in range(nframes)])
+    levels = np.clip(rms / (np.percentile(rms, 97) + 1e-6), 0, 1)
+
+    y, m, d = day.split("-")
+    cat = tr_upper(v.get("category", "GÜNDEM"))
+    props = {
+        "brand": CONFIG["brand"], "date": f"{int(d)} {MONTHS[int(m) - 1]} {y}",
+        "index": n, "total": total, "category": cat,
+        "accent": v.get("accent") or ACCENTS.get(cat, "#facc15"),
+        "title": v["title"], "audio": f"{day}/{slug}.wav",
+        "duration": round(duration, 3),
+        "levels": [round(float(x), 3) for x in levels], "scenes": scenes,
+    }
+    props_file = pub / f"{slug}.json"
+    props_file.write_text(json.dumps(props, ensure_ascii=False), encoding="utf-8")
+
+    out = out_dir / f"{n}-{slug}.mp4"
+    cmd = ["npx", "remotion", "render", "src/index.ts", "Short", str(out),
+           f"--props={props_file}", "--codec=h264", "--crf=22", "--log=error",
+           f"--concurrency={CONFIG.get('concurrency', 4)}"]
+    chrome = chrome_path()
+    if chrome:
+        cmd.append(f"--browser-executable={chrome}")
+    subprocess.run(cmd, cwd=VIDEO, check=True)
+    print(f"[ok] {out.relative_to(ROOT)}  {duration:.1f} sn", flush=True)
+    if duration > 175:
+        print(f"[uyarı] {slug}: {duration:.0f} sn — Shorts sınırı 180 sn", flush=True)
+    return out
+
+
+def main():
+    script = Path(sys.argv[1])
+    only = None
+    if "--only" in sys.argv:
+        only = {int(x) for x in sys.argv[sys.argv.index("--only") + 1].split(",")}
+    data = json.loads(script.read_text(encoding="utf-8"))
+    day = data["date"]
+    out_dir = ROOT / "out" / day
+    out_dir.mkdir(parents=True, exist_ok=True)
+    tts = GoogleTTS() if CONFIG.get("tts", "piper") == "google" else PiperTTS()
+    vids = data["videos"]
+    for n, v in enumerate(vids, 1):
+        if only and n not in only:
+            continue
+        build_video(tts, day, n, len(vids), v, out_dir)
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,210 @@
+{
+  "date": "2026-11-11",
+  "videos": [
+    {
+      "slug": "aliaga-fabrika-patlamasi",
+      "category": "GÜNDEM",
+      "title": "Aliağa'da fabrika faciası: En az 17 can kaybı",
+      "yt_title": "Aliağa'da fabrika faciası: En az 17 can kaybı, 11 gözaltı kararı #shorts",
+      "description": "İzmir Aliağa'daki demir çelik fabrikasında 9 Kasım'da meydana gelen patlamada en az 17 işçi hayatını kaybetti. Aralarında fabrika yöneticilerinin de bulunduğu 11 kişi hakkında gözaltı kararı verildi.",
+      "tags": ["izmir", "aliağa", "habaş", "patlama", "fabrika", "iş kazası"],
+      "sources": [
+        "https://www.ntv.com.tr/turkiye/izmirde-demir-celik-fabrikasinda-patlama-cok-sayida-can-kaybi-var-1750103",
+        "https://www.aa.com.tr/tr/gundem/izmirde-demir-celik-fabrikasinda-patlama-meydana-geldi/4116859"
+      ],
+      "scenes": [
+        {
+          "text": "İzmir Aliağa'da bir demir çelik fabrikasında büyük bir patlama oldu. En az 17 işçi hayatını kaybetti.",
+          "say": "İzmir Aliağa'da bir demir çelik fabrikasında büyük bir patlama oldu. En az on yedi işçi hayatını kaybetti."
+        },
+        {
+          "heading": "Ne oldu?",
+          "stat": { "value": "17+", "label": "hayatını kaybeden işçi" },
+          "text": "Patlama 9 Kasım'da, HABAŞ'a ait tesiste meydana geldi. Çok sayıda işçi de yaralandı.",
+          "say": "Patlama dokuz Kasım'da, Habaş'a ait tesiste meydana geldi. Çok sayıda işçi de yaralandı."
+        },
+        {
+          "heading": "Soruşturma",
+          "stat": { "value": "11", "label": "kişi için gözaltı kararı" },
+          "text": "Adalet Bakanlığı'na göre, aralarında fabrika yöneticilerinin de bulunduğu 11 kişi hakkında gözaltı kararı verildi.",
+          "say": "Adalet Bakanlığı'na göre, aralarında fabrika yöneticilerinin de bulunduğu on bir kişi hakkında gözaltı kararı verildi."
+        },
+        {
+          "heading": "Devlet ne yaptı?",
+          "text": "Olay için iki mülkiye başmüfettişi görevlendirildi. İdari ve adli süreç devam ediyor."
+        },
+        {
+          "heading": "Şimdi ne olacak?",
+          "text": "Patlamanın nedeni soruşturmanın sonunda netleşecek. Gelişmeler için takipte kal."
+        }
+      ]
+    },
+    {
+      "slug": "bddk-kavcioglu-istifa",
+      "category": "EKONOMİ",
+      "title": "BDDK Başkanı Kavcıoğlu istifa etti",
+      "yt_title": "BDDK Başkanı Şahap Kavcıoğlu istifa etti: Fon soruşturmasında neler oluyor? #shorts",
+      "description": "BDDK Başkanı Şahap Kavcıoğlu görevinden ayrıldı. Aynı gün fon soruşturmasında eski Takasbank Genel Müdürü Yunus Arıncı dahil üç kişi tutuklandı. Kavcıoğlu hakkındaki iddiaları reddediyor.",
+      "tags": ["bddk", "şahap kavcıoğlu", "fon soruşturması", "takasbank", "ekonomi"],
+      "sources": [
+        "https://www.birgun.net/haber/bddk-baskani-sahap-kavcioglu-istifa-etti-745781",
+        "https://www.memurlar.net/haber/1183765/fon-sorusturmasi-yunus-arinci-dahil-uc-kisi-tutuklandi.html"
+      ],
+      "scenes": [
+        {
+          "text": "Bankacılık kurumu BDDK'nın başkanı Şahap Kavcıoğlu görevinden istifa etti.",
+          "say": "Bankacılık kurumu Be De De Ka'nın başkanı Şahap Kavcıoğlu görevinden istifa etti."
+        },
+        {
+          "heading": "Ne oldu?",
+          "text": "Kavcıoğlu, kurum ve kendisi hakkındaki iddiaları gerekçe göstererek Cumhurbaşkanı'ndan görevden affını istediğini açıkladı."
+        },
+        {
+          "heading": "Fon soruşturması",
+          "stat": { "value": "3", "label": "yeni tutuklama" },
+          "text": "Aynı gün fon soruşturmasında, eski Takasbank Genel Müdürü Yunus Arıncı dahil üç kişi tutuklandı."
+        },
+        {
+          "heading": "Kavcıoğlu ne diyor?",
+          "text": "Kavcıoğlu iddiaları reddediyor. BDDK'nın fonla bir bağlantısı olmadığını söylüyor.",
+          "say": "Kavcıoğlu iddiaları reddediyor. Be De De Ka'nın fonla bir bağlantısı olmadığını söylüyor."
+        },
+        {
+          "heading": "Arka plan",
+          "text": "Soruşturma eylül ayında gündeme gelmişti. BDDK'dan üst düzey üç isim de tutuklu bulunuyor.",
+          "say": "Soruşturma eylül ayında gündeme gelmişti. Be De De Ka'dan üst düzey üç isim de tutuklu bulunuyor."
+        },
+        {
+          "heading": "Şimdi ne olacak?",
+          "text": "Koltuğa kimin oturacağı merak ediliyor. Gelişmeler için takipte kal."
+        }
+      ]
+    },
+    {
+      "slug": "turkiye-belcika-maci",
+      "category": "SPOR",
+      "title": "Türkiye–Belçika: Milliler ilk puanın peşinde",
+      "yt_title": "Türkiye–Belçika maçı ne zaman, hangi kanalda? Milliler ilk puanın peşinde #shorts",
+      "description": "A Milli Takım, UEFA Uluslar Ligi'nde 12 Kasım Perşembe 20.00'de İzmir'de Belçika'yı ağırlıyor. Maç ATV'den canlı ve şifresiz yayınlanacak.",
+      "tags": ["milli takım", "türkiye belçika", "uluslar ligi", "milli maç", "futbol"],
+      "sources": [
+        "https://www.ntv.com.tr/sporskor/galeri-turkiye-belcika-milli-maci-ne-zaman-saat-kacta-ve-hangi-kanalda-uluslar-liginde-hedef-galibiyet-1750402",
+        "https://www.sabah.com.tr/yasam/milli-mac-hangi-kanalda-uluslar-ligi-turkiye-belcika-maci-yayin-kanali-ve-saati-7699267"
+      ],
+      "scenes": [
+        {
+          "text": "A Milli Takım, Uluslar Ligi'nde Belçika'yı ağırlıyor. Hedef, gruptaki ilk puan."
+        },
+        {
+          "heading": "Maç ne zaman?",
+          "stat": { "value": "20.00", "label": "12 Kasım Perşembe" },
+          "text": "Karşılaşma 12 Kasım Perşembe saat 20.00'de, İzmir'deki Gürsel Aksel Stadyumu'nda oynanacak.",
+          "say": "Karşılaşma on iki Kasım Perşembe saat yirmide, İzmir'deki Gürsel Aksel Stadyumu'nda oynanacak."
+        },
+        {
+          "heading": "Hangi kanalda?",
+          "stat": { "value": "ATV", "label": "canlı ve şifresiz" },
+          "text": "Maç ATV'den canlı ve şifresiz yayınlanacak.",
+          "say": "Maç A Te Ve'den canlı ve şifresiz yayınlanacak."
+        },
+        {
+          "heading": "Grupta durum",
+          "stat": { "value": "0 puan", "label": "ilk 4 maçta" },
+          "text": "Türkiye, A Ligi'ndeki ilk dört maçını kaybetti ve henüz puan alamadı."
+        },
+        {
+          "heading": "Sırada ne var?",
+          "text": "Milliler, Belçika'dan sonra 15 Kasım'da Fransa ile karşılaşacak.",
+          "say": "Milliler, Belçika'dan sonra on beş Kasım'da Fransa ile karşılaşacak."
+        },
+        {
+          "heading": "Senin tahminin?",
+          "text": "Sence maç kaç kaç biter? Tahminini yorumlara yaz."
+        }
+      ]
+    },
+    {
+      "slug": "cop31-antalya",
+      "category": "DÜNYA",
+      "title": "Dünya liderleri Antalya'da: COP31 başladı",
+      "yt_title": "Dünya liderleri Antalya'da: COP31 iklim zirvesi başladı #shorts",
+      "description": "BM iklim zirvesi COP31, 9-20 Kasım tarihlerinde Antalya'da düzenleniyor. Liderler Zirvesi'ne 6 kıtadan 102 ülkenin liderleri katılıyor.",
+      "tags": ["cop31", "antalya", "iklim zirvesi", "iklim değişikliği", "erdoğan"],
+      "sources": [
+        "https://www.aa.com.tr/tr/gundem/cop31-liderler-zirvesi-basliyor/4119653",
+        "https://www.haberturk.com/dunya/cop31-liderler-zirvesi-basliyor-3926430"
+      ],
+      "scenes": [
+        {
+          "text": "Dünyanın en büyük iklim zirvesi COP31, Antalya'da başladı. Ev sahibi Türkiye.",
+          "say": "Dünyanın en büyük iklim zirvesi Kop otuz bir, Antalya'da başladı. Ev sahibi Türkiye."
+        },
+        {
+          "heading": "Kimler geldi?",
+          "stat": { "value": "102", "label": "ülkeden lider Antalya'da" },
+          "text": "Liderler Zirvesi'ne 6 kıtadan 102 ülkenin liderleri katılıyor. Konukları Cumhurbaşkanı Erdoğan ve BM Genel Sekreteri Guterres karşıladı.",
+          "say": "Liderler Zirvesi'ne altı kıtadan yüz iki ülkenin liderleri katılıyor. Konukları Cumhurbaşkanı Erdoğan ve Birleşmiş Milletler Genel Sekreteri Guterreş karşıladı."
+        },
+        {
+          "heading": "Ne zamana kadar?",
+          "stat": { "value": "9–20 Kasım", "label": "196 ülke ve AB masada" },
+          "text": "Zirve 9 Kasım'da başladı ve 20 Kasım'a kadar sürecek. 196 ülke ve Avrupa Birliği masada.",
+          "say": "Zirve dokuz Kasım'da başladı ve yirmi Kasım'a kadar sürecek. Yüz doksan altı ülke ve Avrupa Birliği masada."
+        },
+        {
+          "heading": "Masada ne var?",
+          "text": "Gündemde fosil yakıtlardan uzaklaşma, iklim finansmanı ve elektrifikasyon var."
+        },
+        {
+          "heading": "Şimdi ne olacak?",
+          "text": "Zirveden çıkacak kararlar önümüzdeki günlerde belli olacak. Takipte kal."
+        }
+      ]
+    },
+    {
+      "slug": "gta-6-on-siparis",
+      "category": "TEKNOLOJİ",
+      "title": "GTA 6'ya günler kaldı: Ön sipariş rekoru iddiası",
+      "yt_title": "GTA 6'ya günler kaldı: Ön sipariş rekoru iddiası, fiyatı ve çıkış tarihi #shorts",
+      "description": "GTA 6, 19 Kasım 2026'da PlayStation 5 ve Xbox Series X|S için çıkıyor. Sensor Tower'ın tahminine göre dijital ön siparişler 7,7 milyonu geçti; Rockstar resmi bir rakam açıklamadı.",
+      "tags": ["gta 6", "gta vi", "rockstar", "playstation 5", "xbox", "oyun"],
+      "sources": [
+        "https://www.videogamer.com/news/gta-vi-pre-orders-price-release-date/",
+        "https://mlq.ai/news/gta-vi-heads-into-launch-with-an-estimated-751-million-in-console-pre-orders-and-take-twos-8-billion-year-riding-on-it/"
+      ],
+      "scenes": [
+        {
+          "text": "GTA 6'nın çıkışına sayılı günler kaldı. Ön sipariş rakamları şimdiden çok konuşuluyor.",
+          "say": "Ci Ti Ey altı'nın çıkışına sayılı günler kaldı. Ön sipariş rakamları şimdiden çok konuşuluyor."
+        },
+        {
+          "heading": "Ne zaman çıkıyor?",
+          "stat": { "value": "19 Kasım", "label": "PS5 ve Xbox Series" },
+          "text": "Oyun 19 Kasım'da PlayStation 5 ve Xbox Series için çıkıyor. PC sürümü için henüz tarih yok.",
+          "say": "Oyun on dokuz Kasım'da Pleysteyşın beş ve Eksboks Siriz için çıkıyor. Pi Si sürümü için henüz tarih yok."
+        },
+        {
+          "heading": "Ön siparişler",
+          "stat": { "value": "7,7 milyon", "label": "tahmini dijital ön sipariş" },
+          "text": "Sensor Tower'ın tahminine göre dijital ön siparişler 7,7 milyonu geçti. Bu, yaklaşık 751 milyon dolar demek.",
+          "say": "Sensör Tavır'ın tahminine göre dijital ön siparişler yedi virgül yedi milyonu geçti. Bu, yaklaşık yedi yüz elli bir milyon dolar demek."
+        },
+        {
+          "heading": "Resmi mi?",
+          "text": "Dikkat! Rockstar resmi bir rakam açıklamadı. Yani rekor iddiası şimdilik tahminlere dayanıyor.",
+          "say": "Dikkat! Rakstar resmi bir rakam açıklamadı. Yani rekor iddiası şimdilik tahminlere dayanıyor."
+        },
+        {
+          "heading": "Fiyatı ne?",
+          "stat": { "value": "$79,99", "label": "standart sürüm" },
+          "text": "Standart sürüm 79,99 dolar, Ultimate sürüm 99,99 dolar.",
+          "say": "Standart sürüm yetmiş dokuz doksan dokuz dolar, Altimeyt sürüm doksan dokuz doksan dokuz dolar."
+        },
+        {
+          "heading": "Senin kararın?",
+          "text": "Sen ön sipariş verdin mi? Yorumlara yaz."
+        }
+      ]
+    }
+  ]
+}
