@@ -6,19 +6,16 @@ cd "$(dirname "$0")"
 
 python3 -m pip install -q --root-user-action=ignore numpy requests
 
-# Çevrimdışı Piper sesi yalnızca config.json içinde "tts": "piper" ise gerekir.
-TTS=$(python3 -c "import json; print(json.load(open('config.json')).get('tts', 'google'))")
-if [ "$TTS" = "piper" ]; then
-  python3 -m pip install -q --root-user-action=ignore piper-tts
-  VOICE=tr_TR-dfki-medium
-  BASE=https://huggingface.co/rhasspy/piper-voices/resolve/main/tr/tr_TR/dfki/medium
-  mkdir -p voices
-  for f in "$VOICE.onnx" "$VOICE.onnx.json"; do
-    if [ ! -s "voices/$f" ]; then
-      curl -fsSL --retry 4 --retry-delay 3 -o "voices/$f" "$BASE/$f"
-    fi
-  done
-fi
+# Çevrimdışı Piper sesi: "tts": "piper" ise ana ses, "google" ise anahtar yokken yedek ses.
+python3 -m pip install -q --root-user-action=ignore piper-tts
+VOICE=tr_TR-dfki-medium
+BASE=https://huggingface.co/rhasspy/piper-voices/resolve/main/tr/tr_TR/dfki/medium
+mkdir -p voices
+for f in "$VOICE.onnx" "$VOICE.onnx.json"; do
+  if [ ! -s "voices/$f" ]; then
+    curl -fsSL --retry 4 --retry-delay 3 -o "voices/$f.part" "$BASE/$f" && mv "voices/$f.part" "voices/$f"
+  fi
+done
 
 # Remotion ve yazı tipleri (zaten kuruluysa atla)
 if [ ! -d video/node_modules/remotion ]; then

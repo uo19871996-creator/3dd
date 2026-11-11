@@ -70,7 +70,7 @@ class GoogleTTS:
                             "speakingRate": self.rate},
         })
         if r.status_code != 200:
-            sys.exit(f"[hata] Google TTS ({r.status_code}): {r.text[:300]}")
+            raise RuntimeError(f"Google TTS ({r.status_code}): {r.text[:300]}")
         with wave.open(io.BytesIO(base64.b64decode(r.json()["audioContent"]))) as w:
             return np.frombuffer(w.readframes(w.getnframes()), dtype=np.int16)
 
@@ -216,7 +216,17 @@ def main():
     out_dir = ROOT / "out" / day
     out_dir.mkdir(parents=True, exist_ok=True)
     engine = os.environ.get("GUNDEM_TTS") or CONFIG.get("tts", "google")  # GUNDEM_TTS=piper ile test
-    tts = GoogleTTS() if engine == "google" else PiperTTS()
+    tts = None
+    if engine == "google":
+        try:
+            tts = GoogleTTS()
+            tts.synth("Merhaba.")  # anahtar/faturalandırma çalışıyor mu?
+        except Exception as e:
+            print(f"[uyarı] Google sesi kullanılamadı, ücretsiz sese geçiliyor: {e}", flush=True)
+            tts = None
+    if tts is None:
+        tts = PiperTTS()
+    print(f"[bilgi] Seslendirme motoru: {type(tts).__name__}", flush=True)
     vids = data["videos"]
     for n, v in enumerate(vids, 1):
         if only and n not in only:
