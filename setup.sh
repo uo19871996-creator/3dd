@@ -20,5 +20,8 @@ if [ "$TTS" = "piper" ]; then
   done
 fi
 
-(cd video && npm ci --silent --no-audit --no-fund)
+# Remotion ve yazı tipleri (zaten kuruluysa atla)
+if [ ! -d video/node_modules/remotion ]; then
+  (cd video && npm ci --silent --no-audit --no-fund)
+fi
 echo "[ok] kurulum tamam"
