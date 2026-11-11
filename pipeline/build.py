@@ -215,7 +215,8 @@ def main():
     day = data["date"]
     out_dir = ROOT / "out" / day
     out_dir.mkdir(parents=True, exist_ok=True)
-    tts = GoogleTTS() if CONFIG.get("tts", "piper") == "google" else PiperTTS()
+    engine = os.environ.get("GUNDEM_TTS") or CONFIG.get("tts", "google")  # GUNDEM_TTS=piper ile test
+    tts = GoogleTTS() if engine == "google" else PiperTTS()
     vids = data["videos"]
     for n, v in enumerate(vids, 1):
         if only and n not in only:

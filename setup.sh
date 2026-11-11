@@ -4,12 +4,12 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 
-pip install -q --root-user-action=ignore numpy requests
+python3 -m pip install -q --root-user-action=ignore numpy requests
 
 # Çevrimdışı Piper sesi yalnızca config.json içinde "tts": "piper" ise gerekir.
 TTS=$(python3 -c "import json; print(json.load(open('config.json')).get('tts', 'google'))")
 if [ "$TTS" = "piper" ]; then
-  pip install -q --root-user-action=ignore piper-tts
+  python3 -m pip install -q --root-user-action=ignore piper-tts
   VOICE=tr_TR-dfki-medium
   BASE=https://huggingface.co/rhasspy/piper-voices/resolve/main/tr/tr_TR/dfki/medium
   mkdir -p voices

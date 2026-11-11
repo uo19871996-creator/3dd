@@ -2,50 +2,18 @@
   "date": "2026-11-11",
   "videos": [
     {
-      "slug": "aliaga-fabrika-patlamasi",
-      "category": "GÜNDEM",
-      "title": "Aliağa'da fabrika faciası: En az 17 can kaybı",
-      "yt_title": "Aliağa'da fabrika faciası: En az 17 can kaybı, 11 gözaltı kararı #shorts",
-      "description": "İzmir Aliağa'daki demir çelik fabrikasında 9 Kasım'da meydana gelen patlamada en az 17 işçi hayatını kaybetti. Aralarında fabrika yöneticilerinin de bulunduğu 11 kişi hakkında gözaltı kararı verildi.",
-      "tags": ["izmir", "aliağa", "habaş", "patlama", "fabrika", "iş kazası"],
-      "sources": [
-        "https://www.ntv.com.tr/turkiye/izmirde-demir-celik-fabrikasinda-patlama-cok-sayida-can-kaybi-var-1750103",
-        "https://www.aa.com.tr/tr/gundem/izmirde-demir-celik-fabrikasinda-patlama-meydana-geldi/4116859"
-      ],
-      "scenes": [
-        {
-          "text": "İzmir Aliağa'da bir demir çelik fabrikasında büyük bir patlama oldu. En az 17 işçi hayatını kaybetti.",
-          "say": "İzmir Aliağa'da bir demir çelik fabrikasında büyük bir patlama oldu. En az on yedi işçi hayatını kaybetti."
-        },
-        {
-          "heading": "Ne oldu?",
-          "stat": { "value": "17+", "label": "hayatını kaybeden işçi" },
-          "text": "Patlama 9 Kasım'da, HABAŞ'a ait tesiste meydana geldi. Çok sayıda işçi de yaralandı.",
-          "say": "Patlama dokuz Kasım'da, Habaş'a ait tesiste meydana geldi. Çok sayıda işçi de yaralandı."
-        },
-        {
-          "heading": "Soruşturma",
-          "stat": { "value": "11", "label": "kişi için gözaltı kararı" },
-          "text": "Adalet Bakanlığı'na göre, aralarında fabrika yöneticilerinin de bulunduğu 11 kişi hakkında gözaltı kararı verildi.",
-          "say": "Adalet Bakanlığı'na göre, aralarında fabrika yöneticilerinin de bulunduğu on bir kişi hakkında gözaltı kararı verildi."
-        },
-        {
-          "heading": "Devlet ne yaptı?",
-          "text": "Olay için iki mülkiye başmüfettişi görevlendirildi. İdari ve adli süreç devam ediyor."
-        },
-        {
-          "heading": "Şimdi ne olacak?",
-          "text": "Patlamanın nedeni soruşturmanın sonunda netleşecek. Gelişmeler için takipte kal."
-        }
-      ]
-    },
-    {
       "slug": "bddk-kavcioglu-istifa",
       "category": "EKONOMİ",
       "title": "BDDK Başkanı Kavcıoğlu istifa etti",
       "yt_title": "BDDK Başkanı Şahap Kavcıoğlu istifa etti: Fon soruşturmasında neler oluyor? #shorts",
       "description": "BDDK Başkanı Şahap Kavcıoğlu görevinden ayrıldı. Aynı gün fon soruşturmasında eski Takasbank Genel Müdürü Yunus Arıncı dahil üç kişi tutuklandı. Kavcıoğlu hakkındaki iddiaları reddediyor.",
-      "tags": ["bddk", "şahap kavcıoğlu", "fon soruşturması", "takasbank", "ekonomi"],
+      "tags": [
+        "bddk",
+        "şahap kavcıoğlu",
+        "fon soruşturması",
+        "takasbank",
+        "ekonomi"
+      ],
       "sources": [
         "https://www.birgun.net/haber/bddk-baskani-sahap-kavcioglu-istifa-etti-745781",
         "https://www.memurlar.net/haber/1183765/fon-sorusturmasi-yunus-arinci-dahil-uc-kisi-tutuklandi.html"
@@ -61,7 +29,10 @@
         },
         {
           "heading": "Fon soruşturması",
-          "stat": { "value": "3", "label": "yeni tutuklama" },
+          "stat": {
+            "value": "3",
+            "label": "yeni tutuklama"
+          },
           "text": "Aynı gün fon soruşturmasında, eski Takasbank Genel Müdürü Yunus Arıncı dahil üç kişi tutuklandı."
         },
         {
@@ -86,7 +57,13 @@
       "title": "Türkiye–Belçika: Milliler ilk puanın peşinde",
       "yt_title": "Türkiye–Belçika maçı ne zaman, hangi kanalda? Milliler ilk puanın peşinde #shorts",
       "description": "A Milli Takım, UEFA Uluslar Ligi'nde 12 Kasım Perşembe 20.00'de İzmir'de Belçika'yı ağırlıyor. Maç ATV'den canlı ve şifresiz yayınlanacak.",
-      "tags": ["milli takım", "türkiye belçika", "uluslar ligi", "milli maç", "futbol"],
+      "tags": [
+        "milli takım",
+        "türkiye belçika",
+        "uluslar ligi",
+        "milli maç",
+        "futbol"
+      ],
       "sources": [
         "https://www.ntv.com.tr/sporskor/galeri-turkiye-belcika-milli-maci-ne-zaman-saat-kacta-ve-hangi-kanalda-uluslar-liginde-hedef-galibiyet-1750402",
         "https://www.sabah.com.tr/yasam/milli-mac-hangi-kanalda-uluslar-ligi-turkiye-belcika-maci-yayin-kanali-ve-saati-7699267"
@@ -97,19 +74,28 @@
         },
         {
           "heading": "Maç ne zaman?",
-          "stat": { "value": "20.00", "label": "12 Kasım Perşembe" },
+          "stat": {
+            "value": "20.00",
+            "label": "12 Kasım Perşembe"
+          },
           "text": "Karşılaşma 12 Kasım Perşembe saat 20.00'de, İzmir'deki Gürsel Aksel Stadyumu'nda oynanacak.",
           "say": "Karşılaşma on iki Kasım Perşembe saat yirmide, İzmir'deki Gürsel Aksel Stadyumu'nda oynanacak."
         },
         {
           "heading": "Hangi kanalda?",
-          "stat": { "value": "ATV", "label": "canlı ve şifresiz" },
+          "stat": {
+            "value": "ATV",
+            "label": "canlı ve şifresiz"
+          },
           "text": "Maç ATV'den canlı ve şifresiz yayınlanacak.",
           "say": "Maç A Te Ve'den canlı ve şifresiz yayınlanacak."
         },
         {
           "heading": "Grupta durum",
-          "stat": { "value": "0 puan", "label": "ilk 4 maçta" },
+          "stat": {
+            "value": "0 puan",
+            "label": "ilk 4 maçta"
+          },
           "text": "Türkiye, A Ligi'ndeki ilk dört maçını kaybetti ve henüz puan alamadı."
         },
         {
@@ -129,7 +115,13 @@
       "title": "Dünya liderleri Antalya'da: COP31 başladı",
       "yt_title": "Dünya liderleri Antalya'da: COP31 iklim zirvesi başladı #shorts",
       "description": "BM iklim zirvesi COP31, 9-20 Kasım tarihlerinde Antalya'da düzenleniyor. Liderler Zirvesi'ne 6 kıtadan 102 ülkenin liderleri katılıyor.",
-      "tags": ["cop31", "antalya", "iklim zirvesi", "iklim değişikliği", "erdoğan"],
+      "tags": [
+        "cop31",
+        "antalya",
+        "iklim zirvesi",
+        "iklim değişikliği",
+        "erdoğan"
+      ],
       "sources": [
         "https://www.aa.com.tr/tr/gundem/cop31-liderler-zirvesi-basliyor/4119653",
         "https://www.haberturk.com/dunya/cop31-liderler-zirvesi-basliyor-3926430"
@@ -141,13 +133,19 @@
         },
         {
           "heading": "Kimler geldi?",
-          "stat": { "value": "102", "label": "ülkeden lider Antalya'da" },
+          "stat": {
+            "value": "102",
+            "label": "ülkeden lider Antalya'da"
+          },
           "text": "Liderler Zirvesi'ne 6 kıtadan 102 ülkenin liderleri katılıyor. Konukları Cumhurbaşkanı Erdoğan ve BM Genel Sekreteri Guterres karşıladı.",
           "say": "Liderler Zirvesi'ne altı kıtadan yüz iki ülkenin liderleri katılıyor. Konukları Cumhurbaşkanı Erdoğan ve Birleşmiş Milletler Genel Sekreteri Guterreş karşıladı."
         },
         {
           "heading": "Ne zamana kadar?",
-          "stat": { "value": "9–20 Kasım", "label": "196 ülke ve AB masada" },
+          "stat": {
+            "value": "9–20 Kasım",
+            "label": "196 ülke ve AB masada"
+          },
           "text": "Zirve 9 Kasım'da başladı ve 20 Kasım'a kadar sürecek. 196 ülke ve Avrupa Birliği masada.",
           "say": "Zirve dokuz Kasım'da başladı ve yirmi Kasım'a kadar sürecek. Yüz doksan altı ülke ve Avrupa Birliği masada."
         },
@@ -167,7 +165,14 @@
       "title": "GTA 6'ya günler kaldı: Ön sipariş rekoru iddiası",
       "yt_title": "GTA 6'ya günler kaldı: Ön sipariş rekoru iddiası, fiyatı ve çıkış tarihi #shorts",
       "description": "GTA 6, 19 Kasım 2026'da PlayStation 5 ve Xbox Series X|S için çıkıyor. Sensor Tower'ın tahminine göre dijital ön siparişler 7,7 milyonu geçti; Rockstar resmi bir rakam açıklamadı.",
-      "tags": ["gta 6", "gta vi", "rockstar", "playstation 5", "xbox", "oyun"],
+      "tags": [
+        "gta 6",
+        "gta vi",
+        "rockstar",
+        "playstation 5",
+        "xbox",
+        "oyun"
+      ],
       "sources": [
         "https://www.videogamer.com/news/gta-vi-pre-orders-price-release-date/",
         "https://mlq.ai/news/gta-vi-heads-into-launch-with-an-estimated-751-million-in-console-pre-orders-and-take-twos-8-billion-year-riding-on-it/"
@@ -179,13 +184,19 @@
         },
         {
           "heading": "Ne zaman çıkıyor?",
-          "stat": { "value": "19 Kasım", "label": "PS5 ve Xbox Series" },
+          "stat": {
+            "value": "19 Kasım",
+            "label": "PS5 ve Xbox Series"
+          },
           "text": "Oyun 19 Kasım'da PlayStation 5 ve Xbox Series için çıkıyor. PC sürümü için henüz tarih yok.",
           "say": "Oyun on dokuz Kasım'da Pleysteyşın beş ve Eksboks Siriz için çıkıyor. Pi Si sürümü için henüz tarih yok."
         },
         {
           "heading": "Ön siparişler",
-          "stat": { "value": "7,7 milyon", "label": "tahmini dijital ön sipariş" },
+          "stat": {
+            "value": "7,7 milyon",
+            "label": "tahmini dijital ön sipariş"
+          },
           "text": "Sensor Tower'ın tahminine göre dijital ön siparişler 7,7 milyonu geçti. Bu, yaklaşık 751 milyon dolar demek.",
           "say": "Sensör Tavır'ın tahminine göre dijital ön siparişler yedi virgül yedi milyonu geçti. Bu, yaklaşık yedi yüz elli bir milyon dolar demek."
         },
@@ -196,13 +207,71 @@
         },
         {
           "heading": "Fiyatı ne?",
-          "stat": { "value": "$79,99", "label": "standart sürüm" },
+          "stat": {
+            "value": "$79,99",
+            "label": "standart sürüm"
+          },
           "text": "Standart sürüm 79,99 dolar, Ultimate sürüm 99,99 dolar.",
           "say": "Standart sürüm yetmiş dokuz doksan dokuz dolar, Altimeyt sürüm doksan dokuz doksan dokuz dolar."
         },
         {
           "heading": "Senin kararın?",
           "text": "Sen ön sipariş verdin mi? Yorumlara yaz."
+        }
+      ]
+    },
+    {
+      "slug": "tim-cook-istanbul",
+      "category": "YAŞAM",
+      "title": "Tim Cook İstanbul'da: Kapalıçarşı'dan Anıtkabir'e",
+      "yt_title": "Tim Cook Türkiye'de: Kapalıçarşı'dan Anıtkabir'e neler yaptı? #shorts",
+      "description": "Apple'ın eski CEO'su Tim Cook 8 Kasım'da İstanbul'a geldi. Kapalıçarşı'yı gezdi, Les Benjamins ile Apple'ın ortak etkinliğine katıldı ve ertesi gün Anıtkabir'i ziyaret etti.",
+      "tags": [
+        "tim cook",
+        "apple",
+        "kapalıçarşı",
+        "istanbul",
+        "anıtkabir"
+      ],
+      "sources": [
+        "https://www.chip.com.tr/guncel/tim-cook-istanbulda-kapalicarsidan-sonra-rotasi-bagdat-caddesi-oldu_185182.html",
+        "https://www.sozcu.com.tr/apple-in-eski-ceo-su-tim-cook-istanbul-da-p377252"
+      ],
+      "scenes": [
+        {
+          "text": "Apple'ın eski CEO'su Tim Cook Türkiye'ye geldi. Peki İstanbul'da neler yaptı?",
+          "say": "Epıl'ın eski si i o'su Tim Kuk Türkiye'ye geldi. Peki İstanbul'da neler yaptı?"
+        },
+        {
+          "heading": "İlk durak",
+          "stat": {
+            "value": "8 Kasım",
+            "label": "İstanbul'a geldi"
+          },
+          "text": "Cook, 8 Kasım'da İstanbul'a geldi ve gezisine Kapalıçarşı'dan başladı. Çarşıda bir halıcıdan alışveriş yaptığı da basına yansıdı.",
+          "say": "Kuk, sekiz Kasım'da İstanbul'a geldi ve gezisine Kapalıçarşı'dan başladı. Çarşıda bir halıcıdan alışveriş yaptığı da basına yansıdı."
+        },
+        {
+          "heading": "Neden geldi?",
+          "text": "Cook, Türk moda markası Les Benjamins ile Apple'ın ortak etkinliğine katıldı. Bağdat Caddesi'ndeki Apple mağazasına da uğradı.",
+          "say": "Kuk, Türk moda markası Les Bencamins ile Epıl'ın ortak etkinliğine katıldı. Bağdat Caddesi'ndeki Epıl mağazasına da uğradı."
+        },
+        {
+          "heading": "Ankara ziyareti",
+          "stat": {
+            "value": "9 Kasım",
+            "label": "Anıtkabir'i ziyaret etti"
+          },
+          "text": "Ertesi gün Ankara'ya geçti ve Anıtkabir'i ziyaret etti."
+        },
+        {
+          "heading": "Artık CEO değil",
+          "text": "Bu arada Cook artık Apple'ın CEO'su değil. Eylül ayında koltuğu John Ternus'a devretti; şimdi yönetim kurulu başkanı.",
+          "say": "Bu arada Kuk artık Epıl'ın si i o'su değil. Eylül ayında koltuğu Con Ternıs'a devretti; şimdi yönetim kurulu başkanı."
+        },
+        {
+          "heading": "Senin yorumun?",
+          "text": "Sence Apple Türkiye'ye yeni bir yatırım yapar mı? Yorumlara yaz."
         }
       ]
     }

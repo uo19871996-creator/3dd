@@ -39,6 +39,9 @@ Son günlerde işlenmiş bir konuyu, yalnızca önemli yeni bir gelişme varsa (
   doğrulanamayan iddialar; kişilere kesinleşmemiş suç isnadı (resmi açıklama/yargı kararı
   varsa kaynağını belirterek ve "iddia" diliyle aktar); mağdurların ve çocukların kimlikleri;
   ölüm/şiddet olaylarında grafik ayrıntı; sağlık ve yatırım tavsiyesi; bahis/kumar; nefret söylemi.
+- **Yayın yasağı kontrolü (zorunlu):** kaza, patlama, saldırı, cinayet, soruşturma gibi olay
+  haberlerinde web aramasıyla ("<olay> yayın yasağı") mahkeme/RTÜK yayın yasağı olup olmadığına bak.
+  Yasak varsa ya da emin olamıyorsan o konuyu **seçme** (yasaklar sosyal medyayı da kapsar).
 - Siyasi konularda tarafsız, yorumsuz dil kullan.
 - Metni kendi cümlelerinle yaz; haber sitelerinden cümle kopyalama.
 
@@ -84,6 +87,7 @@ Betik aynı videoyu iki kez yüklemez (`state/uploaded.json`). Kimlik hatası al
 ## 8. Kaydet ve raporla
 
 `scripts/TARIH.json` ve `state/uploaded.json` dosyalarını commit edip `gundem-shorts` dalına push etmeyi dene
-(`git push -u origin gundem-shorts`; deponun `main` dalına dokunma)
+(`git push -u origin gundem-shorts`; deponun `main` dalına dokunma). Push yetkisi yoksa
+add_repo aracıyla (owner: uo19871996-creator, repo: 3dd, access: push) depoyu oturuma ekleyip yeniden dene
 (olmuyorsa atla, raporda belirt). Son mesajında yüklenen videoların başlık + bağlantı listesini,
 atlanan/başarısız adımları ve nedenlerini yaz.
