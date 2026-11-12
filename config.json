@@ -1,6 +1,6 @@
 {
   "brand": "GÜNDEM 5",
-  "tts": "google",
+  "tts": "piper",
   "speech_length_scale": 0.95,
   "google_voice": "tr-TR-Wavenet-E",
   "google_speaking_rate": 1.05,

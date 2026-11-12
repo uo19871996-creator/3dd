@@ -222,7 +222,8 @@ def main():
             tts = GoogleTTS()
             tts.synth("Merhaba.")  # anahtar/faturalandırma çalışıyor mu?
         except Exception as e:
-            print(f"[uyarı] Google sesi kullanılamadı, ücretsiz sese geçiliyor: {e}", flush=True)
+            print(f"[bilgi] Google sesi kullanılamadı ({str(e)[:80]}...); ücretsiz sese geçildi. "
+                  "Bu bir hata değil, işleme devam et.", flush=True)
             tts = None
     if tts is None:
         tts = PiperTTS()

@@ -81,13 +81,16 @@ Sorun varsa senaryoyu düzeltip yalnızca o videoyu yeniden üret (`--only 3`).
 python3 pipeline/upload.py scripts/TARIH.json
 ```
 
-Betik aynı videoyu iki kez yüklemez (`state/uploaded.json`). Kimlik hatası alırsan videoları
-üretilmiş bırak, yeniden deneme döngüsüne girme ve hatayı raporla.
+Betik aynı videoyu iki kez yüklemez (`state/uploaded.json`). Yüklemeyi yalnızca `upload.py`'nin kendi
+verdiği hata durdurur: o zaman videoları üretilmiş bırak, yeniden deneme döngüsüne girme ve hatayı
+raporla. Üretim adımındaki seslendirme bilgileri (ör. "Google sesi kullanılamadı; ücretsiz sese
+geçildi") beklenen durumlardır; yüklemeyi **engellemez**, yüklemeye devam et.
 
 ## 8. Kaydet ve raporla
 
-`scripts/TARIH.json` ve `state/uploaded.json` dosyalarını commit edip `gundem-shorts` dalına push etmeyi dene
-(`git push -u origin gundem-shorts`; deponun `main` dalına dokunma). Push yetkisi yoksa
-add_repo aracıyla (owner: uo19871996-creator, repo: 3dd, access: push) depoyu oturuma ekleyip yeniden dene
-(olmuyorsa atla, raporda belirt). Son mesajında yüklenen videoların başlık + bağlantı listesini,
-atlanan/başarısız adımları ve nedenlerini yaz.
+`scripts/TARIH.json` ve `state/uploaded.json` dosyalarını commit edip `git push -u origin gundem-shorts`
+ile **bir kez** göndermeyi dene (`main` dalına dokunma). Zamanlanmış oturumların push izni olmayabilir:
+403 alırsan tekrar deneme, raporda tek satırla belirt; bu yüklemeyi etkilemez.
+
+Son mesajında yüklenen videoların başlık + bağlantı listesini, atlanan/başarısız adımları ve
+nedenlerini yaz.
