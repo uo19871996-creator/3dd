@@ -39,6 +39,52 @@ ACCENTS = {
 }
 
 
+class ChatterboxTTS:
+    """Chatterbox Multilingual (MIT): doğal Türkçe ses, ticari kullanım serbest.
+    Ayrı sanal ortamda (.venv-tts, setup.sh kurar) çalışan bir işçi sürece cümle gönderir."""
+
+    def __init__(self):
+        py = ROOT / ".venv-tts" / "bin" / "python"
+        if not py.exists():
+            raise RuntimeError(".venv-tts yok (setup.sh, tts=chatterbox ile çalıştırılmalı)")
+        env = dict(os.environ, HF_HUB_DISABLE_XET="1")
+        sample = CONFIG.get("voice_sample")
+        if sample:
+            env["CBX_VOICE_SAMPLE"] = str(ROOT / sample)
+        self.proc = subprocess.Popen(
+            [str(py), str(ROOT / "pipeline" / "tts_chatterbox_worker.py")],
+            stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True, env=env)
+        self.tmp = ROOT / "out" / ".tts"
+        self.tmp.mkdir(parents=True, exist_ok=True)
+        self.n = 0
+        while True:  # modelin yüklenmesini bekle; işçinin diğer çıktısını atla
+            line = self.proc.stdout.readline()
+            if not line:
+                raise RuntimeError("Chatterbox işçisi başlamadı")
+            if line.startswith("{"):
+                msg = json.loads(line)
+                if msg.get("ready"):
+                    self.sr = int(msg["sr"])
+                    break
+
+    def synth(self, text):
+        self.n += 1
+        out = self.tmp / f"{self.n}.wav"
+        self.proc.stdin.write(json.dumps({"text": text, "out": str(out)}, ensure_ascii=False) + "\n")
+        self.proc.stdin.flush()
+        while True:
+            line = self.proc.stdout.readline()
+            if not line:
+                raise RuntimeError("Chatterbox işçisi kapandı")
+            if line.startswith("{"):
+                msg = json.loads(line)
+                break
+        if not msg.get("ok"):
+            raise RuntimeError(f"Chatterbox: {msg.get('error')}")
+        with wave.open(str(out)) as w:
+            return np.frombuffer(w.readframes(w.getnframes()), dtype=np.int16)
+
+
 class PiperTTS:
     def __init__(self):
         from piper import PiperVoice, SynthesisConfig
@@ -217,6 +263,13 @@ def main():
     out_dir.mkdir(parents=True, exist_ok=True)
     engine = os.environ.get("GUNDEM_TTS") or CONFIG.get("tts", "google")  # GUNDEM_TTS=piper ile test
     tts = None
+    if engine == "chatterbox":
+        try:
+            tts = ChatterboxTTS()
+        except Exception as e:
+            print(f"[bilgi] Chatterbox sesi kullanılamadı ({str(e)[:120]}); ücretsiz Piper sesine geçildi. "
+                  "Bu bir hata değil, işleme devam et.", flush=True)
+            tts = None
     if engine == "google":
         try:
             tts = GoogleTTS()
