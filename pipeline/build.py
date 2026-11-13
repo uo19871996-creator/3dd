@@ -53,6 +53,7 @@ class ChatterboxTTS:
         if not py.exists():
             raise RuntimeError(".venv-tts yok (setup.sh, tts=chatterbox ile çalıştırılmalı)")
         env = dict(os.environ, HF_HUB_DISABLE_XET="1")
+        self.label = "Chatterbox, modelin varsayılan sesi"
         # Model önceden indirildiyse (setup.sh) hub'a sorgu atma: açılış dakikalardan saniyelere iner
         hub = Path(os.environ.get("HF_HOME", Path.home() / ".cache" / "huggingface")) / "hub"
         if glob.glob(str(hub / "models--ResembleAI--chatterbox" / "snapshots" / "*" / "t3_mtl*.safetensors")):
@@ -62,6 +63,7 @@ class ChatterboxTTS:
             sample = decrypt_to(ROOT / "out" / ".tts" / "ses-ornegi.wav")
             if sample:
                 env["CBX_VOICE_SAMPLE"] = str(sample)
+                self.label = "Chatterbox, kanal sahibinin sesi"
                 print("[bilgi] Ses: kanal sahibinin ses örneği", flush=True)
         except Exception as e:
             print(f"[bilgi] Ses örneği kullanılamadı ({e}); modelin varsayılan sesi kullanılıyor. "
@@ -106,6 +108,7 @@ class PiperTTS:
         self.voice = PiperVoice.load(str(VOICE))
         self.cfg = SynthesisConfig(length_scale=CONFIG.get("speech_length_scale", 0.95))
         self.sr = self.voice.config.sample_rate
+        self.label = "Piper (ücretsiz yedek ses)"
 
     def synth(self, text):
         audio = [c.audio_int16_array for c in self.voice.synthesize(text, syn_config=self.cfg)]
@@ -303,7 +306,9 @@ def build_video(tts, day, n, total, v, out_dir):
         cred_file.write_text(json.dumps(credits, ensure_ascii=False, indent=2), encoding="utf-8")
     elif cred_file.exists():
         cred_file.unlink()
-    print(f"[ok] {out.relative_to(ROOT)}  {duration:.1f} sn", flush=True)
+    voice_label = getattr(tts, "label", type(tts).__name__)
+    print(f"[ok] {out.relative_to(ROOT)}  {duration:.1f} sn · ses: {voice_label} · "
+          f"fotoğraf: {len(credits)}", flush=True)
     if duration > 175:
         print(f"[uyarı] {slug}: {duration:.0f} sn — Shorts sınırı 180 sn", flush=True)
     return out
