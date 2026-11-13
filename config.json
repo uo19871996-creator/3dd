@@ -1,6 +1,6 @@
 {
   "brand": "GÜNDEM 5",
-  "tts": "piper",
+  "tts": "chatterbox",
   "speech_length_scale": 0.95,
   "google_voice": "tr-TR-Wavenet-E",
   "google_speaking_rate": 1.05,
@@ -14,5 +14,7 @@
     "türkiye gündemi",
     "shorts"
   ],
-  "description_footer": "#shorts #gündem #haber\n\nBu video, haber kaynaklarından derlenen bilgilerle otomatik olarak hazırlanmıştır."
+  "description_footer": "#shorts #gündem #haber\n\nBu video, haber kaynaklarından derlenen bilgilerle otomatik olarak hazırlanmıştır.",
+  "template": "v2",
+  "music": true
 }
