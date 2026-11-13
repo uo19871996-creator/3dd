@@ -17,6 +17,7 @@ import "@fontsource/montserrat/700.css";
 import "@fontsource/montserrat/800.css";
 import "@fontsource/montserrat/900.css";
 import { Icon } from "./Icon";
+import { Logo } from "./Logo";
 import { MapCard } from "./MapCard";
 import { FONT, FPS, INK, MUTED, type ChartSpec, type Chunk, type Photo, type SceneV2, type ShortV2Props } from "./types";
 
@@ -128,6 +129,7 @@ const TopBar: React.FC<{ p: ShortV2Props; sceneIdx: number; sec: number }> = ({ 
       </div>
       <div style={{ marginTop: 30, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
+          <Logo size={62} style={{ borderRadius: 14, boxShadow: "0 6px 18px rgba(0,0,0,0.45)" }} />
           <div
             style={{
               background: p.accent,
@@ -187,6 +189,8 @@ const TitleBlock: React.FC<{ p: ShortV2Props }> = ({ p }) => {
   const frame = useCurrentFrame();
   const firstEnd = Math.round((p.scenes[0]?.end ?? 3) * FPS);
   const shrink = spring({ frame: frame - firstEnd + 6, fps: FPS, config: { damping: 200 } });
+  const sub = p.scenes.find((s) => s.subscribe);
+  const hideForOutro = sub ? interpolate(frame, [sub.start * FPS, sub.start * FPS + 10], [1, 0], clamp) : 1;
   const big = p.title.length > 60 ? 68 : p.title.length > 42 ? 78 : 96;
   const size = interpolate(shrink, [0, 1], [big, 42]);
   const top = interpolate(shrink, [0, 1], [740, 236]);
@@ -208,7 +212,7 @@ const TitleBlock: React.FC<{ p: ShortV2Props }> = ({ p }) => {
       >
         <IconBadge name={hookIcon} accent={p.accent} size={300} local={frame - 2} />
       </div>
-      <div style={{ position: "absolute", top, left: 60, right: 60, fontFamily: FONT }}>
+      <div style={{ position: "absolute", top, left: 60, right: 60, fontFamily: FONT, opacity: hideForOutro }}>
         <div
           style={{
             display: "inline-flex",
@@ -558,48 +562,139 @@ const ListVisual: React.FC<{ points: string[]; accent: string; local: number; du
   </div>
 );
 
-const OutroVisual: React.FC<{ accent: string; local: number }> = ({ accent, local }) => {
-  const items: [string, string][] = [
-    ["message-circle", "Yorum yap"],
-    ["thumbs-up", "Beğen"],
-    ["bell-ring", "Takip et"],
-  ];
-  return (
-    <div style={{ display: "flex", justifyContent: "space-between", gap: 26, fontFamily: FONT }}>
-      {items.map(([icon, label], i) => {
-        const s = spring({ frame: local - 6 - i * 6, fps: FPS, config: { damping: 11, mass: 0.6 } });
-        const pulse = 1 + 0.06 * Math.max(0, Math.sin((local - i * 10) / 6));
-        return (
-          <div
-            key={icon}
-            style={{
-              flex: 1,
-              padding: "44px 10px 36px",
-              borderRadius: 34,
-              background: i === 2 ? accent : "rgba(255,255,255,0.08)",
-              border: `2px solid ${i === 2 ? accent : "rgba(255,255,255,0.14)"}`,
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              gap: 22,
-              opacity: s,
-              transform: `translateY(${(1 - s) * 60}px) scale(${s * pulse})`,
-            }}
-          >
-            <Icon name={icon} size={110} color={i === 2 ? "#04121a" : INK} strokeWidth={1.8} />
-            <div style={{ color: i === 2 ? "#04121a" : INK, fontWeight: 900, fontSize: 36 }}>{label}</div>
-          </div>
-        );
-      })}
-    </div>
-  );
-};
-
 const IconVisual: React.FC<{ name: string; accent: string; local: number }> = ({ name, accent, local }) => (
   <div style={{ display: "flex", justifyContent: "center", paddingTop: 40 }}>
     <IconBadge name={name} accent={accent} size={460} local={local} />
   </div>
 );
+
+const QuestionVisual: React.FC<{ accent: string; local: number }> = ({ accent, local }) => {
+  const s = spring({ frame: local - 14, fps: FPS, config: { damping: 14 } });
+  return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 46, paddingTop: 30 }}>
+      <IconBadge name="message-circle" accent={accent} size={400} local={local} />
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 18,
+          padding: "22px 40px",
+          borderRadius: 100,
+          background: "rgba(255,255,255,0.08)",
+          border: `3px solid ${accent}`,
+          fontFamily: FONT,
+          fontWeight: 900,
+          fontSize: 44,
+          color: INK,
+          opacity: s,
+          transform: `translateY(${(1 - s) * 30}px)`,
+        }}
+      >
+        <Icon name="message-square-text" size={50} color={accent} strokeWidth={2.2} />
+        Yorumunu bekliyorum
+      </div>
+    </div>
+  );
+};
+
+const SubscribeVisual: React.FC<{ p: ShortV2Props; local: number }> = ({ p, local }) => {
+  const CLICK = 42; // imlecin düğmeye tıkladığı kare
+  const logo = spring({ frame: local, fps: FPS, config: { damping: 10, mass: 0.7 } });
+  const name = spring({ frame: local - 8, fps: FPS, config: { damping: 14 } });
+  const btn = spring({ frame: local - 14, fps: FPS, config: { damping: 12 } });
+  const clicked = local >= CLICK;
+  const press = clicked ? 1 - 0.08 * Math.max(0, 1 - (local - CLICK) / 6) : 1;
+  const cur = interpolate(local, [16, CLICK - 2], [0, 1], { ...clamp, easing: Easing.inOut(Easing.cubic) });
+  const curX = interpolate(cur, [0, 1], [800, 545]);
+  const curY = interpolate(cur, [0, 1], [930, 530]);
+  const curOpacity = interpolate(local, [14, 20, CLICK + 18, CLICK + 28], [0, 1, 1, 0], clamp);
+  const ripple = clicked ? Math.min(1, (local - CLICK) / 14) : 0;
+  const bellRot = clicked ? Math.sin((local - CLICK) / 2.2) * 22 * Math.max(0, 1 - (local - CLICK) / 40) : 0;
+  return (
+    <div style={{ position: "relative", height: 820, fontFamily: FONT }}>
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+        <div
+          style={{
+            transform: `scale(${0.4 + 0.6 * logo}) rotate(${(1 - logo) * -12}deg)`,
+            opacity: Math.min(1, logo * 1.5),
+            filter: `drop-shadow(0 0 60px ${p.accent}66)`,
+          }}
+        >
+          <Logo size={300} style={{ borderRadius: 64, boxShadow: "0 30px 80px rgba(0,0,0,0.55)" }} />
+        </div>
+        <div
+          style={{
+            marginTop: 40,
+            color: INK,
+            fontWeight: 900,
+            fontSize: 70,
+            letterSpacing: -1,
+            opacity: name,
+            transform: `translateY(${(1 - name) * 30}px)`,
+          }}
+        >
+          {p.channelName ?? p.brand}
+        </div>
+        <div style={{ marginTop: 10, color: MUTED, fontWeight: 700, fontSize: 36, opacity: name, textAlign: "center" }}>
+          {p.channelTagline ?? "Her gün gündemin en önemli 5 haberi"}
+        </div>
+        <div
+          style={{
+            marginTop: 54,
+            position: "relative",
+            display: "flex",
+            alignItems: "center",
+            gap: 20,
+            padding: "28px 56px",
+            borderRadius: 100,
+            background: clicked ? "#2b303c" : "#ff1f3d",
+            boxShadow: clicked ? "none" : "0 16px 50px rgba(255,31,61,0.45)",
+            color: "#fff",
+            fontWeight: 900,
+            fontSize: 50,
+            letterSpacing: 1,
+            opacity: btn,
+            transform: `scale(${(0.7 + 0.3 * btn) * press})`,
+          }}
+        >
+          <div style={{ transform: `rotate(${bellRot}deg)`, display: "flex" }}>
+            <Icon name={clicked ? "bell-ring" : "bell"} size={58} color="#fff" strokeWidth={2.4} />
+          </div>
+          {clicked ? "ABONE OLUNDU" : "ABONE OL"}
+          {clicked ? <Icon name="check" size={52} color="#fff" strokeWidth={3} /> : null}
+          {ripple > 0 && ripple < 1 ? (
+            <div
+              style={{
+                position: "absolute",
+                left: "50%",
+                top: "50%",
+                width: 40 + ripple * 520,
+                height: 40 + ripple * 520,
+                marginLeft: -(20 + ripple * 260),
+                marginTop: -(20 + ripple * 260),
+                borderRadius: "50%",
+                border: "4px solid rgba(255,255,255,0.7)",
+                opacity: 1 - ripple,
+              }}
+            />
+          ) : null}
+        </div>
+      </div>
+      <div
+        style={{
+          position: "absolute",
+          left: curX,
+          top: curY,
+          opacity: curOpacity,
+          transform: `scale(${clicked && local < CLICK + 6 ? 0.85 : 1})`,
+          filter: "drop-shadow(0 6px 14px rgba(0,0,0,0.6))",
+        }}
+      >
+        <Icon name="mouse-pointer-2" size={96} color="#ffffff" strokeWidth={1.6} />
+      </div>
+    </div>
+  );
+};
 
 /* ---------- Sahne katmanı (giriş/çıkış geçişi) ---------- */
 
@@ -611,9 +706,11 @@ const SceneLayer: React.FC<{ s: SceneV2; n: number; last: boolean; p: ShortV2Pro
   const dur = endF - startF;
   const enter = spring({ frame: local, fps: FPS, config: { damping: 16, mass: 0.7 } });
   const exit = interpolate(frame, [endF, endF + TAIL], [0, 1], clamp);
-  const kind = last
-    ? "outro"
-    : s.photo
+  const kind = s.subscribe
+    ? "subscribe"
+    : last
+      ? "question"
+      : s.photo
       ? "photo"
       : s.map
         ? "map"
@@ -640,8 +737,10 @@ const SceneLayer: React.FC<{ s: SceneV2; n: number; last: boolean; p: ShortV2Pro
           <IconBadge name={s.icon ?? p.categoryIcon} accent={p.accent} size={240} local={local - 4} />
         </div>
       </>
-    ) : kind === "outro" ? (
-      <OutroVisual accent={p.accent} local={local} />
+    ) : kind === "subscribe" ? (
+      <SubscribeVisual p={p} local={local} />
+    ) : kind === "question" ? (
+      <QuestionVisual accent={p.accent} local={local} />
     ) : (
       <IconVisual name={s.icon ?? p.categoryIcon} accent={p.accent} local={local} />
     );
@@ -656,8 +755,10 @@ const SceneLayer: React.FC<{ s: SceneV2; n: number; last: boolean; p: ShortV2Pro
         transform: `translateX(${(1 - enter) * 120 - exit * 120}px) scale(${0.97 + 0.03 * enter})`,
       }}
     >
-      <Heading n={n} text={s.heading} accent={p.accent} icon={kind === "icon" ? undefined : s.icon} />
-      <div style={{ marginTop: 40 }}>{visual}</div>
+      {kind === "subscribe" ? null : (
+        <Heading n={n} text={s.heading} accent={p.accent} icon={kind === "icon" ? undefined : s.icon} />
+      )}
+      <div style={{ marginTop: kind === "subscribe" ? 0 : 40 }}>{visual}</div>
     </div>
   );
 };
@@ -732,10 +833,11 @@ export const ShortV2: React.FC<ShortV2Props> = (p) => {
       <TitleBlock p={p} />
       {p.scenes.map((s, i) => {
         if (i === 0) return null;
+        const lastIdx = p.scenes.length - 1 - (p.scenes[p.scenes.length - 1]?.subscribe ? 1 : 0);
         const a = Math.round(s.start * FPS);
         const b = Math.round(s.end * FPS) + TAIL;
         return frame >= a && frame <= b ? (
-          <SceneLayer key={i} s={s} n={i} last={i === p.scenes.length - 1} p={p} />
+          <SceneLayer key={i} s={s} n={i} last={i === lastIdx} p={p} />
         ) : null;
       })}
       <Caption chunk={chunk} accent={p.accent} top={sceneIdx === 0 ? 1290 : 1225} />

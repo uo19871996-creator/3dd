@@ -188,7 +188,12 @@ def build_video(tts, day, n, total, v, out_dir):
     track = [np.zeros(int(0.25 * sr), dtype=np.int16)]
     pos = track[0].size
     scenes = []
-    for sc in v["scenes"]:
+    template = os.environ.get("GUNDEM_TEMPLATE") or CONFIG.get("template", "v1")
+    script_scenes = list(v["scenes"])
+    if template == "v2" and CONFIG.get("outro_text"):  # her videonun sonunda "abone ol" kapanışı
+        script_scenes.append({"heading": "", "text": CONFIG["outro_text"],
+                              "say": CONFIG.get("outro_say") or CONFIG["outro_text"], "subscribe": True})
+    for sc in script_scenes:
         shown = sentences(sc["text"])
         spoken = sentences(sc.get("say") or sc["text"])
         if len(spoken) != len(shown):  # hizalanamıyorsa tek blok olarak ele al
@@ -216,7 +221,7 @@ def build_video(tts, day, n, total, v, out_dir):
         chunks[-1]["until"] = round(pos / sr, 3)
         scene = {"heading": sc.get("heading", ""), "start": round(start, 3),
                  "end": round(pos / sr, 3), "chunks": chunks}
-        for key in ("stat", "icon", "map", "chart", "points"):  # v2 görsel alanları
+        for key in ("stat", "icon", "map", "chart", "points", "subscribe"):  # v2 görsel alanları
             if sc.get(key):
                 scene[key] = sc[key]
         scenes.append(scene)
@@ -227,7 +232,6 @@ def build_video(tts, day, n, total, v, out_dir):
     slug = v["slug"]
     pub = VIDEO / "public" / day
     pub.mkdir(parents=True, exist_ok=True)
-    template = os.environ.get("GUNDEM_TEMPLATE") or CONFIG.get("template", "v1")
     credits = []
     if template == "v2":  # Wikimedia Commons fotoğrafları (lisanslı, atıflı)
         for i, (sc, scene) in enumerate(zip(v["scenes"], scenes)):
@@ -251,6 +255,7 @@ def build_video(tts, day, n, total, v, out_dir):
         last = len(scenes) - 1
         stat_times = [s["start"] + 0.25 for i, s in enumerate(scenes)
                       if 0 < i < last and s.get("stat") and not s.get("map") and not s.get("chart")]
+        stat_times += [s["start"] + 42 / FPS for s in scenes if s.get("subscribe")]  # abone ol tıklaması
         final = mix(audio, sr, [s["start"] for s in scenes], stat_times, seed=slug)
     with wave.open(str(pub / f"{slug}.wav"), "wb") as w:
         w.setnchannels(1)
@@ -278,6 +283,8 @@ def build_video(tts, day, n, total, v, out_dir):
     }
     if template == "v2":
         props["categoryIcon"] = v.get("category_icon") or CATEGORY_ICONS.get(cat, "newspaper")
+        props["channelName"] = CONFIG.get("channel_name", "")
+        props["channelTagline"] = CONFIG.get("channel_tagline", "")
         props.pop("levels")
     props_file = pub / f"{slug}.json"
     props_file.write_text(json.dumps(props, ensure_ascii=False), encoding="utf-8")

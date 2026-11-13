@@ -28,6 +28,7 @@ export type SceneV2 = {
   map?: MapSpec;
   chart?: ChartSpec;
   points?: string[];
+  subscribe?: boolean; // videonun sonundaki "abone ol" kapanış ekranı
 };
 
 export type ShortV2Props = {
@@ -42,6 +43,8 @@ export type ShortV2Props = {
   audio: string;
   duration: number;
   scenes: SceneV2[];
+  channelName?: string;
+  channelTagline?: string;
 };
 
 export const INK = "#f8fafc";

@@ -56,7 +56,9 @@ Son günlerde işlenmiş bir konuyu, yalnızca önemli yeni bir gelişme varsa (
   - Diğer sahnelerde `heading` (en fazla 20 karakter) ve 1-2 kısa cümlelik `text`.
   - `stat` isteğe bağlı büyük rakam kartı: `value` en fazla 10 karakter, `label` kısa.
     Sayıyla başlayan değerler (`17+`, `%42`, `7,7 milyon`, `$79,99`) ekranda sayarak açılır.
-  - Son sahne kapanış: izleyiciye soru ya da "takipte kal" (ekranda yorum/beğen/takip kartı çıkar).
+  - Son sahne: izleyiciye konuyla ilgili bir soru (ekranda "Yorumunu bekliyorum" kartı çıkar).
+    Kanal logolu "abone ol" kapanışı ve seslendirmesi her videonun sonuna OTOMATİK eklenir
+    (`config.json` > `outro_text`); senaryoya ayrıca "abone ol / takipte kal" cümlesi yazma.
 - **Görseller (v2 şablonu)** — her sahneye konuya uygun EN AZ BİR görsel alanı ekle, sahneler
   arasında çeşitlilik olsun (her videoda en az bir `map` ya da `chart` ya da `points`):
   - `icon`: her sahnede (giriş dahil) konuya uygun bir Lucide ikon adı, ör. `landmark` (kurum/banka),

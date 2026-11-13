@@ -27,7 +27,8 @@ if [ "$TTS" = "chatterbox" ]; then
     .venv-tts/bin/pip install -q chatterbox-tts
   fi
   # Modeli önceden indir (büyük dosyalar izinli HTTP CDN üzerinden)
-  HF_HUB_DISABLE_XET=1 .venv-tts/bin/python -c "from huggingface_hub import snapshot_download; snapshot_download('ResembleAI/chatterbox')" >/dev/null
+  # yalnızca çok dilli modelin kullandığı dosyalar (~3,5 GB; deponun tamamı ~13 GB)
+  HF_HUB_DISABLE_XET=1 .venv-tts/bin/python -c "from huggingface_hub import snapshot_download; snapshot_download('ResembleAI/chatterbox', allow_patterns=['ve.pt', 't3_mtl23ls_v2.safetensors', 's3gen.pt', 'grapheme_mtl_merged_expanded_v1.json', 'conds.pt', 'Cangjie5_TC.json'])" >/dev/null
 fi
 
 # Remotion ve yazı tipleri (zaten kuruluysa atla)
