@@ -24,7 +24,6 @@ aramasıyla listeyi genişlet.
 
 ```bash
 python3 pipeline/upload.py --recent
-ls scripts/ | tail -5
 ```
 
 Son günlerde işlenmiş bir konuyu, yalnızca önemli yeni bir gelişme varsa (ve yeni gelişmeyi anlatarak) tekrar seç.
@@ -114,11 +113,11 @@ verdiği hata durdurur: o zaman videoları üretilmiş bırak, yeniden deneme d�
 raporla. Üretim adımındaki seslendirme bilgileri (ör. "Google sesi kullanılamadı; ücretsiz sese
 geçildi") beklenen durumlardır; yüklemeyi **engellemez**, yüklemeye devam et.
 
-## 8. Kaydet ve raporla
+## 8. Raporla
 
-`scripts/TARIH.json` ve `state/uploaded.json` dosyalarını commit edip `git push -u origin gundem-shorts`
-ile **bir kez** göndermeyi dene (`main` dalına dokunma). Zamanlanmış oturumların push izni olmayabilir:
-403 alırsan tekrar deneme, raporda tek satırla belirt; bu yüklemeyi etkilemez.
+Commit ve push YAPMA: zamanlanmış oturumların bu depoya yazma izni yok, kayıt da gerekmiyor (aynı
+konuyu tekrarlamamak için 3. adımda kanalın son videolarına bakılıyor). Bir "push edilmemiş commit"
+uyarısı görürsen yok say.
 
 Son mesajında yüklenen videoların başlık + bağlantı listesini, atlanan/başarısız adımları ve
 nedenlerini yaz.
