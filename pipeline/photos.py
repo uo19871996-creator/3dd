@@ -12,7 +12,6 @@ Wikimedia kuralları: kendini tanıtan User-Agent, düşük istek hızı, 429'da
 orijinal dosya yerine standart boyutlu küçük görsel (thumb.wikimedia.org).
 """
 import html
-import io
 import re
 import sys
 import time
@@ -89,8 +88,11 @@ def search(query, limit=8, file=None):
 
 
 def fetch(spec, dest):
-    """spec: {"q": "arama"} ya da {"file": "File:..."} -> indirip dest'e JPEG yazar, atıf bilgisini döner."""
-    from PIL import Image
+    """spec: {"q": "arama"} ya da {"file": "File:..."} -> indirip dest'e JPEG yazar, atıf bilgisini döner.
+
+    Görsel işleme ffmpeg ile yapılır: bazı makinelerde sistemdeki Pillow bozuk geliyor."""
+    import subprocess
+    import tempfile
 
     cands = search(spec.get("q", ""), file=spec.get("file"))
     for c in cands[:3]:  # açık dosya adı verildiyse tek aday vardır
@@ -101,12 +103,19 @@ def fetch(spec, dest):
         if not cands:
             return None
         raise RuntimeError(f"görsel indirilemedi ({r.status_code})")
-    im = Image.open(io.BytesIO(r.content)).convert("RGB")
-    im.thumbnail((1920, 1920))
     Path(dest).parent.mkdir(parents=True, exist_ok=True)
-    im.save(dest, "JPEG", quality=88)
+    with tempfile.NamedTemporaryFile(suffix=".img") as tmp:
+        tmp.write(r.content)
+        tmp.flush()
+        # en uzun kenar en fazla 1920 px, JPEG
+        vf = "scale='if(gt(iw,ih),min(1920,iw),-2)':'if(gt(iw,ih),-2,min(1920,ih))'"
+        subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", tmp.name, "-frames:v", "1", "-vf", vf,
+                        "-q:v", "3", str(dest)], check=True)
+    wh = subprocess.run(["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries",
+                         "stream=width,height", "-of", "csv=p=0", str(dest)],
+                        capture_output=True, text=True).stdout.strip()
     c["credit"] = f"Foto: {c['artist']} · {c['license']} · Wikimedia Commons"
-    c["size"] = im.size
+    c["size"] = tuple(int(x) for x in wh.split(",")) if "," in wh else None
     return c
 
 

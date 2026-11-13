@@ -4,8 +4,7 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 
-# pillow: bazı makinelerde sistemdeki PIL bozuk geliyor (fotoğraflar için gerekli)
-python3 -m pip install -q --root-user-action=ignore numpy requests pillow
+python3 -m pip install -q --root-user-action=ignore numpy requests
 
 # Çevrimdışı Piper sesi: "tts": "piper" ise ana ses, "google" ise anahtar yokken yedek ses.
 python3 -m pip install -q --root-user-action=ignore piper-tts
