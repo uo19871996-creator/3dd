@@ -48,17 +48,32 @@ Son günlerde işlenmiş bir konuyu, yalnızca önemli yeni bir gelişme varsa (
 
 Örnek için `scripts/` klasöründeki önceki dosyalara bak. Kurallar:
 
+Oturumda `social-media-skills:hook-writer` ve `social-media-skills:youtube-shorts` skill'leri
+varsa açılış ve başlık için onlardan da yararlan; yoksa aşağıdaki kurallar yeterli.
+
 - `slug`: küçük harf, ASCII, tireli. `category`: yukarıdaki listeden.
-- `title` (ekrandaki başlık): en fazla 55 karakter. `yt_title`: en fazla 90 karakter, sonu `#shorts`.
-- `description`: 1-2 cümle. `sources`: 2 kaynak URL'si. `tags`: 4-6 etiket.
-- `scenes`: 5-6 sahne, toplam 90-130 kelime (35-55 saniye).
-  - İlk sahne giriş cümlesidir (`heading` yok), merak uyandırmalı ve konuyu söylemeli.
+- Shorts kuralı: izleyici ilk 1-3 saniyede kaydırıp geçerse video yayılmaz. Her şey bunun için:
+  - `title` (ilk karede ekranda duran yazı, ses kapalı da okunur): en fazla 50 karakter, açılışla
+    AYNI vaadi taşısın. Kalıplar: soru/açık döngü ("BDDK Başkanı neden istifa etti?"), rakam
+    ("17 can kaybı: 3 soruda Aliağa"), doğrudan uyarı ("Yarın vapura binecekseniz dikkat").
+  - İlk sahne (`heading` yok): TEK cümle, en fazla 12 kelime; `title` ile aynı merakı açar.
+    Selamlama yok ("Merhaba", "Bugün sizlere..."), kanal adı yok, boş giriş yok.
+  - Vaat edilen bilgi videoda mutlaka verilir (tık tuzağı yok; yanıltıcı açılış izlenmeyi düşürür).
+- `scenes`: 4-5 sahne, toplam 70-100 kelime (25-35 saniye; kapanış otomatik eklenir).
   - Diğer sahnelerde `heading` (en fazla 20 karakter) ve 1-2 kısa cümlelik `text`.
+  - Her sahne YENİ bir bilgi verir; dolgu ve tekrar cümlesi yok. Videolar arasında aynı kalıp
+    cümleleri tekrarlama ("Peki ne oldu?", "Detaylar şöyle" gibi her videoda aynı açılış/geçiş):
+    YouTube birbirinin aynısı şablon içeriği bastırıyor.
   - `stat` isteğe bağlı büyük rakam kartı: `value` en fazla 10 karakter, `label` kısa.
     Sayıyla başlayan değerler (`17+`, `%42`, `7,7 milyon`, `$79,99`) ekranda sayarak açılır.
-  - Son sahne: izleyiciye konuyla ilgili bir soru (ekranda "Yorumunu bekliyorum" kartı çıkar).
-    Kanal logolu "abone ol" kapanışı ve seslendirmesi her videonun sonuna OTOMATİK eklenir
+  - Son sahne: konuyla ilgili TEK kısa soru, en fazla 8 kelime (ekranda "Yorumunu bekliyorum"
+    kartı çıkar). Kanal logolu "abone ol" kapanışı (2-3 sn) her videonun sonuna OTOMATİK eklenir
     (`config.json` > `outro_text`); senaryoya ayrıca "abone ol / takipte kal" cümlesi yazma.
+- `yt_title`: ana anahtar kelime (kişi/kurum/olay adı) EN BAŞTA, en fazla 70 karakter, sonu
+  `#shorts`. Shorts aramasında bulunmak için anahtar kelimeler açık yazılsın.
+- `description`: 1-2 cümle; ilk cümle konunun anahtar kelimelerini içersin. `sources`: 2 kaynak URL'si.
+- `tags`: 4-6 etiket. `hashtags`: konuya özel 2-3 hashtag (ör. `["#BDDK", "#ekonomi"]`);
+  açıklamada en üstte görünür. Genel `#shorts #gündem #haber` otomatik eklenir.
 - **Görseller (v2 şablonu)** — her sahneye konuya uygun EN AZ BİR görsel alanı ekle, sahneler
   arasında çeşitlilik olsun (her videoda en az bir `map` ya da `chart` ya da `points`):
   - `icon`: her sahnede (giriş dahil) konuya uygun bir Lucide ikon adı, ör. `landmark` (kurum/banka),

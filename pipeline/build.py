@@ -185,7 +185,7 @@ def build_video(tts, day, n, total, v, out_dir):
     sr = tts.sr
     gap_sentence = np.zeros(int(0.16 * sr), dtype=np.int16)
     gap_scene = np.zeros(int(0.42 * sr), dtype=np.int16)
-    track = [np.zeros(int(0.25 * sr), dtype=np.int16)]
+    track = [np.zeros(int(0.08 * sr), dtype=np.int16)]  # ilk karede söz başlasın (kaydırılmayı önler)
     pos = track[0].size
     scenes = []
     template = os.environ.get("GUNDEM_TEMPLATE") or CONFIG.get("template", "v1")
@@ -255,7 +255,7 @@ def build_video(tts, day, n, total, v, out_dir):
         last = len(scenes) - 1
         stat_times = [s["start"] + 0.25 for i, s in enumerate(scenes)
                       if 0 < i < last and s.get("stat") and not s.get("map") and not s.get("chart")]
-        stat_times += [s["start"] + 42 / FPS for s in scenes if s.get("subscribe")]  # abone ol tıklaması
+        stat_times += [s["start"] + 30 / FPS for s in scenes if s.get("subscribe")]  # abone ol tıklaması
         final = mix(audio, sr, [s["start"] for s in scenes], stat_times, seed=slug)
     with wave.open(str(pub / f"{slug}.wav"), "wb") as w:
         w.setnchannels(1)

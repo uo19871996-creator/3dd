@@ -64,6 +64,9 @@ def upload(token, path, v, privacy):
     desc = v["description"].strip()
     if v.get("sources"):
         desc += "\n\nKaynaklar:\n" + "\n".join(v["sources"])
+    tags_line = " ".join(h if h.startswith("#") else f"#{h}" for h in v.get("hashtags", [])[:3])
+    if tags_line:  # açıklamadaki ilk hashtag'ler başlığın üstünde görünür
+        desc += "\n\n" + tags_line
     cred = path.with_suffix(".credits.json")
     if cred.exists():  # Wikimedia Commons lisanslarının istediği atıf
         lines = [f"- {c['title'].removeprefix('File:')} — {c['artist']}, {c['license']} ({c['page']})"

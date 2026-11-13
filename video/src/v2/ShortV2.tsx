@@ -228,7 +228,7 @@ const TitleBlock: React.FC<{ p: ShortV2Props }> = ({ p }) => {
             marginBottom: interpolate(shrink, [0, 1], [30, 0]),
             maxHeight: interpolate(shrink, [0, 1], [80, 0]),
             overflow: "hidden",
-            opacity: spring({ frame: frame - 4, fps: FPS, config: { damping: 200 } }) * (1 - shrink),
+            opacity: spring({ frame: frame + 8, fps: FPS, config: { damping: 200 } }) * (1 - shrink),
           }}
         >
           <Icon name={p.categoryIcon} size={28} color={p.accent} strokeWidth={2.4} />
@@ -247,7 +247,7 @@ const TitleBlock: React.FC<{ p: ShortV2Props }> = ({ p }) => {
           }}
         >
           {words.map((w, i) => {
-            const s = spring({ frame: frame - 6 - i * 3, fps: FPS, config: { damping: 15, mass: 0.6 } });
+            const s = spring({ frame: frame + 8 - i * 1.5, fps: FPS, config: { damping: 15, mass: 0.6 } });
             return (
               <span
                 key={i}
@@ -598,16 +598,16 @@ const QuestionVisual: React.FC<{ accent: string; local: number }> = ({ accent, l
 };
 
 const SubscribeVisual: React.FC<{ p: ShortV2Props; local: number }> = ({ p, local }) => {
-  const CLICK = 42; // imlecin düğmeye tıkladığı kare
+  const CLICK = 30; // imlecin düğmeye tıkladığı kare
   const logo = spring({ frame: local, fps: FPS, config: { damping: 10, mass: 0.7 } });
-  const name = spring({ frame: local - 8, fps: FPS, config: { damping: 14 } });
-  const btn = spring({ frame: local - 14, fps: FPS, config: { damping: 12 } });
+  const name = spring({ frame: local - 4, fps: FPS, config: { damping: 14 } });
+  const btn = spring({ frame: local - 6, fps: FPS, config: { damping: 12 } });
   const clicked = local >= CLICK;
   const press = clicked ? 1 - 0.08 * Math.max(0, 1 - (local - CLICK) / 6) : 1;
-  const cur = interpolate(local, [16, CLICK - 2], [0, 1], { ...clamp, easing: Easing.inOut(Easing.cubic) });
+  const cur = interpolate(local, [8, CLICK - 2], [0, 1], { ...clamp, easing: Easing.inOut(Easing.cubic) });
   const curX = interpolate(cur, [0, 1], [800, 545]);
   const curY = interpolate(cur, [0, 1], [930, 530]);
-  const curOpacity = interpolate(local, [14, 20, CLICK + 18, CLICK + 28], [0, 1, 1, 0], clamp);
+  const curOpacity = interpolate(local, [6, 12, CLICK + 14, CLICK + 22], [0, 1, 1, 0], clamp);
   const ripple = clicked ? Math.min(1, (local - CLICK) / 14) : 0;
   const bellRot = clicked ? Math.sin((local - CLICK) / 2.2) * 22 * Math.max(0, 1 - (local - CLICK) / 40) : 0;
   return (
@@ -823,7 +823,7 @@ export const ShortV2: React.FC<ShortV2Props> = (p) => {
   if (sceneIdx < 0) sceneIdx = sec < (p.scenes[0]?.start ?? 0) ? 0 : p.scenes.length - 1;
   const scene = p.scenes[sceneIdx];
   const chunk = scene?.chunks.find((c) => sec >= c.start && sec < (c.until ?? c.end));
-  const flash = interpolate(frame, [0, 7], [0.55, 0], clamp);
+  const flash = interpolate(frame, [0, 5], [0.25, 0], clamp);
   const fadeOut = interpolate(frame, [durationInFrames - 8, durationInFrames], [1, 0], clamp);
   return (
     <AbsoluteFill style={{ opacity: fadeOut }}>
