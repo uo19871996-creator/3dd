@@ -1,5 +1,5 @@
 {
-  "brand": "GÜNDEM 5",
+  "brand": "GÜNDEM",
   "tts": "chatterbox",
   "speech_length_scale": 0.95,
   "google_voice": "tr-TR-Wavenet-E",
@@ -18,6 +18,6 @@
   "template": "v2",
   "music": true,
   "channel_name": "Ümit'ten Videolar",
-  "channel_tagline": "Her gün gündemin en önemli 5 haberi",
+  "channel_tagline": "Türkiye gündemi, gün boyu her saat",
   "outro_text": "Gündemi kaçırmamak için abone ol!"
 }

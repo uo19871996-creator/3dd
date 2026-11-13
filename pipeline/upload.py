@@ -3,7 +3,7 @@
 
 Kullanım:
   python3 pipeline/upload.py --check                    # sadece kimlik doğrulamayı dener
-  python3 pipeline/upload.py --recent                   # kanaldaki son 30 videonun başlığı
+  python3 pipeline/upload.py --recent                   # kanaldaki son 50 videonun başlığı
   python3 pipeline/upload.py scripts/2026-11-11.json    # o günün videolarını yükler
   python3 pipeline/upload.py scripts/2026-11-11.json --only 1,3 --privacy private
 
@@ -137,7 +137,7 @@ def main():
             die(f"Kanal okunamadı ({r.status_code}): {r.text[:300]}")
         uploads = r.json()["items"][0]["contentDetails"]["relatedPlaylists"]["uploads"]
         r = requests.get(f"{API}/playlistItems", headers=h, timeout=60,
-                         params={"part": "snippet", "playlistId": uploads, "maxResults": 30})
+                         params={"part": "snippet", "playlistId": uploads, "maxResults": 50})
         if r.status_code == 404:  # henüz hiç video yok
             return
         if r.status_code != 200:

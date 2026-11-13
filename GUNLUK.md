@@ -1,8 +1,12 @@
-# Günlük çalışma talimatı
+# Çalışma talimatı
 
-Bu dosya, her gün otomatik açılan oturumun izleyeceği adımlardır. Amaç: Türkiye'de son 3 günde
-en çok konuşulan 5 konuyu seçmek, her biri için bir YouTube Shorts videosu üretmek ve kanala yüklemek.
+Bu dosya, otomatik açılan oturumun izleyeceği adımlardır. Görev şu an **İstanbul saatiyle
+09:00-23:00 arasında saatte bir** çalışır ve her çalışmada **1 video** (görev metni başka bir sayı
+söylüyorsa o kadar) üretip yükler. Amaç: Türkiye'de şu an en çok konuşulan ve kanalda henüz
+işlenmemiş konuyu seçmek, YouTube Shorts videosu üretmek ve kanala yüklemek.
 Tarih olarak İstanbul saatine göre bugünü kullan (`TZ=Europe/Istanbul date +%F`).
+Senaryo dosyasının adı: `scripts/TARIH-SSDD.json` (ör. `scripts/2026-11-14-1407.json`).
+Dosyanın içindeki `"date"` alanı yine yalnızca tarihtir (`"2026-11-14"`).
 
 ## 1. Kurulum
 
@@ -26,12 +30,18 @@ aramasıyla listeyi genişlet.
 python3 pipeline/upload.py --recent
 ```
 
-Son günlerde işlenmiş bir konuyu, yalnızca önemli yeni bir gelişme varsa (ve yeni gelişmeyi anlatarak) tekrar seç.
+Liste kanalın son ~50 videosudur (yaklaşık son 3 gün). Son 48 saatte işlenmiş bir konuyu
+(aynı olay ya da aynı kişi/kurumun aynı haberi) yalnızca önemli YENİ bir gelişme varsa ve yeni
+gelişmeyi anlatarak tekrar seç.
 
-## 4. 5 konu seç
+## 4. Konu seç (bu çalışmada 1 konu)
 
-- Çeşitlilik: aynı kategoriden en fazla 2 video (GÜNDEM, EKONOMİ, SPOR, SİYASET, DÜNYA, TEKNOLOJİ,
-  MAGAZİN, SAĞLIK, EĞİTİM, YAŞAM, BİLİM, KÜLTÜR).
+- Son 24-48 saatin en çok konuşulan, kanalda henüz işlenmemiş konusunu seç; son dakika gelişmeler önceliklidir.
+- Çeşitlilik: kanalın son 5 videosunda aynı kategoriden (GÜNDEM, EKONOMİ, SPOR, SİYASET, DÜNYA,
+  TEKNOLOJİ, MAGAZİN, SAĞLIK, EĞİTİM, YAŞAM, BİLİM, KÜLTÜR) 3'ten fazla olmasın; denk gelirse
+  bir sonraki en güçlü konuya geç.
+- **Uygun yeni konu yoksa video ÜRETME ve YÜKLEME** (dolgu, zayıf ya da tekrar içerik kanalı
+  bastırır); raporda "bu saat yeni konu yok" de ve bitir.
 - Her konu için web aramasıyla **en az 2 bağımsız, güvenilir kaynaktan** doğrula. Kaynaklar
   çelişiyorsa temkinli yaz ("en az", "ilk belirlemelere göre") ya da o ayrıntıyı hiç yazma.
 - Videolar kontrolsüz olarak herkese açık yayınlanıyor; bu yüzden şunlardan **kaçın**:
@@ -44,7 +54,7 @@ Son günlerde işlenmiş bir konuyu, yalnızca önemli yeni bir gelişme varsa (
 - Siyasi konularda tarafsız, yorumsuz dil kullan.
 - Metni kendi cümlelerinle yaz; haber sitelerinden cümle kopyalama.
 
-## 5. Senaryoyu yaz: `scripts/TARIH.json`
+## 5. Senaryoyu yaz: `scripts/TARIH-SSDD.json`
 
 Örnek için `scripts/` klasöründeki önceki dosyalara bak. Kurallar:
 
@@ -108,7 +118,7 @@ varsa açılış ve başlık için onlardan da yararlan; yoksa aşağıdaki kura
 ## 6. Videoları üret ve kontrol et
 
 ```bash
-python3 pipeline/build.py scripts/TARIH.json
+python3 pipeline/build.py scripts/TARIH-SSDD.json
 ```
 
 Her videodan birkaç kare çıkarıp bak (taşan/bozuk yazı var mı) ve süreleri kontrol et (60 sn altı):
@@ -121,8 +131,11 @@ Sorun varsa senaryoyu düzeltip yalnızca o videoyu yeniden üret (`--only 3`).
 
 ## 7. Yükle
 
+Yüklemeden hemen önce `python3 pipeline/upload.py --recent | head -5` ile son yüklemelere tekrar
+bak: başka bir çalışma az önce aynı konuyu yüklediyse YÜKLEME, raporda belirt.
+
 ```bash
-python3 pipeline/upload.py scripts/TARIH.json
+python3 pipeline/upload.py scripts/TARIH-SSDD.json
 ```
 
 Betik aynı videoyu iki kez yüklemez (`state/uploaded.json`). Yüklemeyi yalnızca `upload.py`'nin kendi

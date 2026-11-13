@@ -145,10 +145,12 @@ const TopBar: React.FC<{ p: ShortV2Props; sceneIdx: number; sec: number }> = ({ 
           </div>
           <div style={{ color: MUTED, fontWeight: 700, fontSize: 30 }}>{p.date}</div>
         </div>
-        <div style={{ color: INK, fontWeight: 800, fontSize: 32 }}>
-          {p.index}
-          <span style={{ color: MUTED }}>/{p.total}</span>
-        </div>
+        {p.total > 1 ? (
+          <div style={{ color: INK, fontWeight: 800, fontSize: 32 }}>
+            {p.index}
+            <span style={{ color: MUTED }}>/{p.total}</span>
+          </div>
+        ) : null}
       </div>
     </div>
   );
