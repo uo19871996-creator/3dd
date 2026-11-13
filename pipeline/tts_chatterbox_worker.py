@@ -25,8 +25,8 @@ def main():
     torch.set_num_threads(max(1, os.cpu_count() or 1))
     model = ChatterboxMultilingualTTS.from_pretrained(device="cpu")
     sample = os.environ.get("CBX_VOICE_SAMPLE") or None
-    if sample and not os.path.exists(sample):
-        sample = None
+    if sample and os.path.exists(sample):
+        model.prepare_conditionals(sample)  # sesi bir kez hazırla, tüm cümlelerde kullan
     print(json.dumps({"ready": True, "sr": model.sr}), flush=True)
     for line in sys.stdin:
         line = line.strip()
@@ -34,10 +34,7 @@ def main():
             continue
         try:
             req = json.loads(line)
-            kw = {"language_id": "tr"}
-            if sample:
-                kw["audio_prompt_path"] = sample
-            wav = model.generate(req["text"], **kw)
+            wav = model.generate(req["text"], language_id="tr")
             a = wav.squeeze().detach().cpu().numpy()
             a = np.clip(a, -1.0, 1.0)
             pcm = (a * 32767).astype(np.int16)

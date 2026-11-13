@@ -48,9 +48,19 @@ class ChatterboxTTS:
         if not py.exists():
             raise RuntimeError(".venv-tts yok (setup.sh, tts=chatterbox ile çalıştırılmalı)")
         env = dict(os.environ, HF_HUB_DISABLE_XET="1")
-        sample = CONFIG.get("voice_sample")
-        if sample:
-            env["CBX_VOICE_SAMPLE"] = str(ROOT / sample)
+        # Model önceden indirildiyse (setup.sh) hub'a sorgu atma: açılış dakikalardan saniyelere iner
+        hub = Path(os.environ.get("HF_HOME", Path.home() / ".cache" / "huggingface")) / "hub"
+        if glob.glob(str(hub / "models--ResembleAI--chatterbox" / "snapshots" / "*" / "t3_mtl*.safetensors")):
+            env["HF_HUB_OFFLINE"] = "1"
+        try:  # kanal sahibinin şifreli ses örneği (assets/ses-ornegi.wav.enc) varsa onun sesiyle konuş
+            from voice import decrypt_to
+            sample = decrypt_to(ROOT / "out" / ".tts" / "ses-ornegi.wav")
+            if sample:
+                env["CBX_VOICE_SAMPLE"] = str(sample)
+                print("[bilgi] Ses: kanal sahibinin ses örneği", flush=True)
+        except Exception as e:
+            print(f"[bilgi] Ses örneği kullanılamadı ({e}); modelin varsayılan sesi kullanılıyor. "
+                  "Bu bir hata değil, işleme devam et.", flush=True)
         self.proc = subprocess.Popen(
             [str(py), str(ROOT / "pipeline" / "tts_chatterbox_worker.py")],
             stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True, env=env)
