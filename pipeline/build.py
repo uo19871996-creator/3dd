@@ -37,6 +37,11 @@ ACCENTS = {
     "GÜNDEM": "#facc15", "SAĞLIK": "#4ade80", "EĞİTİM": "#60a5fa",
     "YAŞAM": "#fbbf24", "BİLİM": "#38bdf8", "KÜLTÜR": "#e879f9",
 }
+CATEGORY_ICONS = {  # v2 şablonu: kategori ikonu (Lucide adları)
+    "EKONOMİ": "trending-up", "SPOR": "trophy", "SİYASET": "landmark", "TEKNOLOJİ": "cpu",
+    "MAGAZİN": "star", "DÜNYA": "globe", "GÜNDEM": "newspaper", "SAĞLIK": "heart-pulse",
+    "EĞİTİM": "graduation-cap", "YAŞAM": "sun", "BİLİM": "atom", "KÜLTÜR": "palette",
+}
 
 
 class ChatterboxTTS:
@@ -211,8 +216,9 @@ def build_video(tts, day, n, total, v, out_dir):
         chunks[-1]["until"] = round(pos / sr, 3)
         scene = {"heading": sc.get("heading", ""), "start": round(start, 3),
                  "end": round(pos / sr, 3), "chunks": chunks}
-        if sc.get("stat"):
-            scene["stat"] = sc["stat"]
+        for key in ("stat", "icon", "map", "chart", "points"):  # v2 görsel alanları
+            if sc.get(key):
+                scene[key] = sc[key]
         scenes.append(scene)
     track.append(np.zeros(int(0.5 * sr), dtype=np.int16))
     audio = np.concatenate(track)
@@ -221,11 +227,19 @@ def build_video(tts, day, n, total, v, out_dir):
     slug = v["slug"]
     pub = VIDEO / "public" / day
     pub.mkdir(parents=True, exist_ok=True)
+    template = os.environ.get("GUNDEM_TEMPLATE") or CONFIG.get("template", "v1")
+    final = audio
+    if template == "v2" and CONFIG.get("music", True):
+        from audio_fx import mix
+        last = len(scenes) - 1
+        stat_times = [s["start"] + 0.25 for i, s in enumerate(scenes)
+                      if 0 < i < last and s.get("stat") and not s.get("map") and not s.get("chart")]
+        final = mix(audio, sr, [s["start"] for s in scenes], stat_times, seed=slug)
     with wave.open(str(pub / f"{slug}.wav"), "wb") as w:
         w.setnchannels(1)
         w.setsampwidth(2)
         w.setframerate(sr)
-        w.writeframes(audio.tobytes())
+        w.writeframes(final.tobytes())
 
     # Kare başına ses seviyesi (görsel ses çubukları için)
     hop = sr / FPS
@@ -245,11 +259,15 @@ def build_video(tts, day, n, total, v, out_dir):
         "duration": round(duration, 3),
         "levels": [round(float(x), 3) for x in levels], "scenes": scenes,
     }
+    if template == "v2":
+        props["categoryIcon"] = v.get("category_icon") or CATEGORY_ICONS.get(cat, "newspaper")
+        props.pop("levels")
     props_file = pub / f"{slug}.json"
     props_file.write_text(json.dumps(props, ensure_ascii=False), encoding="utf-8")
 
     out = out_dir / f"{n}-{slug}.mp4"
-    cmd = ["npx", "remotion", "render", "src/index.ts", "Short", str(out),
+    comp = "ShortV2" if template == "v2" else "Short"
+    cmd = ["npx", "remotion", "render", "src/index.ts", comp, str(out),
            f"--props={props_file}", "--codec=h264", "--crf=22", "--log=error",
            f"--concurrency={CONFIG.get('concurrency', 4)}"]
     chrome = chrome_path()

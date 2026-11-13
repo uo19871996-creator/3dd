@@ -9,7 +9,8 @@ bir YouTube Shorts videosu üreten ve kanala yükleyen otomasyon.
 | --- | --- | --- |
 | Aday toplama | `pipeline/trends.py` | Google Trends TR + Google Haberler TR başlıklarını listeler |
 | Senaryo | `scripts/TARIH.json` | Seçilen 5 konunun metni (günlük oturum yazar, kaynaklarıyla) |
-| Üretim | `pipeline/build.py` | Türkçe seslendirme (Google Cloud TTS) + altyazı zamanlaması + Remotion ile MP4 |
+| Üretim | `pipeline/build.py` | Türkçe seslendirme + altyazı zamanlaması + Remotion ile MP4 |
+| Ses | `pipeline/tts_chatterbox_worker.py`, `pipeline/voice.py` | Chatterbox ile kanal sahibinin sesi; ses örneği şifreli saklanır |
 | Ses kontrolü | `pipeline/check_audio.py` | Seslendirmeyi yazıya döker (telaffuz kontrolü, isteğe bağlı) |
 | Yükleme | `pipeline/upload.py` | YouTube Data API ile yükler, `state/uploaded.json`'a kaydeder |
 
@@ -46,10 +47,17 @@ python3 pipeline/upload.py --check
 
 ## Lisans notları
 
-- **Ses:** Varsayılan motor Google Cloud Text-to-Speech'tir (`"tts": "google"`, ses adı
-  `google_voice`). Anahtar, `texttospeech.googleapis.com` için ortamın ağ kimliği olarak
-  (`X-Goog-Api-Key`) ya da `GOOGLE_TTS_API_KEY` ortam değişkeniyle verilir. Yedek olarak çevrimdışı
-  Piper `tr_TR-dfki-medium` sesi de kullanılabilir (`"tts": "piper"`), ancak eğitim verisi
-  CC BY-NC-SA 4.0 lisanslıdır; para kazanan bir kanalda kullanılmamalıdır.
+- **Ses motoru** `config.json` içindeki `"tts"` ile seçilir:
+  - `"chatterbox"`: Resemble AI Chatterbox Multilingual (MIT lisansı, ticari kullanım serbest).
+    `assets/ses-ornegi.wav.enc` varsa kanal sahibinin sesiyle konuşur; yoksa modelin kendi sesini
+    kullanır. İşlemcide video başına yaklaşık 6–7 dakika sürer; `setup.sh` ayrı bir sanal ortam
+    (`.venv-tts`) kurar ve modeli (~3,5 GB) indirir.
+  - `"google"`: Google Cloud Text-to-Speech (`google_voice`); anahtar `texttospeech.googleapis.com`
+    için ortamın ağ kimliği (`X-Goog-Api-Key`) ya da `GOOGLE_TTS_API_KEY` ile verilir.
+  - `"piper"`: çevrimdışı Piper `tr_TR-dfki-medium`; diğerleri çalışmazsa otomatik yedek. Eğitim
+    verisi CC BY-NC-SA 4.0 lisanslıdır; para kazanan bir kanalda ana ses olarak kullanılmamalıdır.
+- **Ses örneği:** yalnızca kanal sahibinin kendi sesi kullanılır. Örnek, ortamdaki
+  `YT_REFRESH_TOKEN`'dan türetilen anahtarla AES-256 şifreli saklanır; refresh token değişirse
+  `python3 pipeline/voice.py encrypt <kayıt>` ile yeniden şifrelenmelidir.
 - **Remotion:** bireyler ve 3 kişiye kadar ekipler için ücretsizdir; daha büyük şirketler lisans almalıdır.
 - **Yazı tipi:** Montserrat (SIL Open Font License).

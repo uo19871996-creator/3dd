@@ -56,7 +56,23 @@ Son günlerde işlenmiş bir konuyu, yalnızca önemli yeni bir gelişme varsa (
   - İlk sahne giriş cümlesidir (`heading` yok), merak uyandırmalı ve konuyu söylemeli.
   - Diğer sahnelerde `heading` (en fazla 20 karakter) ve 1-2 kısa cümlelik `text`.
   - `stat` isteğe bağlı büyük rakam kartı: `value` en fazla 10 karakter, `label` kısa.
-  - Son sahne kapanış: izleyiciye soru ya da "takipte kal".
+    Sayıyla başlayan değerler (`17+`, `%42`, `7,7 milyon`, `$79,99`) ekranda sayarak açılır.
+  - Son sahne kapanış: izleyiciye soru ya da "takipte kal" (ekranda yorum/beğen/takip kartı çıkar).
+- **Görseller (v2 şablonu)** — her sahneye konuya uygun EN AZ BİR görsel alanı ekle, sahneler
+  arasında çeşitlilik olsun (her videoda en az bir `map` ya da `chart` ya da `points`):
+  - `icon`: her sahnede (giriş dahil) konuya uygun bir Lucide ikon adı, ör. `landmark` (kurum/banka),
+    `trending-up`, `trophy`, `cloud-lightning`, `plane`, `gavel`, `factory`, `shirt`, `cpu`,
+    `gamepad-2`, `users`, `briefcase`, `heart-pulse`, `map-pin`, `chart-column`, `flame`, `zap`.
+    Listeyi görmek için: `cd video && node -e "console.log(Object.keys(require('lucide-react').icons).join(' '))"`
+    (PascalCase adı tireli yaz: `CloudLightning` → `cloud-lightning`).
+  - `map`: olayın geçtiği yer `{"place": "İzmir", "lat": 38.42, "lon": 27.14, "label": "9 Kasım · Aliağa"}`.
+    Türkiye içindeki yerler Türkiye haritasında, yurt dışı yerler dönen dünya küresinde gösterilir.
+    Koordinatları doğrula; emin değilsen `map` kullanma.
+  - `chart`: karşılaştırmalı rakamlar `{"unit": "%", "items": [{"label": "Eylül", "value": 33.3}, ...]}`
+    (en fazla 5 madde, en önemlisi sonda). Yalnızca kaynakta geçen rakamlar.
+  - `points`: 2-4 kısa madde (her biri en fazla 35 karakter).
+  - Öncelik: `map` > `chart` > `stat` > `points` > `icon`; bir sahnede bunlardan yalnızca biri gösterilir.
+  - Gerçek kişi/olay fotoğrafı ya da yapay zekâ görseli KULLANILMAZ (telif ve yanıltma riski).
 - `say` (isteğe bağlı): seslendirme motorunun doğru okuması için `text`'in okunuş hali.
   Rakamları yazıyla ("on yedi"), kısaltmaları harf harf ("Be De De Ka"), yabancı sözcükleri
   okunduğu gibi ("Pleysteyşın") yaz. **Cümle sayısı `text` ile aynı olmalı.**
