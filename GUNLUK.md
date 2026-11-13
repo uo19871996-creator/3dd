@@ -71,8 +71,20 @@ Son günlerde işlenmiş bir konuyu, yalnızca önemli yeni bir gelişme varsa (
   - `chart`: karşılaştırmalı rakamlar `{"unit": "%", "items": [{"label": "Eylül", "value": 33.3}, ...]}`
     (en fazla 5 madde, en önemlisi sonda). Yalnızca kaynakta geçen rakamlar.
   - `points`: 2-4 kısa madde (her biri en fazla 35 karakter).
-  - Öncelik: `map` > `chart` > `stat` > `points` > `icon`; bir sahnede bunlardan yalnızca biri gösterilir.
-  - Gerçek kişi/olay fotoğrafı ya da yapay zekâ görseli KULLANILMAZ (telif ve yanıltma riski).
+  - `photo`: Wikimedia Commons'tan serbest lisanslı fotoğraf `{"file": "File:Tim Cook (2017, cropped).jpg"}`.
+    Adayları gör: `python3 pipeline/photos.py search "Tim Cook"` (yalnızca uygun lisanslılar listelenir;
+    atıf ekrana ve YouTube açıklamasına otomatik yazılır). Arama sonuçları hatalı olabilir: başlığı
+    konuyla birebir eşleşen dosyayı seç ve `file` ile adını aynen yaz. Uygun aday yoksa `photo` koyma.
+    - Giriş sahnesine (ilk sahne) konunun ana kişisi/mekânı/kurumunun fotoğrafı konursa tam ekran gösterilir.
+    - Fotoğraf yalnızca adı geçen kişiyi, mekânı, kurumu ya da nesneyi göstermeli. Başka bir olayın
+      fotoğrafını bu olaymış gibi kullanma (ör. başka bir yangının fotoğrafı). Kaza, afet, suç ve
+      mağdur içeren haberlerde fotoğraf kullanma; harita ve ikon kullan. Özel kişilerin fotoğrafı yok.
+    - `photo` ile `stat` aynı sahnede olursa rakam fotoğrafın üstünde gösterilir.
+    - Wikimedia 429 (çok fazla istek) verirse betik bekleyip yeniden dener; olmazsa sahne fotoğrafsız
+      devam eder. Her videoda en fazla 3 fotoğraf kullan.
+  - Öncelik: `photo` > `map` > `chart` > `stat` > `points` > `icon`; bir sahnede yalnızca biri gösterilir.
+  - Haber ajansı fotoğrafları (AA, Reuters, Getty vb.) ve yapay zekâ görselleri KULLANILMAZ (telif ve
+    yanıltma riski); yalnızca `photos.py`'nin bulduğu serbest lisanslı fotoğraflar.
 - `say` (isteğe bağlı): seslendirme motorunun doğru okuması için `text`'in okunuş hali.
   Rakamları yazıyla ("on yedi"), kısaltmaları harf harf ("Be De De Ka"), yabancı sözcükleri
   okunduğu gibi ("Pleysteyşın") yaz. **Cümle sayısı `text` ile aynı olmalı.**

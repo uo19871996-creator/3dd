@@ -5,6 +5,7 @@ import {
   continueRender,
   delayRender,
   Easing,
+  Img,
   interpolate,
   spring,
   staticFile,
@@ -17,7 +18,7 @@ import "@fontsource/montserrat/800.css";
 import "@fontsource/montserrat/900.css";
 import { Icon } from "./Icon";
 import { MapCard } from "./MapCard";
-import { FONT, FPS, INK, MUTED, type ChartSpec, type Chunk, type SceneV2, type ShortV2Props } from "./types";
+import { FONT, FPS, INK, MUTED, type ChartSpec, type Chunk, type Photo, type SceneV2, type ShortV2Props } from "./types";
 
 const TAIL = 10; // sahne çıkış animasyonu (kare)
 const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
@@ -201,7 +202,7 @@ const TitleBlock: React.FC<{ p: ShortV2Props }> = ({ p }) => {
           right: 0,
           display: "flex",
           justifyContent: "center",
-          opacity: 1 - shrink,
+          opacity: p.scenes[0]?.photo ? 0 : 1 - shrink,
           transform: `scale(${1 - shrink * 0.3})`,
         }}
       >
@@ -269,6 +270,117 @@ const TitleBlock: React.FC<{ p: ShortV2Props }> = ({ p }) => {
         />
       </div>
     </>
+  );
+};
+
+/* ---------- Fotoğraflar (Wikimedia Commons, atıflı) ---------- */
+
+const Credit: React.FC<{ text: string; style?: React.CSSProperties }> = ({ text, style }) => (
+  <div
+    style={{
+      fontFamily: FONT,
+      fontWeight: 600,
+      fontSize: 20,
+      color: "rgba(255,255,255,0.78)",
+      whiteSpace: "nowrap",
+      overflow: "hidden",
+      textOverflow: "ellipsis",
+      textShadow: "0 2px 8px rgba(0,0,0,0.8)",
+      ...style,
+    }}
+  >
+    {text}
+  </div>
+);
+
+const PhotoVisual: React.FC<{
+  photo: Photo;
+  accent: string;
+  local: number;
+  dur: number;
+  stat?: { value: string; label: string };
+}> = ({ photo, accent, local, dur, stat }) => {
+  const k = interpolate(local, [0, Math.max(1, dur)], [0, 1], clamp);
+  const pop = spring({ frame: local - 10, fps: FPS, config: { damping: 13, mass: 0.6 } });
+  return (
+    <div
+      style={{
+        position: "relative",
+        width: 960,
+        height: 760,
+        borderRadius: 40,
+        overflow: "hidden",
+        border: "2px solid rgba(255,255,255,0.14)",
+        boxShadow: `0 30px 80px rgba(0,0,0,0.45), 0 0 100px ${accent}22`,
+      }}
+    >
+      <Img
+        src={staticFile(photo.src)}
+        style={{
+          position: "absolute",
+          inset: 0,
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
+          transform: `scale(${1.04 + 0.1 * k}) translate(${-1.2 * k}%, ${-0.8 * k}%)`,
+        }}
+      />
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          background: "linear-gradient(180deg, rgba(4,7,15,0) 45%, rgba(4,7,15,0.88) 100%)",
+        }}
+      />
+      {stat ? (
+        <div
+          style={{
+            position: "absolute",
+            left: 36,
+            bottom: 58,
+            fontFamily: FONT,
+            opacity: pop,
+            transform: `translateY(${(1 - pop) * 30}px)`,
+          }}
+        >
+          <div style={{ color: accent, fontWeight: 900, fontSize: 110, lineHeight: 1, letterSpacing: -2 }}>
+            {stat.value}
+          </div>
+          <div style={{ color: INK, fontWeight: 700, fontSize: 36, marginTop: 8 }}>{stat.label}</div>
+        </div>
+      ) : null}
+      <Credit text={photo.credit} style={{ position: "absolute", left: 24, right: 24, bottom: 16 }} />
+    </div>
+  );
+};
+
+const HookPhoto: React.FC<{ p: ShortV2Props }> = ({ p }) => {
+  const frame = useCurrentFrame();
+  const photo = p.scenes[0]?.photo;
+  if (!photo) return null;
+  const firstEnd = Math.round((p.scenes[0]?.end ?? 3) * FPS);
+  const fade = interpolate(frame, [firstEnd - 4, firstEnd + 8], [1, 0], clamp);
+  if (fade <= 0) return null;
+  const k = interpolate(frame, [0, firstEnd], [0, 1], clamp);
+  return (
+    <AbsoluteFill style={{ opacity: fade }}>
+      <Img
+        src={staticFile(photo.src)}
+        style={{
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
+          transform: `scale(${1.08 + 0.1 * k})`,
+        }}
+      />
+      <AbsoluteFill
+        style={{
+          background:
+            "linear-gradient(180deg, rgba(4,7,15,0.55) 0%, rgba(4,7,15,0.35) 30%, rgba(4,7,15,0.75) 60%, rgba(4,7,15,0.92) 100%)",
+        }}
+      />
+      <Credit text={photo.credit} style={{ position: "absolute", left: 60, right: 60, top: 246 }} />
+    </AbsoluteFill>
   );
 };
 
@@ -499,9 +611,23 @@ const SceneLayer: React.FC<{ s: SceneV2; n: number; last: boolean; p: ShortV2Pro
   const dur = endF - startF;
   const enter = spring({ frame: local, fps: FPS, config: { damping: 16, mass: 0.7 } });
   const exit = interpolate(frame, [endF, endF + TAIL], [0, 1], clamp);
-  const kind = last ? "outro" : s.map ? "map" : s.chart ? "chart" : s.stat ? "stat" : s.points?.length ? "list" : "icon";
+  const kind = last
+    ? "outro"
+    : s.photo
+      ? "photo"
+      : s.map
+        ? "map"
+        : s.chart
+          ? "chart"
+          : s.stat
+            ? "stat"
+            : s.points?.length
+              ? "list"
+              : "icon";
   const visual =
-    kind === "map" && s.map ? (
+    kind === "photo" && s.photo ? (
+      <PhotoVisual photo={s.photo} accent={p.accent} local={local} dur={dur} stat={s.stat} />
+    ) : kind === "map" && s.map ? (
       <MapCard spec={s.map} accent={p.accent} local={local} duration={dur} />
     ) : kind === "chart" && s.chart ? (
       <ChartVisual chart={s.chart} accent={p.accent} local={local} />
@@ -601,6 +727,7 @@ export const ShortV2: React.FC<ShortV2Props> = (p) => {
   return (
     <AbsoluteFill style={{ opacity: fadeOut }}>
       <Background accent={p.accent} icon={p.categoryIcon} />
+      <HookPhoto p={p} />
       <TopBar p={p} sceneIdx={sceneIdx} sec={sec} />
       <TitleBlock p={p} />
       {p.scenes.map((s, i) => {

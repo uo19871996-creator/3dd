@@ -15,8 +15,11 @@ export type ChartSpec = {
   items: { label: string; value: number }[];
 };
 
+export type Photo = { src: string; credit: string };
+
 export type SceneV2 = {
   heading: string;
+  photo?: Photo;
   start: number;
   end: number;
   chunks: Chunk[];

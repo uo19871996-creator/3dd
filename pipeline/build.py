@@ -228,6 +228,23 @@ def build_video(tts, day, n, total, v, out_dir):
     pub = VIDEO / "public" / day
     pub.mkdir(parents=True, exist_ok=True)
     template = os.environ.get("GUNDEM_TEMPLATE") or CONFIG.get("template", "v1")
+    credits = []
+    if template == "v2":  # Wikimedia Commons fotoğrafları (lisanslı, atıflı)
+        for i, (sc, scene) in enumerate(zip(v["scenes"], scenes)):
+            spec = sc.get("photo")
+            if not spec:
+                continue
+            try:
+                from photos import fetch
+                c = fetch(spec, pub / f"{slug}-p{i}.jpg")
+            except Exception as e:
+                print(f"[bilgi] Fotoğraf alınamadı ({str(e)[:100]}); sahne diğer görselle devam ediyor.",
+                      flush=True)
+                c = None
+            if c:
+                scene["photo"] = {"src": f"{day}/{slug}-p{i}.jpg", "credit": c["credit"]}
+                credits.append({k: c[k] for k in ("title", "artist", "license", "license_url", "page")})
+                print(f"[bilgi] Fotoğraf: {c['title']} ({c['license']})", flush=True)
     final = audio
     if template == "v2" and CONFIG.get("music", True):
         from audio_fx import mix
@@ -274,6 +291,11 @@ def build_video(tts, day, n, total, v, out_dir):
     if chrome:
         cmd.append(f"--browser-executable={chrome}")
     subprocess.run(cmd, cwd=VIDEO, check=True)
+    cred_file = out.with_suffix(".credits.json")
+    if credits:
+        cred_file.write_text(json.dumps(credits, ensure_ascii=False, indent=2), encoding="utf-8")
+    elif cred_file.exists():
+        cred_file.unlink()
     print(f"[ok] {out.relative_to(ROOT)}  {duration:.1f} sn", flush=True)
     if duration > 175:
         print(f"[uyarı] {slug}: {duration:.0f} sn — Shorts sınırı 180 sn", flush=True)

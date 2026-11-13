@@ -64,6 +64,11 @@ def upload(token, path, v, privacy):
     desc = v["description"].strip()
     if v.get("sources"):
         desc += "\n\nKaynaklar:\n" + "\n".join(v["sources"])
+    cred = path.with_suffix(".credits.json")
+    if cred.exists():  # Wikimedia Commons lisanslarının istediği atıf
+        lines = [f"- {c['title'].removeprefix('File:')} — {c['artist']}, {c['license']} ({c['page']})"
+                 for c in json.loads(cred.read_text(encoding="utf-8"))]
+        desc += "\n\nGörseller (Wikimedia Commons):\n" + "\n".join(lines)
     desc += "\n\n" + CONFIG.get("description_footer", "#shorts #gündem #haber")
     tags = list(dict.fromkeys(v.get("tags", []) + CONFIG.get("default_tags", [])))
     body = {
