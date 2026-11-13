@@ -1,0 +1,84 @@
+{
+  "date": "2026-11-13",
+  "videos": [
+    {
+      "slug": "ornek-v2-tim-cook",
+      "category": "YAŞAM",
+      "title": "Tim Cook İstanbul'da: Kapalıçarşı'dan Anıtkabir'e",
+      "yt_title": "Tim Cook Türkiye'de: Kapalıçarşı'dan Anıtkabir'e neler yaptı? #shorts",
+      "description": "Apple'ın eski CEO'su Tim Cook 8 Kasım'da İstanbul'a geldi. Kapalıçarşı'yı gezdi, Les Benjamins ile Apple'ın ortak etkinliğine katıldı ve ertesi gün Anıtkabir'i ziyaret etti.",
+      "tags": [
+        "tim cook",
+        "apple",
+        "kapalıçarşı",
+        "istanbul",
+        "anıtkabir"
+      ],
+      "sources": [
+        "https://www.chip.com.tr/guncel/tim-cook-istanbulda-kapalicarsidan-sonra-rotasi-bagdat-caddesi-oldu_185182.html",
+        "https://www.sozcu.com.tr/apple-in-eski-ceo-su-tim-cook-istanbul-da-p377252"
+      ],
+      "scenes": [
+        {
+          "text": "Apple'ın eski CEO'su Tim Cook Türkiye'ye geldi. Peki İstanbul'da neler yaptı?",
+          "say": "Epıl'ın eski si i o'su Tim Kuk Türkiye'ye geldi. Peki İstanbul'da neler yaptı?",
+          "icon": "plane-landing",
+          "photo": {
+            "file": "File:Tim Cook (2017, cropped).jpg"
+          }
+        },
+        {
+          "heading": "İlk durak",
+          "text": "Cook, 8 Kasım'da İstanbul'a geldi ve gezisine Kapalıçarşı'dan başladı. Çarşıda bir halıcıdan alışveriş yaptığı da basına yansıdı.",
+          "say": "Kuk, sekiz Kasım'da İstanbul'a geldi ve gezisine Kapalıçarşı'dan başladı. Çarşıda bir halıcıdan alışveriş yaptığı da basına yansıdı.",
+          "icon": "map-pin",
+          "photo": {
+            "file": "File:Grand Bazaar, Istanbul 3.jpg"
+          },
+          "stat": {
+            "value": "8 Kasım",
+            "label": "İstanbul · Kapalıçarşı"
+          }
+        },
+        {
+          "heading": "Neden geldi?",
+          "text": "Cook, Türk moda markası Les Benjamins ile Apple'ın ortak etkinliğine katıldı. Bağdat Caddesi'ndeki Apple mağazasına da uğradı.",
+          "say": "Kuk, Türk moda markası Les Bencamins ile Epıl'ın ortak etkinliğine katıldı. Bağdat Caddesi'ndeki Epıl mağazasına da uğradı.",
+          "icon": "shirt",
+          "points": [
+            "Les Benjamins ile ortak etkinlik",
+            "Bağdat Caddesi'ndeki Apple mağazası"
+          ]
+        },
+        {
+          "heading": "Ankara ziyareti",
+          "text": "Ertesi gün Ankara'ya geçti ve Anıtkabir'i ziyaret etti.",
+          "icon": "map-pin",
+          "map": {
+            "place": "Ankara",
+            "lat": 39.9334,
+            "lon": 32.8597,
+            "label": "9 Kasım · Anıtkabir"
+          }
+        },
+        {
+          "heading": "Artık CEO değil",
+          "text": "Bu arada Cook artık Apple'ın CEO'su değil. Eylül ayında koltuğu John Ternus'a devretti; şimdi yönetim kurulu başkanı.",
+          "say": "Bu arada Kuk artık Epıl'ın si i o'su değil. Eylül ayında koltuğu Con Ternıs'a devretti; şimdi yönetim kurulu başkanı.",
+          "icon": "briefcase",
+          "points": [
+            "Yeni CEO: John Ternus",
+            "Cook: yönetim kurulu başkanı"
+          ],
+          "photo": {
+            "file": "File:Visit of Tim Cook to the European Commission - P061904-821808.jpg"
+          }
+        },
+        {
+          "heading": "Senin yorumun?",
+          "text": "Sence Apple Türkiye'ye yeni bir yatırım yapar mı? Yorumlara yaz."
+        }
+      ]
+    }
+  ]
+}
