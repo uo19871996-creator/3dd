@@ -22,6 +22,7 @@ import requests
 API = "https://commons.wikimedia.org/w/api.php"
 UA = {"User-Agent": "GundemShortsBot/1.0 (https://github.com/uo19871996-creator/3dd) python-requests/2"}
 OK_LICENSE = re.compile(r"^(CC0|CC BY(-SA)? [0-9.]+|Public domain|PD|No restrictions)", re.I)
+GRADE = "eq=contrast=1.05:saturation=0.92:gamma=0.98,colorchannelmixer=rr=1.01:bb=0.98"
 _last = [0.0]
 
 
@@ -107,10 +108,18 @@ def fetch(spec, dest):
     with tempfile.NamedTemporaryFile(suffix=".img") as tmp:
         tmp.write(r.content)
         tmp.flush()
-        # en uzun kenar en fazla 1920 px, JPEG
+        # En uzun kenar en fazla 1920 px, JPEG. Farklı kaynaklardan gelen fotoğraflar aynı videoda tek
+        # bir görünümde buluşsun diye hepsine aynı hafif renk ayarı (cinematic-skill'in "natural"
+        # derecelendirmesi): hafif kontrast, %92 doygunluk, çok hafif sıcak denge.
         vf = "scale='if(gt(iw,ih),min(1920,iw),-2)':'if(gt(iw,ih),-2,min(1920,ih))'"
-        subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", tmp.name, "-frames:v", "1", "-vf", vf,
-                        "-q:v", "3", str(dest)], check=True)
+        grade = GRADE if spec.get("grade", True) else ""
+        for chain in ([vf + "," + grade] if grade else []) + [vf]:  # renk ayarı olmazsa ayarsız
+            ok = subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", tmp.name, "-frames:v", "1", "-vf", chain,
+                                 "-q:v", "3", str(dest)], capture_output=True).returncode == 0
+            if ok:
+                break
+        else:
+            raise RuntimeError("görsel dönüştürülemedi")
     wh = subprocess.run(["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries",
                          "stream=width,height", "-of", "csv=p=0", str(dest)],
                         capture_output=True, text=True).stdout.strip()

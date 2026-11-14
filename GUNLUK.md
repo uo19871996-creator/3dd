@@ -129,6 +129,11 @@ for f in out/TARIH/*.mp4; do ffmpeg -v error -y -ss 8 -i "$f" -frames:v 1 -vf sc
 
 Sorun varsa senaryoyu düzeltip yalnızca o videoyu yeniden üret (`--only 3`).
 
+`[ok]` satırındaki `miks:` bilgisi sesi özetler (ör. `19 efekt + müzik, -14.0 LUFS / tepe -1.9 dBTP`).
+Efektler görsel olaylara (sahne geçişi, fotoğraf, harita iğnesi, sayaç, abone ol tıklaması) otomatik
+bağlanır; senaryoya ek alan gerekmez. `basit miks (yedek)` yazıyorsa gelişmiş miks o makinede
+çalışmamıştır; bu hata değildir, yüklemeye devam et ve raporda belirt.
+
 ## 7. Yükle
 
 Yüklemeden hemen önce `python3 pipeline/upload.py --recent | head -5` ile son yüklemelere tekrar

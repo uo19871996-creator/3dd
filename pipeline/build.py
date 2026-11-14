@@ -252,19 +252,27 @@ def build_video(tts, day, n, total, v, out_dir):
                 scene["photo"] = {"src": f"{day}/{slug}-p{i}.jpg", "credit": c["credit"]}
                 credits.append({k: c[k] for k in ("title", "artist", "license", "license_url", "page")})
                 print(f"[bilgi] Fotoğraf: {c['title']} ({c['license']})", flush=True)
-    final = audio
+    # Ses: seslendirme + görsel olaylara bağlı efektler + müzik, -14 LUFS'ye ayarlı miks (audio_fx.py)
+    final, mix_label = audio, "yalnız ses"
     if template == "v2" and CONFIG.get("music", True):
-        from audio_fx import mix
-        last = len(scenes) - 1
-        stat_times = [s["start"] + 0.25 for i, s in enumerate(scenes)
-                      if 0 < i < last and s.get("stat") and not s.get("map") and not s.get("chart")]
-        stat_times += [s["start"] + 30 / FPS for s in scenes if s.get("subscribe")]  # abone ol tıklaması
-        final = mix(audio, sr, [s["start"] for s in scenes], stat_times, seed=slug)
-    with wave.open(str(pub / f"{slug}.wav"), "wb") as w:
-        w.setnchannels(1)
-        w.setsampwidth(2)
-        w.setframerate(sr)
-        w.writeframes(final.tobytes())
+        try:
+            from audio_fx import cues_for, mix_to_file
+            cues = cues_for(scenes, FPS)
+            lufs, tp = mix_to_file(audio, sr, cues, slug, pub / f"{slug}.wav",
+                                   lufs=CONFIG.get("loudness_lufs", -14.0))
+            final = None
+            mix_label = f"{len(cues)} efekt + müzik" + (f", {lufs:.1f} LUFS / tepe {tp:.1f} dBTP" if lufs else "")
+        except Exception as e:
+            print(f"[bilgi] Gelişmiş ses miksi yapılamadı ({str(e)[-200:]}); basit miksle devam ediliyor. "
+                  "Bu bir hata değil.", flush=True)
+            from audio_fx import mix_simple
+            final, mix_label = mix_simple(audio, sr, [s["start"] for s in scenes], seed=slug), "basit miks (yedek)"
+    if final is not None:
+        with wave.open(str(pub / f"{slug}.wav"), "wb") as w:
+            w.setnchannels(1)
+            w.setsampwidth(2)
+            w.setframerate(sr)
+            w.writeframes(final.tobytes())
 
     # Kare başına ses seviyesi (görsel ses çubukları için)
     hop = sr / FPS
@@ -308,7 +316,7 @@ def build_video(tts, day, n, total, v, out_dir):
         cred_file.unlink()
     voice_label = getattr(tts, "label", type(tts).__name__)
     print(f"[ok] {out.relative_to(ROOT)}  {duration:.1f} sn · ses: {voice_label} · "
-          f"fotoğraf: {len(credits)}", flush=True)
+          f"fotoğraf: {len(credits)} · miks: {mix_label}", flush=True)
     if duration > 175:
         print(f"[uyarı] {slug}: {duration:.0f} sn — Shorts sınırı 180 sn", flush=True)
     return out
