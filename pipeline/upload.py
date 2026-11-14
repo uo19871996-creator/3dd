@@ -142,9 +142,12 @@ def main():
             return
         if r.status_code != 200:
             die(f"Son videolar okunamadı ({r.status_code}): {r.text[:300]}")
-        for it in r.json().get("items", []):
-            s = it["snippet"]
-            print(f"{s['publishedAt'][:10]} | {s['title']}")
+        try:
+            for it in r.json().get("items", []):
+                s = it["snippet"]
+                print(f"{s['publishedAt'][:10]} | {s['title']}", flush=True)
+        except BrokenPipeError:  # `| head -5` okumayı erken kesti: hata değil, sessizce çık
+            os.dup2(os.open(os.devnull, os.O_WRONLY), sys.stdout.fileno())
         return
 
     data = json.loads(Path(args[0]).read_text(encoding="utf-8"))
