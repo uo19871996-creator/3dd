@@ -16,9 +16,11 @@ import io
 import json
 import os
 import re
+import struct
 import subprocess
 import sys
 import wave
+import zlib
 from pathlib import Path
 
 import numpy as np
@@ -184,6 +186,30 @@ def trim(a, sr, thresh=250, pad=0.04):
     return a[max(0, loud[0] - p): loud[-1] + p]
 
 
+def ensure_grain(n=4, size=256):
+    """Film greni karoları: video/public/fx/grain-*.png (numpy ile üretilir, telifsiz, Pillow gerekmez).
+
+    Gri+saydamlık PNG: benek beyaz ya da siyah, saydamlığı gürültünün mutlak değeri (0,25 ölçekli)."""
+    d = VIDEO / "public" / "fx"
+    paths = [d / f"grain-{i}.png" for i in range(n)]
+    if all(p.exists() for p in paths):
+        return
+    d.mkdir(parents=True, exist_ok=True)
+
+    def chunk(tag, data):
+        return struct.pack(">I", len(data)) + tag + data + struct.pack(">I", zlib.crc32(tag + data) & 0xFFFFFFFF)
+
+    rng = np.random.default_rng(1871)
+    for p in paths:
+        v = rng.standard_normal((size, size))
+        la = np.empty((size, size, 2), np.uint8)
+        la[..., 0] = np.where(v > 0, 255, 0)
+        la[..., 1] = np.clip(np.abs(v) * 0.25 * 255, 0, 255).astype(np.uint8)
+        raw = b"".join(b"\x00" + la[y].tobytes() for y in range(size))
+        p.write_bytes(b"\x89PNG\r\n\x1a\n" + chunk(b"IHDR", struct.pack(">IIBBBBB", size, size, 8, 4, 0, 0, 0))
+                      + chunk(b"IDAT", zlib.compress(raw, 9)) + chunk(b"IEND", b""))
+
+
 def build_video(tts, day, n, total, v, out_dir):
     sr = tts.sr
     gap_sentence = np.zeros(int(0.16 * sr), dtype=np.int16)
@@ -196,34 +222,22 @@ def build_video(tts, day, n, total, v, out_dir):
     if template == "v2" and CONFIG.get("outro_text"):  # her videonun sonunda "abone ol" kapanışı
         script_scenes.append({"heading": "", "text": CONFIG["outro_text"],
                               "say": CONFIG.get("outro_say") or CONFIG["outro_text"], "subscribe": True})
-    for sc in script_scenes:
+    sents = []  # her cümle: sahnesi, sesteki başı/sonu, ekranda görünen metni
+    for si, sc in enumerate(script_scenes):
         shown = sentences(sc["text"])
         spoken = sentences(sc.get("say") or sc["text"])
         if len(spoken) != len(shown):  # hizalanamıyorsa tek blok olarak ele al
             shown, spoken = [sc["text"]], [sc.get("say") or sc["text"]]
         start = pos / sr
-        chunks = []
         for shown_s, spoken_s in zip(shown, spoken):
             a = trim(tts.synth(spoken_s), sr)
-            parts = chunk_words(shown_s)
-            weights = [len(p) + 2 for p in parts]
-            t0, dur = pos / sr, a.size / sr
-            acc = 0
-            for p, w in zip(parts, weights):
-                c0 = t0 + dur * acc / sum(weights)
-                acc += w
-                c1 = t0 + dur * acc / sum(weights)
-                chunks.append({"text": p, "start": round(c0, 3), "end": round(c1, 3)})
+            sents.append({"scene": si, "t0": pos / sr, "t1": (pos + a.size) / sr, "text": shown_s})
             track += [a, gap_sentence]
             pos += a.size + gap_sentence.size
         track.append(gap_scene)
         pos += gap_scene.size
-        # Altyazı, bir sonraki parça başlayana (son parçada sahne bitene) kadar ekranda kalır
-        for c, nxt in zip(chunks, chunks[1:]):
-            c["until"] = nxt["start"]
-        chunks[-1]["until"] = round(pos / sr, 3)
         scene = {"heading": sc.get("heading", ""), "start": round(start, 3),
-                 "end": round(pos / sr, 3), "chunks": chunks}
+                 "end": round(pos / sr, 3), "chunks": []}
         for key in ("stat", "icon", "map", "chart", "points", "subscribe"):  # v2 görsel alanları
             if sc.get(key):
                 scene[key] = sc[key]
@@ -231,6 +245,40 @@ def build_video(tts, day, n, total, v, out_dir):
     track.append(np.zeros(int(0.5 * sr), dtype=np.int16))
     audio = np.concatenate(track)
     duration = audio.size / sr
+
+    # Altyazı: her kelime sesteki gerçek anında vurgulanır (align.py, faster-whisper). Hizalama
+    # yapılamazsa ya da bir cümlede zayıf kalırsa o cümle eski yöntemle (harf sayısına göre) zamanlanır.
+    aligned, cap_label = [None] * len(sents), "oransal"
+    if CONFIG.get("word_align", True):
+        try:
+            from align import align_words
+            aligned = align_words(audio, sr, sents)
+            cap_label = f"kelime hizalı {sum(1 for x in aligned if x)}/{len(sents)} cümle"
+        except Exception as e:
+            print(f"[bilgi] Kelime hizalama yapılamadı ({str(e)[-160:]}); altyazılar oransal zamanlanıyor. "
+                  "Bu bir hata değil.", flush=True)
+    for s, times in zip(sents, aligned):
+        words = s["text"].split()
+        if not times or len(times) != len(words):
+            w8 = [len(w) + 1 for w in words]
+            times = [round(s["t0"] + (s["t1"] - s["t0"]) * sum(w8[:i]) / sum(w8), 3) for i in range(len(words))]
+        new, i = [], 0
+        for part in chunk_words(s["text"]):
+            cnt = len(part.split())  # (n değil: n bu fonksiyonda videonun sıra numarası)
+            new.append({"text": part, "start": times[i], "words": times[i:i + cnt]})
+            i += cnt
+        if not new:  # ekranda metni olmayan cümle
+            continue
+        for c, nxt in zip(new, new[1:]):
+            c["end"] = nxt["start"]
+        new[-1]["end"] = round(s["t1"], 3)
+        scenes[s["scene"]]["chunks"] += new
+    for scene in scenes:  # altyazı bir sonraki parça başlayana (son parçada sahne bitene) kadar kalır
+        ch = scene["chunks"]
+        for c, nxt in zip(ch, ch[1:]):
+            c["until"] = nxt["start"]
+        if ch:
+            ch[-1]["until"] = scene["end"]
 
     slug = v["slug"]
     pub = VIDEO / "public" / day
@@ -296,6 +344,9 @@ def build_video(tts, day, n, total, v, out_dir):
         props["categoryIcon"] = v.get("category_icon") or CATEGORY_ICONS.get(cat, "newspaper")
         props["channelName"] = CONFIG.get("channel_name", "")
         props["channelTagline"] = CONFIG.get("channel_tagline", "")
+        props["grain"] = float(CONFIG.get("grain", 0.025) or 0)
+        if props["grain"]:
+            ensure_grain()
         props.pop("levels")
     props_file = pub / f"{slug}.json"
     props_file.write_text(json.dumps(props, ensure_ascii=False), encoding="utf-8")
@@ -316,7 +367,7 @@ def build_video(tts, day, n, total, v, out_dir):
         cred_file.unlink()
     voice_label = getattr(tts, "label", type(tts).__name__)
     print(f"[ok] {out.relative_to(ROOT)}  {duration:.1f} sn · ses: {voice_label} · "
-          f"fotoğraf: {len(credits)} · miks: {mix_label}", flush=True)
+          f"fotoğraf: {len(credits)} · miks: {mix_label} · altyazı: {cap_label}", flush=True)
     if duration > 175:
         print(f"[uyarı] {slug}: {duration:.0f} sn — Shorts sınırı 180 sn", flush=True)
     return out

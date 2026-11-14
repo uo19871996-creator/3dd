@@ -1,6 +1,7 @@
 export const FPS = 30;
 
-export type Chunk = { text: string; start: number; end: number; until?: number };
+// words: her kelimenin sesteki başlangıcı (sn); varsa vurgu buna göre ilerler
+export type Chunk = { text: string; start: number; end: number; until?: number; words?: number[] };
 
 export type MapSpec = {
   place: string;
@@ -45,6 +46,7 @@ export type ShortV2Props = {
   scenes: SceneV2[];
   channelName?: string;
   channelTagline?: string;
+  grain?: number; // film greni şiddeti (0 = kapalı; 0,025 hafif)
 };
 
 export const INK = "#f8fafc";

@@ -19,5 +19,7 @@
   "music": true,
   "channel_name": "Ümit'ten Videolar",
   "channel_tagline": "Türkiye gündemi, gün boyu her saat",
-  "outro_text": "Gündemi kaçırmamak için abone ol!"
+  "outro_text": "Gündemi kaçırmamak için abone ol!",
+  "word_align": true,
+  "grain": 0.025
 }

@@ -134,6 +134,11 @@ Efektler görsel olaylara (sahne geçişi, fotoğraf, harita iğnesi, sayaç, ab
 bağlanır; senaryoya ek alan gerekmez. `basit miks (yedek)` yazıyorsa gelişmiş miks o makinede
 çalışmamıştır; bu hata değildir, yüklemeye devam et ve raporda belirt.
 
+`altyazı:` bilgisi altyazı zamanlamasını gösterir: `kelime hizalı 11/12 cümle` normaldir (her kelime
+sesteki anında vurgulanır; hizalanamayan cümle orantılı zamanlanır). `oransal` yazıyorsa kelime
+hizalama o makinede çalışmamıştır; hata değildir, yüklemeye devam et. Görüntüdeki hafif film greni
+bilinçlidir (`config.json` → `grain`); dosyalar bu yüzden ~50 MB olabilir.
+
 ## 7. Yükle
 
 Yüklemeden hemen önce `python3 pipeline/upload.py --recent | head -5` ile son yüklemelere tekrar

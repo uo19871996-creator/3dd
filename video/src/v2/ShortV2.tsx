@@ -765,6 +765,40 @@ const SceneLayer: React.FC<{ s: SceneV2; n: number; last: boolean; p: ShortV2Pro
   );
 };
 
+/* ---------- Film greni ----------
+   cinematic-skill'in yöntemi: yarım çözünürlüklü gren (256 px karo ekranda 512 px) ve desen her 2
+   karede bir değişir. Tam çözünürlükte her kare değişen gren hem "dijital parazit" gibi görünür hem
+   de dosyayı çok büyütür. Karolar build.py'de numpy ile üretilir: beyaz/siyah benekler, saydamlık =
+   gürültü şiddeti (0,25 ölçekli); katman opaklığı = amount / 0,25. */
+const GRAIN_TILE = 512;
+const Grain: React.FC<{ amount?: number }> = ({ amount }) => {
+  const frame = useCurrentFrame();
+  if (!amount) return null;
+  const k = Math.floor(frame / 2);
+  const rnd = (n: number) => {
+    const x = Math.sin(k * 127.1 + n * 311.7) * 43758.5453;
+    return x - Math.floor(x);
+  };
+  const src = staticFile(`fx/grain-${(k * 3) % 4}.png`);
+  const ox = Math.floor(rnd(1) * GRAIN_TILE);
+  const oy = Math.floor(rnd(2) * GRAIN_TILE);
+  const tiles: [number, number][] = [];
+  for (let y = 0; y < 5; y++) for (let x = 0; x < 4; x++) tiles.push([x, y]);
+  return (
+    <AbsoluteFill style={{ pointerEvents: "none", overflow: "hidden", opacity: Math.min(1, amount / 0.25) }}>
+      <div style={{ position: "absolute", left: -ox, top: -oy, width: 4 * GRAIN_TILE, height: 5 * GRAIN_TILE }}>
+        {tiles.map(([x, y]) => (
+          <Img
+            key={`${x}-${y}`}
+            src={src}
+            style={{ position: "absolute", left: x * GRAIN_TILE, top: y * GRAIN_TILE, width: GRAIN_TILE, height: GRAIN_TILE }}
+          />
+        ))}
+      </div>
+    </AbsoluteFill>
+  );
+};
+
 /* ---------- Altyazı ---------- */
 
 const Caption: React.FC<{ chunk?: Chunk; accent: string; top: number }> = ({ chunk, accent, top }) => {
@@ -773,8 +807,16 @@ const Caption: React.FC<{ chunk?: Chunk; accent: string; top: number }> = ({ chu
   const local = frame - Math.round(chunk.start * FPS);
   const pop = spring({ frame: local, fps: FPS, config: { damping: 14, mass: 0.45 } });
   const words = chunk.text.split(" ");
-  const dur = Math.max(1, (chunk.end - chunk.start) * FPS);
-  const active = Math.min(words.length - 1, Math.floor((local / dur) * words.length));
+  // Etkin kelime: gerçek kelime zamanları varsa onlara göre, yoksa parça süresine orantılı
+  const starts =
+    chunk.words && chunk.words.length === words.length
+      ? chunk.words.map((t) => Math.round(t * FPS))
+      : words.map((_, i) => Math.round(chunk.start * FPS + (i * Math.max(1, (chunk.end - chunk.start) * FPS)) / words.length));
+  let active = 0;
+  starts.forEach((f, i) => {
+    if (frame >= f) active = i;
+  });
+  const wordPop = (i: number) => (i === active ? 1 + 0.07 * Math.max(0, 1 - (frame - starts[i]) / 5) : 1);
   return (
     <div
       style={{
@@ -805,7 +847,15 @@ const Caption: React.FC<{ chunk?: Chunk; accent: string; top: number }> = ({ chu
         }}
       >
         {words.map((w, i) => (
-          <span key={i} style={{ display: "inline-block", marginRight: "0.24em", color: i === active ? accent : INK }}>
+          <span
+            key={i}
+            style={{
+              display: "inline-block",
+              marginRight: "0.24em",
+              color: i === active ? accent : INK,
+              transform: `scale(${wordPop(i)})`,
+            }}
+          >
             {w}
           </span>
         ))}
@@ -844,6 +894,7 @@ export const ShortV2: React.FC<ShortV2Props> = (p) => {
       })}
       <Caption chunk={chunk} accent={p.accent} top={sceneIdx === 0 ? 1290 : 1225} />
       <AbsoluteFill style={{ background: "#ffffff", opacity: flash, pointerEvents: "none" }} />
+      <Grain amount={p.grain} />
       {p.audio ? <Audio src={staticFile(p.audio)} /> : null}
     </AbsoluteFill>
   );

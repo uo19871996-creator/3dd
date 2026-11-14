@@ -31,6 +31,16 @@ if [ "$TTS" = "chatterbox" ]; then
   HF_HUB_DISABLE_XET=1 .venv-tts/bin/python -c "from huggingface_hub import snapshot_download; snapshot_download('ResembleAI/chatterbox', allow_patterns=['ve.pt', 't3_mtl23ls_v2.safetensors', 's3gen.pt', 'grapheme_mtl_merged_expanded_v1.json', 'conds.pt', 'Cangjie5_TC.json'])" >/dev/null
 fi
 
+# Altyazı kelime hizalaması (pipeline/align.py): faster-whisper ve "small" modeli (~480 MB).
+# Kurulamazsa betik durmaz; altyazılar eski yöntemle (cümle içinde orantılı) zamanlanır.
+ALIGN=$(python3 -c "import json; print(json.load(open('config.json')).get('word_align', True))")
+if [ "$ALIGN" = "True" ]; then
+  if ! python3 -m pip install -q --root-user-action=ignore faster-whisper \
+     || ! HF_HUB_DISABLE_XET=1 python3 -c "from faster_whisper import download_model; download_model('small')" >/dev/null; then
+    echo "[bilgi] Kelime hizalama kurulamadı; altyazılar oransal zamanlanacak (hata değil)."
+  fi
+fi
+
 # Remotion ve yazı tipleri (zaten kuruluysa atla)
 if [ ! -d video/node_modules/remotion ]; then
   (cd video && npm ci --silent --no-audit --no-fund)
