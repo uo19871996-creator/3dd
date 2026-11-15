@@ -16,6 +16,7 @@ Yüklenen videolar state/uploaded.json içine kaydedilir; aynı video ikinci kez
 """
 import json
 import os
+import re
 import sys
 from pathlib import Path
 
@@ -60,6 +61,11 @@ def save_state(state):
     STATE.write_text(json.dumps(state, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
+def clean_title(t):
+    """Başlıktan #shorts'u çıkarır (açıklamada zaten var; başlıkta görünen 40-60 karakteri harcar)."""
+    return " ".join(re.sub(r"#shorts\b", "", t, flags=re.I).split())[:100] or t.strip()[:100]
+
+
 def upload(token, path, v, privacy):
     desc = v["description"].strip()
     if v.get("sources"):
@@ -76,7 +82,7 @@ def upload(token, path, v, privacy):
     tags = list(dict.fromkeys(v.get("tags", []) + CONFIG.get("default_tags", [])))
     body = {
         "snippet": {
-            "title": v["yt_title"][:100],
+            "title": clean_title(v["yt_title"]),
             "description": desc[:4900],
             "tags": tags,
             "categoryId": v.get("youtube_category_id", CONFIG.get("youtube_category_id", "25")),
@@ -173,9 +179,9 @@ def main():
         res = upload(token, path, v, privacy)
         got = res.get("status", {}).get("privacyStatus")
         state[key] = {"id": res["id"], "url": f"https://youtube.com/shorts/{res['id']}",
-                      "title": v["yt_title"], "privacy": got}
+                      "title": clean_title(v["yt_title"]), "privacy": got}
         save_state(state)
-        print(f"[ok] {state[key]['url']}  ({got})  {v['yt_title']}")
+        print(f"[ok] {state[key]['url']}  ({got})  {clean_title(v['yt_title'])}")
         if got != privacy:
             print(f"[uyarı] İstenen görünürlük '{privacy}' ama YouTube '{got}' olarak kaydetti "
                   "(kanal/hesap ayarları yüklemeleri gizliye çekebilir; YouTube Studio'dan kontrol et).")

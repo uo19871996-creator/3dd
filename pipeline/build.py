@@ -370,6 +370,10 @@ def build_video(tts, day, n, total, v, out_dir):
           f"fotoğraf: {len(credits)} · miks: {mix_label} · altyazı: {cap_label}", flush=True)
     if duration > 175:
         print(f"[uyarı] {slug}: {duration:.0f} sn — Shorts sınırı 180 sn", flush=True)
+    yt = " ".join(re.sub(r"#shorts\b", "", v.get("yt_title", ""), flags=re.I).split())
+    if len(yt) > 60:  # mobilde ~40, masaüstü aramada 60 karakter görünür
+        print(f"[uyarı] {slug}: yt_title {len(yt)} karakter; en fazla 60 olsun, konu ilk 40 karakterde. "
+              "Yalnızca senaryodaki yt_title'ı kısalt, video yeniden üretilmez.", flush=True)
     return out
 
 

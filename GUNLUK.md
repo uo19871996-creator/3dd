@@ -40,6 +40,12 @@ gelişmeyi anlatarak tekrar seç.
 - Çeşitlilik: kanalın son 5 videosunda aynı kategoriden (GÜNDEM, EKONOMİ, SPOR, SİYASET, DÜNYA,
   TEKNOLOJİ, MAGAZİN, SAĞLIK, EĞİTİM, YAŞAM, BİLİM, KÜLTÜR) 3'ten fazla olmasın; denk gelirse
   bir sonraki en güçlü konuya geç.
+- Kanal verisi (13-14 Kasım, `python3 pipeline/stats.py`): tek tek yüklenen videolar 700-1400
+  izlendi. En üstte Türkiye merkezli konular var: milli maçlar ve Türk sporcular (Alperen, Salah
+  maçı, Belçika maçı), büyük iç siyaset gelişmeleri (en çok beğeni de bunlarda) ve ulusal haberler.
+  Yabancı ülke haberleri ortalamanın biraz altında kaldı. İki aday denk güçlüyse Türkiye'deki
+  izleyiciyi doğrudan ilgilendireni seç; ama önemli bir gelişmeyi sırf bu yüzden atlama,
+  çeşitlilik kuralını da koru.
 - **Uygun yeni konu yoksa video ÜRETME ve YÜKLEME** (dolgu, zayıf ya da tekrar içerik kanalı
   bastırır); raporda "bu saat yeni konu yok" de ve bitir.
 - Her konu için web aramasıyla **en az 2 bağımsız, güvenilir kaynaktan** doğrula. Kaynaklar
@@ -79,8 +85,12 @@ varsa açılış ve başlık için onlardan da yararlan; yoksa aşağıdaki kura
   - Son sahne: konuyla ilgili TEK kısa soru, en fazla 8 kelime (ekranda "Yorumunu bekliyorum"
     kartı çıkar). Kanal logolu "abone ol" kapanışı (2-3 sn) her videonun sonuna OTOMATİK eklenir
     (`config.json` > `outro_text`); senaryoya ayrıca "abone ol / takipte kal" cümlesi yazma.
-- `yt_title`: ana anahtar kelime (kişi/kurum/olay adı) EN BAŞTA, en fazla 70 karakter, sonu
-  `#shorts`. Shorts aramasında bulunmak için anahtar kelimeler açık yazılsın.
+- `yt_title`: **en fazla 60 karakter**; konu (kişi/kurum/olay adı ve ne olduğu) **ilk 40
+  karakterde**. Mobilde yalnızca ilk ~40 karakter görünür, masaüstü aramada 60'tan sonrası kesilir.
+  `#shorts` YAZMA: açıklamada zaten var, başlıkta yer kaplar (yazılırsa yükleme betiği siler).
+  Anahtar kelimeler açık yazılsın. Örnek: "Alperen Şengün 43 sayıyla Rockets tarihine geçti" (48).
+  Üretim çıktısında yt_title için `[uyarı]` çıkarsa yalnızca senaryodaki `yt_title`'ı kısalt;
+  video yeniden üretilmez.
 - `description`: 1-2 cümle; ilk cümle konunun anahtar kelimelerini içersin. `sources`: 2 kaynak URL'si.
 - `tags`: 4-6 etiket. `hashtags`: konuya özel 2-3 hashtag (ör. `["#BDDK", "#ekonomi"]`);
   açıklamada en üstte görünür. Genel `#shorts #gündem #haber` otomatik eklenir.
