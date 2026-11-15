@@ -4,6 +4,7 @@
 Kullanım:
   python3 pipeline/upload.py --check                    # sadece kimlik doğrulamayı dener
   python3 pipeline/upload.py --recent                   # kanaldaki son 50 videonun başlığı
+  python3 pipeline/upload.py --today                    # bugün kaç video yüklendi (sınır: config)
   python3 pipeline/upload.py scripts/2026-11-11.json    # o günün videolarını yükler
   python3 pipeline/upload.py scripts/2026-11-11.json --only 1,3 --privacy private
 
@@ -18,6 +19,7 @@ import json
 import os
 import re
 import sys
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import requests
@@ -28,6 +30,7 @@ STATE = ROOT / "state" / "uploaded.json"
 TOKEN_URL = "https://oauth2.googleapis.com/token"
 UPLOAD_URL = "https://www.googleapis.com/upload/youtube/v3/videos"
 API = "https://www.googleapis.com/youtube/v3"
+IST = timezone(timedelta(hours=3))  # Türkiye: sabit UTC+3 (yaz saati yok)
 
 
 def die(msg):
@@ -59,6 +62,30 @@ def load_state():
 def save_state(state):
     STATE.parent.mkdir(exist_ok=True)
     STATE.write_text(json.dumps(state, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
+def recent_items(token):
+    """Kanalın son 50 yüklemesi (playlistItems snippet'leri, en yeni önce)."""
+    h = {"Authorization": f"Bearer {token}"}
+    r = requests.get(f"{API}/channels", params={"part": "contentDetails", "mine": "true"},
+                     headers=h, timeout=60)
+    if r.status_code != 200 or not r.json().get("items"):
+        die(f"Kanal okunamadı ({r.status_code}): {r.text[:300]}")
+    uploads = r.json()["items"][0]["contentDetails"]["relatedPlaylists"]["uploads"]
+    r = requests.get(f"{API}/playlistItems", headers=h, timeout=60,
+                     params={"part": "snippet", "playlistId": uploads, "maxResults": 50})
+    if r.status_code == 404:  # henüz hiç video yok
+        return []
+    if r.status_code != 200:
+        die(f"Son videolar okunamadı ({r.status_code}): {r.text[:300]}")
+    return [it["snippet"] for it in r.json().get("items", [])]
+
+
+def today_count(items):
+    """İstanbul saatine göre bugün yüklenen video sayısı."""
+    today = datetime.now(IST).date()
+    return sum(1 for s in items
+               if datetime.fromisoformat(s["publishedAt"].replace("Z", "+00:00")).astimezone(IST).date() == today)
 
 
 def clean_title(t):
@@ -134,23 +161,14 @@ def main():
             die("Bu Google hesabına bağlı bir YouTube kanalı bulunamadı.")
         print(f"[ok] Bağlı kanal: {items[0]['snippet']['title']}")
         return
+    cap = int(CONFIG.get("daily_upload_cap", 10) or 0)
+    if "--today" in args:
+        print(f"Bugün (İstanbul) kanala yüklenen video: {today_count(recent_items(token))} / {cap or '-'}")
+        return
     if "--recent" in args:
         # Kanala son yüklenen videoların başlıkları (aynı konuyu tekrar işlememek için)
-        h = {"Authorization": f"Bearer {token}"}
-        r = requests.get(f"{API}/channels", params={"part": "contentDetails", "mine": "true"},
-                         headers=h, timeout=60)
-        if r.status_code != 200 or not r.json().get("items"):
-            die(f"Kanal okunamadı ({r.status_code}): {r.text[:300]}")
-        uploads = r.json()["items"][0]["contentDetails"]["relatedPlaylists"]["uploads"]
-        r = requests.get(f"{API}/playlistItems", headers=h, timeout=60,
-                         params={"part": "snippet", "playlistId": uploads, "maxResults": 50})
-        if r.status_code == 404:  # henüz hiç video yok
-            return
-        if r.status_code != 200:
-            die(f"Son videolar okunamadı ({r.status_code}): {r.text[:300]}")
         try:
-            for it in r.json().get("items", []):
-                s = it["snippet"]
+            for s in recent_items(token):
                 print(f"{s['publishedAt'][:10]} | {s['title']}", flush=True)
         except BrokenPipeError:  # `| head -5` okumayı erken kesti: hata değil, sessizce çık
             os.dup2(os.open(os.devnull, os.O_WRONLY), sys.stdout.fileno())
@@ -176,6 +194,11 @@ def main():
         path = ROOT / "out" / day / f"{n}-{v['slug']}.mp4"
         if not path.exists():
             die(f"Video dosyası yok: {path}")
+        if cap and today_count(recent_items(token)) >= cap:
+            # 13-14 Kasım verisi: günün 10. videosundan sonrakiler neredeyse hiç dağıtılmadı
+            print(f"[bilgi] Bugün kanala zaten {cap} video yüklendi; YouTube günün {cap}. videosundan "
+                  "sonrakileri neredeyse hiç göstermiyor. Yükleme yapılmadı (hata değil).")
+            return
         res = upload(token, path, v, privacy)
         got = res.get("status", {}).get("privacyStatus")
         state[key] = {"id": res["id"], "url": f"https://youtube.com/shorts/{res['id']}",

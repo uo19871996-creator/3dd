@@ -21,5 +21,6 @@
   "channel_tagline": "Türkiye gündemi, gün boyu her saat",
   "outro_text": "Gündemi kaçırmamak için abone ol!",
   "word_align": true,
-  "grain": 0.025
+  "grain": 0.025,
+  "daily_upload_cap": 10
 }

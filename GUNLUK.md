@@ -1,9 +1,11 @@
 # Çalışma talimatı
 
-Bu dosya, otomatik açılan oturumun izleyeceği adımlardır. Görev şu an **İstanbul saatiyle
-09:00-23:00 arasında saatte bir** çalışır ve her çalışmada **1 video** (görev metni başka bir sayı
-söylüyorsa o kadar) üretip yükler. Amaç: Türkiye'de şu an en çok konuşulan ve kanalda henüz
-işlenmemiş konuyu seçmek, YouTube Shorts videosu üretmek ve kanala yüklemek.
+Bu dosya, otomatik açılan oturumun izleyeceği adımlardır. Görev **İstanbul saatiyle günde 10 kez**
+(09, 10, 12, 13, 15, 16, 18, 19, 21 ve 22'de) çalışır ve her çalışmada **1 video** (görev metni
+başka bir sayı söylüyorsa o kadar) üretip yükler. Günde 10'dan fazla yükleme yapılmaz: kanal
+verisinde günün 10. videosundan sonrakiler neredeyse hiç izlenmedi. Amaç: Türkiye'de şu an en çok
+konuşulan ve kanalda henüz işlenmemiş konuyu, kanalda en çok izlenen konu türlerine öncelik vererek
+seçmek, YouTube Shorts videosu üretmek ve kanala yüklemek.
 Tarih olarak İstanbul saatine göre bugünü kullan (`TZ=Europe/Istanbul date +%F`).
 Senaryo dosyasının adı: `scripts/TARIH-SSDD.json` (ör. `scripts/2026-11-14-1407.json`).
 Dosyanın içindeki `"date"` alanı yine yalnızca tarihtir (`"2026-11-14"`).
@@ -27,8 +29,12 @@ aramasıyla listeyi genişlet.
 ## 3. Daha önce işlenenleri kontrol et
 
 ```bash
+python3 pipeline/upload.py --today
 python3 pipeline/upload.py --recent
 ```
+
+`--today` bugün yüklenen video sayısını verir. **10 ya da fazlaysa dur**: video üretme ve yükleme,
+raporda "bugünkü 10 video tamam" de ve bitir (`upload.py` de bu sınırda yüklemeyi kendisi atlar).
 
 Liste kanalın son ~50 videosudur (yaklaşık son 3 gün). Son 48 saatte işlenmiş bir konuyu
 (aynı olay ya da aynı kişi/kurumun aynı haberi) yalnızca önemli YENİ bir gelişme varsa ve yeni
@@ -40,12 +46,21 @@ gelişmeyi anlatarak tekrar seç.
 - Çeşitlilik: kanalın son 5 videosunda aynı kategoriden (GÜNDEM, EKONOMİ, SPOR, SİYASET, DÜNYA,
   TEKNOLOJİ, MAGAZİN, SAĞLIK, EĞİTİM, YAŞAM, BİLİM, KÜLTÜR) 3'ten fazla olmasın; denk gelirse
   bir sonraki en güçlü konuya geç.
-- Kanal verisi (13-14 Kasım, `python3 pipeline/stats.py`): tek tek yüklenen videolar 700-1400
-  izlendi. En üstte Türkiye merkezli konular var: milli maçlar ve Türk sporcular (Alperen, Salah
-  maçı, Belçika maçı), büyük iç siyaset gelişmeleri (en çok beğeni de bunlarda) ve ulusal haberler.
-  Yabancı ülke haberleri ortalamanın biraz altında kaldı. İki aday denk güçlüyse Türkiye'deki
-  izleyiciyi doğrudan ilgilendireni seç; ama önemli bir gelişmeyi sırf bu yüzden atlama,
-  çeşitlilik kuralını da koru.
+- **En çok izlenen konu türlerinden üret** (kanal sahibinin isteği). Seçmeden önce bak:
+
+  ```bash
+  python3 pipeline/stats.py --top 5
+  ```
+
+  Her video, kanal medyanının kaç katı izlendiğiyle sıralanır (yalnızca 24 saati dolanlar).
+  Listenin dibindeki çok düşük videoları (onlarca izlenme) konu zayıflığı sayma: bunlar 11 Kasım'da
+  aynı anda toplu yüklenenler ve eski düzende günün 11.+ yüklemeleri; YouTube onları dağıtmadı.
+  13-14 Kasım verisinde en üstte Türkiye merkezli konular var: milli maçlar ve Türk sporcular
+  (Belçika maçı, Alperen Şengün), büyük iç siyaset gelişmeleri (en çok beğeni de bunlarda) ve
+  Türkiye'yi doğrudan ilgilendiren ulusal haberler. Yabancı ülke haberleri ortalamanın altında.
+  Güçlü adaylar arasından bu türlere en yakın olanı seç. Yine de önemli bir son dakika gelişmesini
+  sırf türü yüzünden atlama; doğrulama, yayın yasağı ve tarafsızlık kuralları her zaman önce gelir;
+  çeşitlilik kuralını koru.
 - **Uygun yeni konu yoksa video ÜRETME ve YÜKLEME** (dolgu, zayıf ya da tekrar içerik kanalı
   bastırır); raporda "bu saat yeni konu yok" de ve bitir.
 - Her konu için web aramasıyla **en az 2 bağımsız, güvenilir kaynaktan** doğrula. Kaynaklar
