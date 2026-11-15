@@ -21,7 +21,7 @@
       "scenes": [
         {
           "text": "Apple'ın eski CEO'su Tim Cook Türkiye'ye geldi. Peki İstanbul'da neler yaptı?",
-          "say": "Epıl'ın eski si i o'su Tim Kuk Türkiye'ye geldi. Peki İstanbul'da neler yaptı?",
+          "say": "Epıl'ın eski CEO'su Tim Kuk Türkiye'ye geldi. Peki İstanbul'da neler yaptı?",
           "icon": "plane-landing",
           "photo": {
             "file": "File:Tim Cook (2017, cropped).jpg"
@@ -64,7 +64,7 @@
         {
           "heading": "Artık CEO değil",
           "text": "Bu arada Cook artık Apple'ın CEO'su değil. Eylül ayında koltuğu John Ternus'a devretti; şimdi yönetim kurulu başkanı.",
-          "say": "Bu arada Kuk artık Epıl'ın si i o'su değil. Eylül ayında koltuğu Con Ternıs'a devretti; şimdi yönetim kurulu başkanı.",
+          "say": "Bu arada Kuk artık Epıl'ın CEO'su değil. Eylül ayında koltuğu Con Ternıs'a devretti; şimdi yönetim kurulu başkanı.",
           "icon": "briefcase",
           "points": [
             "Yeni CEO: John Ternus",

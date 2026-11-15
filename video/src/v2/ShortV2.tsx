@@ -21,7 +21,6 @@ import { Logo } from "./Logo";
 import { MapCard } from "./MapCard";
 import { FONT, FPS, INK, MUTED, type ChartSpec, type Chunk, type Photo, type SceneV2, type ShortV2Props } from "./types";
 
-const TAIL = 10; // sahne çıkış animasyonu (kare)
 const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
 
 const useFonts = () => {
@@ -197,23 +196,9 @@ const TitleBlock: React.FC<{ p: ShortV2Props }> = ({ p }) => {
   const size = interpolate(shrink, [0, 1], [big, 42]);
   const top = interpolate(shrink, [0, 1], [740, 236]);
   const words = p.title.split(" ");
-  const hookIcon = p.scenes[0]?.icon ?? p.categoryIcon;
+  // Açılış ikonu (fotoğrafsız açılışta) artık taşınan kartın ilk hali: Stage çizer.
   return (
     <>
-      <div
-        style={{
-          position: "absolute",
-          top: 380,
-          left: 0,
-          right: 0,
-          display: "flex",
-          justifyContent: "center",
-          opacity: p.scenes[0]?.photo ? 0 : 1 - shrink,
-          transform: `scale(${1 - shrink * 0.3})`,
-        }}
-      >
-        <IconBadge name={hookIcon} accent={p.accent} size={300} local={frame - 2} />
-      </div>
       <div style={{ position: "absolute", top, left: 60, right: 60, fontFamily: FONT, opacity: hideForOutro }}>
         <div
           style={{
@@ -299,46 +284,44 @@ const Credit: React.FC<{ text: string; style?: React.CSSProperties }> = ({ text,
   </div>
 );
 
-const PhotoVisual: React.FC<{
+// Fotoğraf, bulunduğu kartı doldurur (kart küçülürken fotoğraf da onunla küçülür).
+// hook: açılışın tam ekran fotoğrafı; karartma ve atıf, kart küçülmeye başlayınca (veil) söner.
+const PhotoFill: React.FC<{
   photo: Photo;
   accent: string;
   local: number;
   dur: number;
   stat?: { value: string; label: string };
-}> = ({ photo, accent, local, dur, stat }) => {
+  hook?: boolean;
+  veil?: number;
+}> = ({ photo, accent, local, dur, stat, hook, veil = 1 }) => {
   const k = interpolate(local, [0, Math.max(1, dur)], [0, 1], clamp);
   const pop = spring({ frame: local - 10, fps: FPS, config: { damping: 13, mass: 0.6 } });
   return (
-    <div
-      style={{
-        position: "relative",
-        width: 960,
-        height: 760,
-        borderRadius: 40,
-        overflow: "hidden",
-        border: "2px solid rgba(255,255,255,0.14)",
-        boxShadow: `0 30px 80px rgba(0,0,0,0.45), 0 0 100px ${accent}22`,
-      }}
-    >
+    <AbsoluteFill>
       <Img
         src={staticFile(photo.src)}
         style={{
-          position: "absolute",
-          inset: 0,
           width: "100%",
           height: "100%",
           objectFit: "cover",
-          transform: `scale(${1.04 + 0.1 * k}) translate(${-1.2 * k}%, ${-0.8 * k}%)`,
+          transform: hook
+            ? `scale(${1.08 + 0.1 * k})`
+            : `scale(${1.04 + 0.1 * k}) translate(${-1.2 * k}%, ${-0.8 * k}%)`,
         }}
       />
-      <div
-        style={{
-          position: "absolute",
-          inset: 0,
-          background: "linear-gradient(180deg, rgba(4,7,15,0) 45%, rgba(4,7,15,0.88) 100%)",
-        }}
-      />
-      {stat ? (
+      {hook ? (
+        <AbsoluteFill
+          style={{
+            opacity: veil,
+            background:
+              "linear-gradient(180deg, rgba(4,7,15,0.55) 0%, rgba(4,7,15,0.35) 30%, rgba(4,7,15,0.75) 60%, rgba(4,7,15,0.92) 100%)",
+          }}
+        />
+      ) : (
+        <AbsoluteFill style={{ background: "linear-gradient(180deg, rgba(4,7,15,0) 45%, rgba(4,7,15,0.88) 100%)" }} />
+      )}
+      {stat && !hook ? (
         <div
           style={{
             position: "absolute",
@@ -355,37 +338,11 @@ const PhotoVisual: React.FC<{
           <div style={{ color: INK, fontWeight: 700, fontSize: 36, marginTop: 8 }}>{stat.label}</div>
         </div>
       ) : null}
-      <Credit text={photo.credit} style={{ position: "absolute", left: 24, right: 24, bottom: 16 }} />
-    </div>
-  );
-};
-
-const HookPhoto: React.FC<{ p: ShortV2Props }> = ({ p }) => {
-  const frame = useCurrentFrame();
-  const photo = p.scenes[0]?.photo;
-  if (!photo) return null;
-  const firstEnd = Math.round((p.scenes[0]?.end ?? 3) * FPS);
-  const fade = interpolate(frame, [firstEnd - 4, firstEnd + 8], [1, 0], clamp);
-  if (fade <= 0) return null;
-  const k = interpolate(frame, [0, firstEnd], [0, 1], clamp);
-  return (
-    <AbsoluteFill style={{ opacity: fade }}>
-      <Img
-        src={staticFile(photo.src)}
-        style={{
-          width: "100%",
-          height: "100%",
-          objectFit: "cover",
-          transform: `scale(${1.08 + 0.1 * k})`,
-        }}
-      />
-      <AbsoluteFill
-        style={{
-          background:
-            "linear-gradient(180deg, rgba(4,7,15,0.55) 0%, rgba(4,7,15,0.35) 30%, rgba(4,7,15,0.75) 60%, rgba(4,7,15,0.92) 100%)",
-        }}
-      />
-      <Credit text={photo.credit} style={{ position: "absolute", left: 60, right: 60, top: 246 }} />
+      {hook ? (
+        <Credit text={photo.credit} style={{ position: "absolute", left: 60, right: 60, top: 246, opacity: veil }} />
+      ) : (
+        <Credit text={photo.credit} style={{ position: "absolute", left: 24, right: 24, bottom: 16 }} />
+      )}
     </AbsoluteFill>
   );
 };
@@ -400,29 +357,6 @@ const parseStat = (v: string) => {
 };
 
 const fmt = (n: number, decimals: number) => n.toFixed(decimals).replace(".", ",");
-
-const Heading: React.FC<{ n: number; text: string; accent: string; icon?: string }> = ({ n, text, accent, icon }) => (
-  <div style={{ display: "flex", alignItems: "center", gap: 22, fontFamily: FONT }}>
-    <div
-      style={{
-        minWidth: 76,
-        height: 76,
-        borderRadius: 22,
-        background: "rgba(255,255,255,0.08)",
-        border: "2px solid rgba(255,255,255,0.16)",
-        color: accent,
-        fontWeight: 900,
-        fontSize: 34,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-      }}
-    >
-      {icon ? <Icon name={icon} size={40} color={accent} strokeWidth={2.2} /> : String(n).padStart(2, "0")}
-    </div>
-    <div style={{ color: INK, fontWeight: 800, fontSize: 56, lineHeight: 1.1, letterSpacing: -0.5 }}>{text}</div>
-  </div>
-);
 
 const StatVisual: React.FC<{ stat: { value: string; label: string }; accent: string; icon?: string; local: number }> = ({
   stat,
@@ -439,12 +373,8 @@ const StatVisual: React.FC<{ stat: { value: string; label: string }; accent: str
     <div
       style={{
         padding: "56px 56px",
-        borderRadius: 40,
-        background: "linear-gradient(135deg, rgba(255,255,255,0.12), rgba(255,255,255,0.04))",
-        border: "2px solid rgba(255,255,255,0.14)",
-        boxShadow: `0 30px 80px rgba(0,0,0,0.35), 0 0 120px ${accent}22`,
-        transform: `scale(${0.85 + 0.15 * pop})`,
-        transformOrigin: "left top",
+        transform: `translateY(${(1 - pop) * 24}px) scale(${0.94 + 0.06 * pop})`,
+        transformOrigin: "left center",
         opacity: Math.min(1, pop * 1.6),
         fontFamily: FONT,
         display: "flex",
@@ -482,9 +412,6 @@ const ChartVisual: React.FC<{ chart: ChartSpec; accent: string; local: number }>
     <div
       style={{
         padding: "44px 48px",
-        borderRadius: 40,
-        background: "rgba(255,255,255,0.06)",
-        border: "2px solid rgba(255,255,255,0.12)",
         fontFamily: FONT,
         display: "flex",
         flexDirection: "column",
@@ -564,44 +491,34 @@ const ListVisual: React.FC<{ points: string[]; accent: string; local: number; du
   </div>
 );
 
-const IconVisual: React.FC<{ name: string; accent: string; local: number }> = ({ name, accent, local }) => (
-  <div style={{ display: "flex", justifyContent: "center", paddingTop: 40 }}>
-    <IconBadge name={name} accent={accent} size={460} local={local} />
-  </div>
-);
-
-const QuestionVisual: React.FC<{ accent: string; local: number }> = ({ accent, local }) => {
+const QuestionPill: React.FC<{ accent: string; local: number }> = ({ accent, local }) => {
   const s = spring({ frame: local - 14, fps: FPS, config: { damping: 14 } });
   return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 46, paddingTop: 30 }}>
-      <IconBadge name="message-circle" accent={accent} size={400} local={local} />
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 18,
-          padding: "22px 40px",
-          borderRadius: 100,
-          background: "rgba(255,255,255,0.08)",
-          border: `3px solid ${accent}`,
-          fontFamily: FONT,
-          fontWeight: 900,
-          fontSize: 44,
-          color: INK,
-          opacity: s,
-          transform: `translateY(${(1 - s) * 30}px)`,
-        }}
-      >
-        <Icon name="message-square-text" size={50} color={accent} strokeWidth={2.2} />
-        Yorumunu bekliyorum
-      </div>
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: 18,
+        padding: "22px 40px",
+        borderRadius: 100,
+        background: "rgba(255,255,255,0.08)",
+        border: `3px solid ${accent}`,
+        fontFamily: FONT,
+        fontWeight: 900,
+        fontSize: 44,
+        color: INK,
+        opacity: s,
+        transform: `translateY(${(1 - s) * 30}px)`,
+      }}
+    >
+      <Icon name="message-square-text" size={50} color={accent} strokeWidth={2.2} />
+      Yorumunu bekliyorum
     </div>
   );
 };
 
 const SubscribeVisual: React.FC<{ p: ShortV2Props; local: number }> = ({ p, local }) => {
   const CLICK = 30; // imlecin düğmeye tıkladığı kare
-  const logo = spring({ frame: local, fps: FPS, config: { damping: 10, mass: 0.7 } });
   const name = spring({ frame: local - 4, fps: FPS, config: { damping: 14 } });
   const btn = spring({ frame: local - 6, fps: FPS, config: { damping: 12 } });
   const clicked = local >= CLICK;
@@ -615,15 +532,7 @@ const SubscribeVisual: React.FC<{ p: ShortV2Props; local: number }> = ({ p, loca
   return (
     <div style={{ position: "relative", height: 820, fontFamily: FONT }}>
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-        <div
-          style={{
-            transform: `scale(${0.4 + 0.6 * logo}) rotate(${(1 - logo) * -12}deg)`,
-            opacity: Math.min(1, logo * 1.5),
-            filter: `drop-shadow(0 0 60px ${p.accent}66)`,
-          }}
-        >
-          <Logo size={300} style={{ borderRadius: 64, boxShadow: "0 30px 80px rgba(0,0,0,0.55)" }} />
-        </div>
+        <div style={{ width: 300, height: 300 }} /> {/* logo: taşınan kartın son hali (Stage) */}
         <div
           style={{
             marginTop: 40,
@@ -698,69 +607,317 @@ const SubscribeVisual: React.FC<{ p: ShortV2Props; local: number }> = ({ p, loca
   );
 };
 
-/* ---------- Sahne katmanı (giriş/çıkış geçişi) ---------- */
+/* ---------- Taşınan sahne: tek kart, sahneden sahneye dönüşür ----------
+   Sahneler birbirinin yerine kayarak geçmez: ekranda tek bir kart vardır ve her sınırda bir
+   sonraki sahnenin kartına dönüşür (konum, boyut, köşe, renk). Açılış fotoğrafı küçülüp ilk
+   kart olur; fotoğrafsız açılışta ikon dairesi büyüyüp kart olur; soru sahnesinde kart daireye,
+   kapanışta kanal logosuna dönüşür. Başlık satırı da yerinde kalır: numara sayaç gibi döner,
+   yazı yükselerek değişir. Sahne içi zamanlamalar (ses efektleri bunlara bağlı) değişmedi. */
 
-const SceneLayer: React.FC<{ s: SceneV2; n: number; last: boolean; p: ShortV2Props }> = ({ s, n, last, p }) => {
-  const frame = useCurrentFrame();
-  const startF = Math.round(s.start * FPS);
-  const endF = Math.round(s.end * FPS);
-  const local = frame - startF;
-  const dur = endF - startF;
-  const enter = spring({ frame: local, fps: FPS, config: { damping: 16, mass: 0.7 } });
-  const exit = interpolate(frame, [endF, endF + TAIL], [0, 1], clamp);
-  const kind = s.subscribe
-    ? "subscribe"
-    : last
-      ? "question"
-      : s.photo
-      ? "photo"
-      : s.map
-        ? "map"
-        : s.chart
-          ? "chart"
-          : s.stat
-            ? "stat"
-            : s.points?.length
-              ? "list"
-              : "icon";
-  const visual =
-    kind === "photo" && s.photo ? (
-      <PhotoVisual photo={s.photo} accent={p.accent} local={local} dur={dur} stat={s.stat} />
-    ) : kind === "map" && s.map ? (
-      <MapCard spec={s.map} accent={p.accent} local={local} duration={dur} />
-    ) : kind === "chart" && s.chart ? (
-      <ChartVisual chart={s.chart} accent={p.accent} local={local} />
-    ) : kind === "stat" && s.stat ? (
-      <StatVisual stat={s.stat} accent={p.accent} icon={s.icon} local={local} />
-    ) : kind === "list" && s.points ? (
-      <>
-        <ListVisual points={s.points} accent={p.accent} local={local} dur={dur} />
-        <div style={{ display: "flex", justifyContent: "center", marginTop: 50, opacity: 0.85 }}>
-          <IconBadge name={s.icon ?? p.categoryIcon} accent={p.accent} size={240} local={local - 4} />
+type Kind = "hookPhoto" | "hookIcon" | "photo" | "map" | "chart" | "stat" | "list" | "icon" | "question" | "subscribe";
+type Geo = { x: number; y: number; w: number; h: number; r: number; acc: number; chrome: number };
+
+const STAGE_Y = 481; // başlık satırı (365) + 76 + 40
+const PRE = 6; // dönüşüm, sahne sınırından bu kadar kare önce başlar
+const MORPH = 18; // dönüşüm süresi (kare)
+const morphEase = Easing.bezier(0.3, 1.16, 0.45, 1); // hafifçe taşıp yerine oturur
+const riseEase = Easing.bezier(0.2, 0, 0, 1);
+const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
+
+const kindOf = (s: SceneV2, i: number, lastIdx: number): Kind => {
+  if (i === 0) return s.photo ? "hookPhoto" : "hookIcon";
+  if (s.subscribe) return "subscribe";
+  if (i === lastIdx) return "question";
+  if (s.photo) return "photo";
+  if (s.map) return "map";
+  if (s.chart) return "chart";
+  if (s.stat) return "stat";
+  if (s.points?.length) return "list";
+  return "icon";
+};
+
+const lineCount = (t: string, perLine: number) => Math.max(1, Math.ceil(t.length / perLine));
+const statFont = (v: string) => (v.length > 9 ? 110 : v.length > 6 ? 140 : 180);
+
+// Her türün yerine oturmuş kart geometrisi (çerçeve koordinatları)
+const geoOf = (k: Kind, s: SceneV2, local: number): Geo => {
+  const card = (h: number): Geo => ({ x: 60, y: STAGE_Y, w: 960, h, r: 40, acc: 0, chrome: 1 });
+  const float = Math.sin(local / 18) * 8;
+  switch (k) {
+    case "hookPhoto":
+      return { x: 0, y: 0, w: 1080, h: 1920, r: 0, acc: 0, chrome: 0 };
+    case "hookIcon":
+      return { x: 390, y: 380 + float, w: 300, h: 300, r: 150, acc: 1, chrome: 1 };
+    case "photo":
+      return card(760);
+    case "map":
+      return card(700);
+    case "chart": {
+      const n = Math.max(1, Math.min(5, s.chart?.items.length ?? 1));
+      return card(98 + n * 94 + (n - 1) * 34);
+    }
+    case "stat": {
+      const st = s.stat ?? { value: "", label: "" };
+      return card(122 + statFont(st.value) + 18 + 50 * lineCount(st.label, s.icon ? 24 : 32));
+    }
+    case "list": {
+      const pts = (s.points ?? []).slice(0, 4);
+      return card(66 + pts.reduce((a, t) => a + 56 + 53 * lineCount(t, 29), 0) + Math.max(0, pts.length - 1) * 26);
+    }
+    case "icon":
+      return { x: 310, y: 521 + float, w: 460, h: 460, r: 230, acc: 1, chrome: 1 };
+    case "question":
+      return { x: 340, y: 511 + float, w: 400, h: 400, r: 200, acc: 1, chrome: 1 };
+    case "subscribe":
+      return { x: 390, y: 365, w: 300, h: 300, r: 64, acc: 0, chrome: 0 };
+  }
+};
+
+const mixGeo = (a: Geo, b: Geo, t: number): Geo => {
+  const m = (u: number, v: number) => u + (v - u) * t;
+  const mc = (u: number, v: number) => u + (v - u) * clamp01(t);
+  return { x: m(a.x, b.x), y: m(a.y, b.y), w: m(a.w, b.w), h: m(a.h, b.h), r: Math.max(0, m(a.r, b.r)), acc: mc(a.acc, b.acc), chrome: mc(a.chrome, b.chrome) };
+};
+
+// Kartın içeriği. Fotoğraf kartı doldurur (kartla birlikte küçülür); diğerleri kendi oturmuş
+// boyutunda ortalanır, kart büyürken bir pencere gibi açılır (yazılar ara karelerde kırılmaz).
+const CardContent: React.FC<{ k: Kind; s: SceneV2; p: ShortV2Props; local: number; dur: number; veil?: number }> = ({
+  k,
+  s,
+  p,
+  local,
+  dur,
+  veil,
+}) => {
+  if ((k === "hookPhoto" || k === "photo") && s.photo) {
+    return <PhotoFill photo={s.photo} accent={p.accent} local={local} dur={dur} stat={s.stat} hook={k === "hookPhoto"} veil={veil} />;
+  }
+  const g = geoOf(k, s, 0);
+  const center: React.CSSProperties = { position: "absolute", left: "50%", top: "50%", width: g.w, height: g.h, transform: "translate(-50%, -50%)" };
+  const middle: React.CSSProperties = { ...center, display: "flex", flexDirection: "column", justifyContent: "center" };
+  const glyph = (name: string, size: number) => (
+    <div style={{ ...center, display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <Icon name={name} size={size} color={INK} strokeWidth={1.6} />
+    </div>
+  );
+  switch (k) {
+    case "hookIcon":
+      return glyph(s.icon ?? p.categoryIcon, 150);
+    case "map":
+      return s.map ? <div style={center}><MapCard spec={s.map} accent={p.accent} local={local} duration={dur} /></div> : null;
+    case "chart":
+      return s.chart ? <div style={middle}><ChartVisual chart={s.chart} accent={p.accent} local={local} /></div> : null;
+    case "stat":
+      return s.stat ? <div style={middle}><StatVisual stat={s.stat} accent={p.accent} icon={s.icon} local={local} /></div> : null;
+    case "list":
+      return s.points ? (
+        <div style={{ ...middle, padding: 28, boxSizing: "border-box" }}>
+          <ListVisual points={s.points} accent={p.accent} local={local} dur={dur} />
         </div>
-      </>
-    ) : kind === "subscribe" ? (
-      <SubscribeVisual p={p} local={local} />
-    ) : kind === "question" ? (
-      <QuestionVisual accent={p.accent} local={local} />
-    ) : (
-      <IconVisual name={s.icon ?? p.categoryIcon} accent={p.accent} local={local} />
+      ) : null;
+    case "icon":
+      return glyph(s.icon ?? p.categoryIcon, 230);
+    case "question":
+      return glyph("message-circle", 200);
+    case "subscribe":
+      return (
+        <div style={center}>
+          <Logo size={300} style={{ borderRadius: 64 }} />
+        </div>
+      );
+    default:
+      return null;
+  }
+};
+
+// Kartın dışında kalan, sahneye ait parçalar (liste ikonu, soru hapı, kapanış yazıları)
+const Satellite: React.FC<{ k: Kind; s: SceneV2; p: ShortV2Props; local: number; opacity: number }> = ({
+  k,
+  s,
+  p,
+  local,
+  opacity,
+}) => {
+  if (opacity <= 0) return null;
+  const g = geoOf(k, s, 0);
+  if (k === "list") {
+    const size = Math.max(0, Math.min(240, 1280 - (g.y + g.h + 40)));
+    if (size < 120) return null;
+    return (
+      <div style={{ position: "absolute", top: g.y + g.h + 40, left: 0, right: 0, display: "flex", justifyContent: "center", opacity: 0.85 * opacity }}>
+        <IconBadge name={s.icon ?? p.categoryIcon} accent={p.accent} size={size} local={local - 4} />
+      </div>
     );
+  }
+  if (k === "question") {
+    return (
+      <div style={{ position: "absolute", top: g.y + g.h + 46, left: 0, right: 0, display: "flex", justifyContent: "center", opacity }}>
+        <QuestionPill accent={p.accent} local={local} />
+      </div>
+    );
+  }
+  if (k === "subscribe") {
+    return (
+      <div style={{ position: "absolute", top: 365, left: 60, right: 60, opacity }}>
+        <SubscribeVisual p={p} local={local} />
+      </div>
+    );
+  }
+  return null;
+};
+
+const sceneTimes = (p: ShortV2Props) => {
+  const S = p.scenes;
+  const lastIdx = S.length - 1 - (S[S.length - 1]?.subscribe ? 1 : 0);
+  const starts = S.map((s) => Math.round(s.start * FPS));
+  const ends = S.map((s) => Math.round(s.end * FPS));
+  const kinds = S.map((s, i) => kindOf(s, i, lastIdx));
+  return { S, starts, ends, kinds };
+};
+
+// Şu anki sahne: dönüşüm sınırdan PRE kare önce başladığı için ona göre seçilir
+const activeIndex = (frame: number, starts: number[]) => {
+  let i = 0;
+  for (let k = 1; k < starts.length; k++) if (frame >= starts[k] - PRE) i = k;
+  return i;
+};
+
+const Stage: React.FC<{ p: ShortV2Props }> = ({ p }) => {
+  const frame = useCurrentFrame();
+  const { S, starts, ends, kinds } = sceneTimes(p);
+  if (!S.length) return null;
+  const i = activeIndex(frame, starts);
+  const local = (k: number) => frame - starts[k];
+  const dur = (k: number) => Math.max(1, ends[k] - starts[k]);
+  const raw = i === 0 ? 1 : clamp01((frame - (starts[i] - PRE)) / MORPH);
+  let g = geoOf(kinds[i], S[i], local(i));
+  if (i > 0 && raw < 1) g = mixGeo(geoOf(kinds[i - 1], S[i - 1], local(i - 1)), g, morphEase(raw));
+  let alpha = 1;
+  if (i === 0 && kinds[0] === "hookIcon") {
+    // açılış ikonu yaylanarak belirir (eski IconBadge girişi)
+    const e = spring({ frame: frame - 2, fps: FPS, config: { damping: 11, mass: 0.7 } });
+    const sc = 0.6 + 0.4 * e;
+    g = { ...g, x: g.x + (g.w * (1 - sc)) / 2, y: g.y + (g.h * (1 - sc)) / 2, w: g.w * sc, h: g.h * sc, r: g.r * sc };
+    alpha = Math.min(1, e * 1.5);
+  }
+  // İçerik geçişi: açılış fotoğrafı kart olana dek görünür kalır, sonra yeni içeriğe geçer
+  const b = starts[i];
+  const hookPrev = i === 1 && kinds[0] === "hookPhoto";
+  const win: [number, number] = hookPrev ? [b + 2, b + 12] : [b - 2, b + 8];
+  const prevOp = i > 0 ? interpolate(frame, win, [1, 0], clamp) : 0;
+  const curOp = i > 0 ? interpolate(frame, [win[0] + 2, win[1] + 2], [0, 1], clamp) : 1;
+  const veil = hookPrev ? 1 - clamp01(raw * 1.6) : 1;
   return (
-    <div
-      style={{
-        position: "absolute",
-        top: 365,
-        left: 60,
-        right: 60,
-        opacity: Math.min(1, enter * 1.4) * (1 - exit),
-        transform: `translateX(${(1 - enter) * 120 - exit * 120}px) scale(${0.97 + 0.03 * enter})`,
-      }}
-    >
-      {kind === "subscribe" ? null : (
-        <Heading n={n} text={s.heading} accent={p.accent} icon={kind === "icon" ? undefined : s.icon} />
-      )}
-      <div style={{ marginTop: kind === "subscribe" ? 0 : 40 }}>{visual}</div>
+    <>
+      <div style={{ position: "absolute", left: g.x, top: g.y, width: g.w, height: g.h, opacity: alpha }}>
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            borderRadius: g.r,
+            background: "rgba(255,255,255,0.07)",
+            border: "2px solid rgba(255,255,255,0.14)",
+            boxShadow: `0 30px 80px rgba(0,0,0,0.42), 0 0 100px ${p.accent}22`,
+            opacity: g.chrome * (1 - g.acc),
+          }}
+        />
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            borderRadius: g.r,
+            background: `radial-gradient(circle at 35% 30%, ${p.accent}55, ${p.accent}18 60%, transparent 72%)`,
+            border: `4px solid ${p.accent}`,
+            boxShadow: `0 0 80px ${p.accent}66, inset 0 0 40px ${p.accent}33`,
+            opacity: g.chrome * g.acc,
+          }}
+        />
+        <div style={{ position: "absolute", inset: 0, borderRadius: g.r, overflow: "hidden" }}>
+          {prevOp > 0 ? (
+            <div style={{ position: "absolute", inset: 0, opacity: prevOp }}>
+              <CardContent k={kinds[i - 1]} s={S[i - 1]} p={p} local={local(i - 1)} dur={dur(i - 1)} veil={veil} />
+            </div>
+          ) : null}
+          <div style={{ position: "absolute", inset: 0, opacity: curOp }}>
+            <CardContent k={kinds[i]} s={S[i]} p={p} local={local(i)} dur={dur(i)} />
+          </div>
+        </div>
+      </div>
+      {i > 0 ? <Satellite k={kinds[i - 1]} s={S[i - 1]} p={p} local={local(i - 1)} opacity={prevOp} /> : null}
+      <Satellite k={kinds[i]} s={S[i]} p={p} local={local(i)} opacity={curOp} />
+    </>
+  );
+};
+
+// Başlık satırı yerinde kalır: numara/ikon kutusu sayaç gibi döner, yazı yükselerek değişir
+const HeadingRail: React.FC<{ p: ShortV2Props }> = ({ p }) => {
+  const frame = useCurrentFrame();
+  const { S, starts, kinds } = sceneTimes(p);
+  const i = activeIndex(frame, starts);
+  if (i === 0) return null;
+  const isSub = kinds[i] === "subscribe";
+  const show = isSub ? i - 1 : i;
+  if (show < 1) return null;
+  const first = i === 1;
+  // İlk sahnede açılış başlığı küçülüp yukarı yerleşirken (~sınır+9 kare) üstüne binmesin diye gecikmeli
+  const t0 = first ? starts[i] + 4 : starts[i] - PRE;
+  const q = riseEase(clamp01((frame - t0) / 12));
+  const railOp = isSub ? 1 - q : 1;
+  if (railOp <= 0) return null;
+  const prev = !first && !isSub ? i - 1 : -1;
+  const badge = (k: number) =>
+    S[k].icon && kinds[k] !== "icon" ? (
+      <Icon name={S[k].icon as string} size={40} color={p.accent} strokeWidth={2.2} />
+    ) : (
+      String(k).padStart(2, "0")
+    );
+  const slot = (y: number, op: number, child: React.ReactNode) => (
+    <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", transform: `translateY(${y}px)`, opacity: op }}>
+      {child}
+    </div>
+  );
+  const words = (S[show].heading || "").split(" ");
+  const fresh = !isSub;
+  return (
+    <div style={{ position: "absolute", top: 365, left: 60, right: 60, height: 76, fontFamily: FONT, opacity: railOp }}>
+      <div
+        style={{
+          position: "absolute",
+          left: 0,
+          top: 0,
+          width: 76,
+          height: 76,
+          borderRadius: 22,
+          background: "rgba(255,255,255,0.08)",
+          border: "2px solid rgba(255,255,255,0.16)",
+          color: p.accent,
+          fontWeight: 900,
+          fontSize: 34,
+          overflow: "hidden",
+          transform: `scale(${first ? 0.6 + 0.4 * q : 1})`,
+          opacity: first ? q : 1,
+        }}
+      >
+        {prev > 0 && q < 1 ? slot(-q * 76, 1 - q, badge(prev)) : null}
+        {slot(fresh && !first ? (1 - q) * 76 : 0, fresh && !first ? q : 1, badge(show))}
+      </div>
+      <div style={{ position: "absolute", left: 98, top: 0, right: 0, height: 76 }}>
+        {prev > 0 && q < 1 ? (
+          <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", transform: `translateY(${-q * 34}px)`, opacity: 1 - q, color: INK, fontWeight: 800, fontSize: 56, letterSpacing: -0.5, whiteSpace: "nowrap" }}>
+            {S[prev].heading}
+          </div>
+        ) : null}
+        <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", color: INK, fontWeight: 800, fontSize: 56, letterSpacing: -0.5, whiteSpace: "nowrap" }}>
+          {words.map((w, j) => {
+            const e = fresh ? riseEase(clamp01((frame - t0 - 3 - j * 1.5) / 10)) : 1;
+            return (
+              <span key={j} style={{ display: "inline-block", marginRight: "0.26em", transform: `translateY(${(1 - e) * 40}px)`, opacity: e }}>
+                {w}
+              </span>
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
 };
@@ -880,18 +1037,10 @@ export const ShortV2: React.FC<ShortV2Props> = (p) => {
   return (
     <AbsoluteFill style={{ opacity: fadeOut }}>
       <Background accent={p.accent} icon={p.categoryIcon} />
-      <HookPhoto p={p} />
+      <Stage p={p} />
       <TopBar p={p} sceneIdx={sceneIdx} sec={sec} />
       <TitleBlock p={p} />
-      {p.scenes.map((s, i) => {
-        if (i === 0) return null;
-        const lastIdx = p.scenes.length - 1 - (p.scenes[p.scenes.length - 1]?.subscribe ? 1 : 0);
-        const a = Math.round(s.start * FPS);
-        const b = Math.round(s.end * FPS) + TAIL;
-        return frame >= a && frame <= b ? (
-          <SceneLayer key={i} s={s} n={i} last={i === lastIdx} p={p} />
-        ) : null;
-      })}
+      <HeadingRail p={p} />
       <Caption chunk={chunk} accent={p.accent} top={sceneIdx === 0 ? 1290 : 1225} />
       <AbsoluteFill style={{ background: "#ffffff", opacity: flash, pointerEvents: "none" }} />
       <Grain amount={p.grain} />
