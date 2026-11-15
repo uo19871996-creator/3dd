@@ -25,19 +25,43 @@ def _need_key():
         raise RuntimeError("YT_REFRESH_TOKEN tanımlı değil; ses örneği çözülemez")
 
 
+def levels_db(src):
+    """(gürültü tabanı, konuşma seviyesi) dBFS: en sessiz %5'lik ve en gür yarının medyanı (50 ms)."""
+    import numpy as np
+    raw = subprocess.run(["ffmpeg", "-v", "error", "-i", str(src), "-ac", "1", "-ar", "24000", "-f", "s16le", "-"],
+                         capture_output=True, check=True).stdout
+    a = np.frombuffer(raw, np.int16).astype(np.float32) / 32768
+    win = 1200
+    db = np.array([20 * np.log10(np.sqrt(np.mean(a[i:i + win] ** 2)) + 1e-9) for i in range(0, len(a) - win, win)])
+    if not len(db):
+        return -60.0, -20.0
+    return float(np.percentile(db, 5)), float(np.median(db[db >= np.percentile(db, 50)]))
+
+
+def clean(src, dst):
+    """Kaydı temizler: mono 24 kHz, uğultu filtresi, baş/son sessizlik kırpma, ses düzeyi.
+
+    Model sesin rengini ve tonunu en çok kaydın ilk 10 saniyesinden alır; baştaki sessizlik ya da
+    kayda basarken oluşan gürültü mutlaka kırpılmalı. Eşik hem gürültünün 8 dB üstünde hem de
+    konuşmanın 14 dB altında olacak şekilde kaydın kendisine göre seçilir."""
+    nf, sp = levels_db(src)
+    thr = min(-25.0, max(-45.0, nf + 8, sp - 14))
+    trim = f"silenceremove=start_periods=1:start_threshold={thr:.0f}dB:start_silence=0.1"
+    af = f"highpass=f=80,{trim},areverse,{trim},areverse,loudnorm=I=-18:TP=-2"
+    subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", str(src), "-ac", "1", "-ar", "24000",
+                    "-af", af, "-t", "30", str(dst)], check=True)
+    return nf
+
+
 def encrypt(src):
-    """Kaydı temizleyip (mono, 24 kHz, baş/son sessizlik kırpılmış, ses düzeyi dengelenmiş) şifreler."""
+    """Kaydı temizleyip (clean) şifreler."""
     _need_key()
     ENC.parent.mkdir(exist_ok=True)
     with tempfile.TemporaryDirectory() as td:
         wav = Path(td) / "ses.wav"
-        af = ("silenceremove=start_periods=1:start_threshold=-45dB:start_silence=0.1,"
-              "areverse,silenceremove=start_periods=1:start_threshold=-45dB:start_silence=0.1,areverse,"
-              "highpass=f=70,loudnorm=I=-18:TP=-2")
-        subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", str(src), "-ac", "1", "-ar", "24000",
-                        "-af", af, "-t", "30", str(wav)], check=True)
+        nf = clean(src, wav)
         subprocess.run(OPENSSL + ["-salt", "-in", str(wav), "-out", str(ENC)], check=True)
-    print(f"[ok] şifreli ses örneği: {ENC.relative_to(ROOT)}")
+    print(f"[ok] şifreli ses örneği: {ENC.relative_to(ROOT)} (gürültü tabanı {nf:.0f} dB)")
 
 
 def decrypt_to(dest):
