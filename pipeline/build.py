@@ -154,6 +154,27 @@ def tr_upper(s):
     return s.replace("i", "İ").replace("ı", "I").upper()
 
 
+_OKUNUS = None
+
+
+def okunus(text):
+    """Yabancı kelime ve kısaltmaları okunus.json'daki Türkçe okunuşlarına çevirir (yalnız seslendirme;
+    altyazı değişmez). Büyük/küçük harfe duyarlı, ekler korunur: "CEO'su" -> "Si-İ-O'su"."""
+    global _OKUNUS
+    if _OKUNUS is None:
+        f = ROOT / "okunus.json"
+        terms = {}
+        if f.exists():
+            for k, val in json.loads(f.read_text(encoding="utf-8")).items():
+                if not k.startswith("_") and isinstance(val, dict):
+                    terms.update(val)
+        keys = sorted(terms, key=len, reverse=True)  # uzun eşleşme önce: "Elon Musk" > "Musk"
+        pat = re.compile(r"(?<!\w)(" + "|".join(map(re.escape, keys)) + r")(?!\w)") if keys else None
+        _OKUNUS = (pat, terms)
+    pat, terms = _OKUNUS
+    return pat.sub(lambda m: terms[m.group(1)], text) if pat else text
+
+
 def sentences(text):
     parts = re.split(r"(?<=[.!?…])\s+", text.strip())
     return [p for p in parts if p]
@@ -230,7 +251,7 @@ def build_video(tts, day, n, total, v, out_dir):
             shown, spoken = [sc["text"]], [sc.get("say") or sc["text"]]
         start = pos / sr
         for shown_s, spoken_s in zip(shown, spoken):
-            a = trim(tts.synth(spoken_s), sr)
+            a = trim(tts.synth(okunus(spoken_s)), sr)
             sents.append({"scene": si, "t0": pos / sr, "t1": (pos + a.size) / sr, "text": shown_s})
             track += [a, gap_sentence]
             pos += a.size + gap_sentence.size

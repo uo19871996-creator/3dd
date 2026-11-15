@@ -137,8 +137,11 @@ varsa açılış ve başlık için onlardan da yararlan; yoksa aşağıdaki kura
   - Haber ajansı fotoğrafları (AA, Reuters, Getty vb.) ve yapay zekâ görselleri KULLANILMAZ (telif ve
     yanıltma riski); yalnızca `photos.py`'nin bulduğu serbest lisanslı fotoğraflar.
 - `say` (isteğe bağlı): seslendirme motorunun doğru okuması için `text`'in okunuş hali.
-  Rakamları yazıyla ("on yedi"), kısaltmaları harf harf ("Be De De Ka"), yabancı sözcükleri
-  okunduğu gibi ("Pleysteyşın") yaz. **Cümle sayısı `text` ile aynı olmalı.**
+  Rakamları yazıyla ("on yedi") yaz. Yabancı kelime ve kısaltmalar `okunus.json` sözlüğüyle
+  OTOMATİK çevrilir (CEO → Si-İ-O, Apple → Epıl, BDDK → Be-De-De-Ka); bunları `say`'de olduğu gibi
+  bırakabilirsin. Sözlükte olmayan kısaltmayı BÜYÜK harf ve tireyle ("Ka-Ye-Ka"), yabancı adı
+  okunduğu gibi ("Pleysteyşın") yaz. Boşluklu küçük harf ("si i o") YAZMA: önceki kelimeyle
+  birleşip bozuluyor. **Cümle sayısı `text` ile aynı olmalı.**
 
 ## 6. Videoları üret ve kontrol et
 
