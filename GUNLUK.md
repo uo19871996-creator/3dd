@@ -55,12 +55,17 @@ gelişmeyi anlatarak tekrar seç.
   Her video, kanal medyanının kaç katı izlendiğiyle sıralanır (yalnızca 24 saati dolanlar).
   Listenin dibindeki çok düşük videoları (onlarca izlenme) konu zayıflığı sayma: bunlar 11 Kasım'da
   aynı anda toplu yüklenenler ve eski düzende günün 11.+ yüklemeleri; YouTube onları dağıtmadı.
-  13-14 Kasım verisinde en üstte Türkiye merkezli konular var: milli maçlar ve Türk sporcular
-  (Belçika maçı, Alperen Şengün), büyük iç siyaset gelişmeleri (en çok beğeni de bunlarda) ve
-  Türkiye'yi doğrudan ilgilendiren ulusal haberler. Yabancı ülke haberleri ortalamanın altında.
-  Güçlü adaylar arasından bu türlere en yakın olanı seç. Yine de önemli bir son dakika gelişmesini
-  sırf türü yüzünden atlama; doğrulama, yayın yasağı ve tarafsızlık kuralları her zaman önce gelir;
-  çeşitlilik kuralını koru.
+  13-17 Kasım verisine göre güçlü adaylar arasında bu sırayla öncelik ver:
+  1. **Futbol ve sporcular:** milli takım, büyük kulüpler, Türk ve yıldız sporcular (Alperen
+     Şengün 1349, Lukaku 1251, Galatasaray stadı 1180, milli maçlar 940-1172 izlenme).
+  2. **Cebe ve günlük hayata dokunan, geniş kitleyi ilgilendiren haberler:** zam, maaş, fiyat,
+     ceza, sınav, tatil, hava uyarısı (emekli zammı 1304, MEB sınav yasağı 1042, hız cezası 943).
+  3. **Büyük siyasi gelişmeler, tanınan isimlerle** (Özgür Özel 1796).
+  Geri planda kalsın: dar kitleli destek programları (KOBİ desteği 154, GSS prim borcu 251),
+  sıradan mahkeme ve yargı kararları, uzay/bilim (Voyager 373) ve eğlence (James Bond 314).
+  **Siyaset ve yargı haberleri günde en fazla 3:** `--recent` listesinde bugün bu türden 3 video
+  varsa başka türden aday seç. Yine de önemli bir son dakika gelişmesini sırf türü yüzünden atlama;
+  doğrulama, yayın yasağı ve tarafsızlık kuralları her zaman önce gelir; çeşitlilik kuralını koru.
 - **Uygun yeni konu yoksa video ÜRETME ve YÜKLEME** (dolgu, zayıf ya da tekrar içerik kanalı
   bastırır); raporda "bu saat yeni konu yok" de ve bitir.
 - Her konu için web aramasıyla **en az 2 bağımsız, güvenilir kaynaktan** doğrula. Kaynaklar
