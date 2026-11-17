@@ -394,6 +394,10 @@ def build_video(tts, day, n, total, v, out_dir):
 
     out = out_dir / f"{n}-{slug}.mp4"
     comp = "ShortV2" if template == "v2" else "Short"
+    if template == "v2" and not (VIDEO / "node_modules" / "@remotion" / "three").exists():
+        # şablon 3D harita paketlerini içe aktarıyor; eski kurulumda yoksa paketleme başarısız olur
+        print("[bilgi] 3D paketleri eksik; npm ci ile kuruluyor.", flush=True)
+        subprocess.run(["npm", "ci", "--silent", "--no-audit", "--no-fund"], cwd=VIDEO, check=False)
     cmd = ["npx", "remotion", "render", "src/index.ts", comp, str(out),
            f"--props={props_file}", "--codec=h264", "--crf=22", "--log=error",
            f"--concurrency={CONFIG.get('concurrency', 4)}"]
