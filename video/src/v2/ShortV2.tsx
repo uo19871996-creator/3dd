@@ -19,6 +19,7 @@ import "@fontsource/montserrat/900.css";
 import { Icon } from "./Icon";
 import { Logo } from "./Logo";
 import { MapCard } from "./MapCard";
+import { Map3D } from "../three/Map3D";
 import { FONT, FPS, INK, MUTED, type ChartSpec, type Chunk, type Photo, type SceneV2, type ShortV2Props } from "./types";
 
 const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
@@ -614,7 +615,7 @@ const SubscribeVisual: React.FC<{ p: ShortV2Props; local: number }> = ({ p, loca
    kapanışta kanal logosuna dönüşür. Başlık satırı da yerinde kalır: numara sayaç gibi döner,
    yazı yükselerek değişir. Sahne içi zamanlamalar (ses efektleri bunlara bağlı) değişmedi. */
 
-type Kind = "hookPhoto" | "hookIcon" | "photo" | "map" | "chart" | "stat" | "list" | "icon" | "question" | "subscribe";
+type Kind = "hookPhoto" | "hookIcon" | "photo" | "map" | "map3d" | "chart" | "stat" | "list" | "icon" | "question" | "subscribe";
 type Geo = { x: number; y: number; w: number; h: number; r: number; acc: number; chrome: number };
 
 const STAGE_Y = 481; // başlık satırı (365) + 76 + 40
@@ -624,12 +625,12 @@ const morphEase = Easing.bezier(0.3, 1.16, 0.45, 1); // hafifçe taşıp yerine 
 const riseEase = Easing.bezier(0.2, 0, 0, 1);
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
 
-const kindOf = (s: SceneV2, i: number, lastIdx: number): Kind => {
+const kindOf = (s: SceneV2, i: number, lastIdx: number, map3d = true): Kind => {
   if (i === 0) return s.photo ? "hookPhoto" : "hookIcon";
   if (s.subscribe) return "subscribe";
   if (i === lastIdx) return "question";
   if (s.photo) return "photo";
-  if (s.map) return "map";
+  if (s.map) return map3d ? "map3d" : "map";
   if (s.chart) return "chart";
   if (s.stat) return "stat";
   if (s.points?.length) return "list";
@@ -652,6 +653,8 @@ const geoOf = (k: Kind, s: SceneV2, local: number): Geo => {
       return card(760);
     case "map":
       return card(700);
+    case "map3d": // kart tam ekrana açılır: 3D harita bir pencereden görünür gibi büyür
+      return { x: 0, y: 0, w: 1080, h: 1920, r: 0, acc: 0, chrome: 0 };
     case "chart": {
       const n = Math.max(1, Math.min(5, s.chart?.items.length ?? 1));
       return card(98 + n * 94 + (n - 1) * 34);
@@ -705,6 +708,12 @@ const CardContent: React.FC<{ k: Kind; s: SceneV2; p: ShortV2Props; local: numbe
       return glyph(s.icon ?? p.categoryIcon, 150);
     case "map":
       return s.map ? <div style={center}><MapCard spec={s.map} accent={p.accent} local={local} duration={dur} /></div> : null;
+    case "map3d":
+      return s.map ? (
+        <div style={center}>
+          <Map3D spec={s.map} accent={p.accent} local={local} dur={dur} width={1080} height={1920} />
+        </div>
+      ) : null;
     case "chart":
       return s.chart ? <div style={middle}><ChartVisual chart={s.chart} accent={p.accent} local={local} /></div> : null;
     case "stat":
@@ -771,7 +780,7 @@ const sceneTimes = (p: ShortV2Props) => {
   const lastIdx = S.length - 1 - (S[S.length - 1]?.subscribe ? 1 : 0);
   const starts = S.map((s) => Math.round(s.start * FPS));
   const ends = S.map((s) => Math.round(s.end * FPS));
-  const kinds = S.map((s, i) => kindOf(s, i, lastIdx));
+  const kinds = S.map((s, i) => kindOf(s, i, lastIdx, p.map3d !== false));
   return { S, starts, ends, kinds };
 };
 

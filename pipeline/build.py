@@ -231,6 +231,25 @@ def ensure_grain(n=4, size=256):
                       + chunk(b"IDAT", zlib.compress(raw, 9)) + chunk(b"IEND", b""))
 
 
+def map3d_ok(video, scenes):
+    """3D harita gerçekten çizildi mi? İğne indikten sonraki karenin orta bandına bakar: 3D sahnede
+    ~120 parlaklık, en koyu normal sahnede ~30; çizim başarısızsa koyu zemin (~10) kalır."""
+    for s in scenes:
+        if not s.get("map"):
+            continue
+        a, b = round(s["start"] * FPS), round(s["end"] * FPS)
+        flight = int(min(90, max(45, (b - a) * 0.45)) + 0.5)  # Map3D.tsx map3dTiming ile aynı
+        f = min(b - 3, a + flight - 14 + 6 + 15)
+        raw = subprocess.run(["ffmpeg", "-v", "error", "-i", str(video), "-vf",
+                              f"select=eq(n\\,{f}),scale=108:192,format=gray", "-frames:v", "1",
+                              "-f", "rawvideo", "-"], capture_output=True).stdout
+        if len(raw) != 108 * 192:
+            return False
+        if np.frombuffer(raw, np.uint8).reshape(192, 108)[57:119].mean() < 45:
+            return False
+    return True
+
+
 def build_video(tts, day, n, total, v, out_dir):
     sr = tts.sr
     gap_sentence = np.zeros(int(0.16 * sr), dtype=np.int16)
@@ -326,7 +345,7 @@ def build_video(tts, day, n, total, v, out_dir):
     if template == "v2" and CONFIG.get("music", True):
         try:
             from audio_fx import cues_for, mix_to_file
-            cues = cues_for(scenes, FPS)
+            cues = cues_for(scenes, FPS, map3d=bool(CONFIG.get("map3d", True)))
             lufs, tp = mix_to_file(audio, sr, cues, slug, pub / f"{slug}.wav",
                                    lufs=CONFIG.get("loudness_lufs", -14.0))
             final = None
@@ -366,6 +385,7 @@ def build_video(tts, day, n, total, v, out_dir):
         props["channelName"] = CONFIG.get("channel_name", "")
         props["channelTagline"] = CONFIG.get("channel_tagline", "")
         props["grain"] = float(CONFIG.get("grain", 0.025) or 0)
+        props["map3d"] = bool(CONFIG.get("map3d", True))  # false: eski 2D harita kartı
         if props["grain"]:
             ensure_grain()
         props.pop("levels")
@@ -381,6 +401,25 @@ def build_video(tts, day, n, total, v, out_dir):
     if chrome:
         cmd.append(f"--browser-executable={chrome}")
     subprocess.run(cmd, cwd=VIDEO, check=True)
+    map_label = ""
+    if template == "v2" and any(s.get("map") for s in scenes):
+        map_label = " · harita: 3D" if props.get("map3d") else " · harita: 2D"
+        if props.get("map3d") and not map3d_ok(out, scenes):
+            # 3D çizilemediyse (ör. bu makinede WebGL yok) kara kare yayınlanmasın: 2D haritayla yeniden üret
+            print("[bilgi] 3D harita bu makinede çizilemedi; video 2D haritayla yeniden üretiliyor. "
+                  "Bu bir hata değil.", flush=True)
+            props["map3d"] = False
+            if final is None:  # gelişmiş miks yapıldıysa iğne sesini 2D zamanlamasına göre yeniden miksle
+                try:
+                    from audio_fx import cues_for, mix_to_file
+                    mix_to_file(audio, sr, cues_for(scenes, FPS, map3d=False), slug, pub / f"{slug}.wav",
+                                lufs=CONFIG.get("loudness_lufs", -14.0))
+                except Exception as e:
+                    print(f"[bilgi] Ses 2D haritaya göre yeniden mikslenemedi ({str(e)[-120:]}); "
+                          "ilk miks kullanılıyor.", flush=True)
+            props_file.write_text(json.dumps(props, ensure_ascii=False), encoding="utf-8")
+            subprocess.run(cmd, cwd=VIDEO, check=True)
+            map_label = " · harita: 2D (yedek)"
     cred_file = out.with_suffix(".credits.json")
     if credits:
         cred_file.write_text(json.dumps(credits, ensure_ascii=False, indent=2), encoding="utf-8")
@@ -388,7 +427,7 @@ def build_video(tts, day, n, total, v, out_dir):
         cred_file.unlink()
     voice_label = getattr(tts, "label", type(tts).__name__)
     print(f"[ok] {out.relative_to(ROOT)}  {duration:.1f} sn · ses: {voice_label} · "
-          f"fotoğraf: {len(credits)} · miks: {mix_label} · altyazı: {cap_label}", flush=True)
+          f"fotoğraf: {len(credits)} · miks: {mix_label} · altyazı: {cap_label}{map_label}", flush=True)
     if duration > 175:
         print(f"[uyarı] {slug}: {duration:.0f} sn — Shorts sınırı 180 sn", flush=True)
     yt = " ".join(re.sub(r"#shorts\b", "", v.get("yt_title", ""), flags=re.I).split())

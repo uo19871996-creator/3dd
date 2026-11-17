@@ -22,5 +22,6 @@
   "outro_text": "Gündemi kaçırmamak için abone ol!",
   "word_align": true,
   "grain": 0.025,
-  "daily_upload_cap": 10
+  "daily_upload_cap": 10,
+  "map3d": true
 }

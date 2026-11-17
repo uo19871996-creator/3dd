@@ -42,7 +42,8 @@ if [ "$ALIGN" = "True" ]; then
 fi
 
 # Remotion ve yazı tipleri (zaten kuruluysa atla)
-if [ ! -d video/node_modules/remotion ]; then
+# 3D harita paketleri (@remotion/three, three) sonradan eklendi: eski kurulumda yoksa yeniden kur
+if [ ! -d video/node_modules/remotion ] || [ ! -d video/node_modules/@remotion/three ]; then
   (cd video && npm ci --silent --no-audit --no-fund)
 fi
 echo "[ok] kurulum tamam"

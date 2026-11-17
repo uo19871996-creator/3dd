@@ -46,6 +46,7 @@ export type ShortV2Props = {
   scenes: SceneV2[];
   channelName?: string;
   channelTagline?: string;
+  map3d?: boolean; // harita sahneleri 3D (varsayılan açık; false = eski 2D kart)
   grain?: number; // film greni şiddeti (0 = kapalı; 0,025 hafif)
 };
 

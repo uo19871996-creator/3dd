@@ -264,7 +264,7 @@ def _sfx_bed(cues, duration):
 _COUNTABLE = re.compile(r"^([%$€₺]?)(\d+(?:,\d+)?)(\+| milyon| milyar| bin)?$")
 
 
-def cues_for(scenes, fps=30):
+def cues_for(scenes, fps=30, map3d=True):
     """Şablondaki (video/src/v2/ShortV2.tsx) zamanlamalarla eşleşen efekt listesi."""
     cues = []
     last = len(scenes) - 1 - (1 if scenes and scenes[-1].get("subscribe") else 0)
@@ -292,8 +292,13 @@ def cues_for(scenes, fps=30):
             if s.get("stat"):
                 cues.append(dict(type="stamp", t=st + 10 / fps, gain=.32))
         elif s.get("map"):
-            zoom = min(75, max(30, dur_f * 0.4))
-            cues.append(dict(type="pop", t=st + round(zoom * 0.6) / fps, gain=.5))
+            if map3d:  # video/src/three/Map3D.tsx map3dTiming ile aynı: kamera uçuşu, iğnenin yere değişi
+                flight = int(min(90, max(45, dur_f * 0.45)) + 0.5)
+                land = flight - 14 + 6
+                cues.append(dict(type="whoosh", t=st + flight * 0.5 / fps - 0.25, gain=.22))  # kamera süzülüşü
+            else:
+                land = int(min(75, max(30, dur_f * 0.4)) * 0.6 + 0.5)
+            cues.append(dict(type="pop", t=st + land / fps, gain=.5))
         elif s.get("chart"):
             n_items = min(5, len(s["chart"].get("items", [])))
             cues.append(dict(type="ticks", t=st + 8 / fps, gain=.16, dur=(30 + 6 * max(n_items - 1, 0)) / fps))

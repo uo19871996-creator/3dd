@@ -118,7 +118,9 @@ varsa açılış ve başlık için onlardan da yararlan; yoksa aşağıdaki kura
     (PascalCase adı tireli yaz: `CloudLightning` → `cloud-lightning`).
   - `map`: olayın geçtiği yer `{"place": "İzmir", "lat": 38.42, "lon": 27.14, "label": "9 Kasım · Aliağa"}`.
     Türkiye içindeki yerler Türkiye haritasında, yurt dışı yerler dönen dünya küresinde gösterilir.
-    Koordinatları doğrula; emin değilsen `map` kullanma.
+    Harita sahnesi 3D'dir ve tam ekran açılır: Türkiye içinde kamera şehre iner ve il yükselir;
+    yurt dışında küre Türkiye'den hedefe döner. `place` ekranın ortasında büyük yazılır: en fazla
+    16 karakter. `label` en fazla 24 karakter. Koordinatları doğrula; emin değilsen `map` kullanma.
   - `chart`: karşılaştırmalı rakamlar `{"unit": "%", "items": [{"label": "Eylül", "value": 33.3}, ...]}`
     (en fazla 5 madde, en önemlisi sonda). Yalnızca kaynakta geçen rakamlar.
   - `points`: 2-4 kısa madde (her biri en fazla 35 karakter).
@@ -166,6 +168,8 @@ bağlanır; senaryoya ek alan gerekmez. `basit miks (yedek)` yazıyorsa gelişmi
 sesteki anında vurgulanır; hizalanamayan cümle orantılı zamanlanır). `oransal` yazıyorsa kelime
 hizalama o makinede çalışmamıştır; hata değildir, yüklemeye devam et. Görüntüdeki hafif film greni
 bilinçlidir (`config.json` → `grain`); dosyalar bu yüzden ~50 MB olabilir.
+`harita: 3D` normaldir; `harita: 2D (yedek)` 3D'nin o makinede çizilemediğini ve videonun eski 2D
+haritayla otomatik yeniden üretildiğini gösterir; hata değildir, yüklemeye devam et.
 
 ## 7. Yükle
 
