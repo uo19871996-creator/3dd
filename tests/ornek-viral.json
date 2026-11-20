@@ -8,28 +8,48 @@
       "title": "Ordusu yok, denize iki ülke uzakta: Lihtenştayn",
       "yt_title": "Lihtenştayn: Ordusu olmayan, denize iki ülke uzaktaki ülke",
       "description": "Lihtenştayn, İsviçre ile Avusturya arasında 160 kilometrekarelik bir ülke. Ordusu 1868'den beri yok, kendi parası yok ve denize ulaşmak için iki sınır geçmek gerekiyor.",
-      "tags": ["lihtenştayn", "ilginç bilgiler", "ülkeler", "avrupa", "vaduz"],
-      "hashtags": ["lihtenştayn", "ülkeler", "ilginçbilgiler"],
+      "tags": [
+        "lihtenştayn",
+        "ilginç bilgiler",
+        "ülkeler",
+        "avrupa",
+        "vaduz"
+      ],
+      "hashtags": [
+        "lihtenştayn",
+        "ülkeler",
+        "ilginçbilgiler"
+      ],
       "sources": [
         "https://www.britannica.com/place/Liechtenstein",
-        "https://www.cia.gov/the-world-factbook/countries/liechtenstein/"
+        "https://www.worldatlas.com/articles/doubly-landlocked-countries.html"
       ],
       "scenes": [
         {
           "text": "Avrupa'nın ortasında, ordusu olmayan minik bir ülke var: Lihtenştayn.",
           "icon": "castle",
-          "photo": {"file": "File:Vaduz-Castle-Liechtenstein-May-2010.jpg"}
+          "photo": {
+            "file": "File:Vaduz-Castle-Liechtenstein-May-2010.jpg"
+          }
         },
         {
           "heading": "Ne kadar küçük?",
           "text": "Yüz ölçümü yalnızca 160 kilometrekare. Nüfusu yaklaşık 40 bin.",
           "say": "Yüz ölçümü yalnızca yüz altmış kilometrekare. Nüfusu yaklaşık kırk bin.",
-          "stat": {"value": "160 km²", "label": "yüz ölçümü"}
+          "stat": {
+            "value": "160 km²",
+            "label": "yüz ölçümü"
+          }
         },
         {
           "heading": "Nerede?",
           "text": "İsviçre ile Avusturya arasında. Denize ulaşmak için iki ülke geçmek gerekiyor; böyle bir diğer ülke Özbekistan.",
-          "map": {"place": "Vaduz", "lat": 47.141, "lon": 9.521, "label": "Lihtenştayn"}
+          "map": {
+            "place": "Vaduz",
+            "lat": 47.141,
+            "lon": 9.521,
+            "label": "Lihtenştayn"
+          }
         },
         {
           "heading": "Ordusu yok",
