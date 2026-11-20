@@ -178,6 +178,7 @@ class ElevenLabsTTS:
         key = os.environ.get("ELEVENLABS_API_KEY")
         self.headers = {"xi-api-key": key} if key else {}
         self.drop = set()
+        self.dictionary = "elevenlabs"  # okunus.json "_elevenlabs" bölümü (bu ses için denenmiş okunuşlar)
         self.spent = 0  # harcanan kredi (yanıttaki Character-Cost başlığından)
         who = name.lower() if name.lower() in self.VOICES else "klon ses"
         self.label = f"ElevenLabs {who} ({self.model})"
@@ -238,24 +239,32 @@ def tr_upper(s):
     return s.replace("i", "İ").replace("ı", "I").upper()
 
 
-_OKUNUS = None
+_OKUNUS = {}
 
 
-def okunus(text):
+def okunus(text, engine=None):
     """Yabancı kelime ve kısaltmaları okunus.json'daki Türkçe okunuşlarına çevirir (yalnız seslendirme;
-    altyazı değişmez). Büyük/küçük harfe duyarlı, ekler korunur: "CEO'su" -> "Si-İ-O'su"."""
-    global _OKUNUS
-    if _OKUNUS is None:
+    altyazı değişmez). Büyük/küçük harfe duyarlı, ekler korunur: "CEO'su" -> "Si-İ-O'su".
+    engine verilirse (ör. "elevenlabs") sözlükteki "_<engine>" bölümü genel sözlüğün üstüne yazılır;
+    orada null olan kelime olduğu gibi okunur."""
+    if engine not in _OKUNUS:
         f = ROOT / "okunus.json"
+        data = json.loads(f.read_text(encoding="utf-8")) if f.exists() else {}
         terms = {}
-        if f.exists():
-            for k, val in json.loads(f.read_text(encoding="utf-8")).items():
-                if not k.startswith("_") and isinstance(val, dict):
-                    terms.update(val)
+        for k, val in data.items():
+            if not k.startswith("_") and isinstance(val, dict):
+                terms.update(val)
+        for k, val in (data.get(f"_{engine}") or {}).items() if engine else ():
+            if k.startswith("_"):
+                continue
+            if val is None:
+                terms.pop(k, None)
+            else:
+                terms[k] = val
         keys = sorted(terms, key=len, reverse=True)  # uzun eşleşme önce: "Elon Musk" > "Musk"
         pat = re.compile(r"(?<!\w)(" + "|".join(map(re.escape, keys)) + r")(?!\w)") if keys else None
-        _OKUNUS = (pat, terms)
-    pat, terms = _OKUNUS
+        _OKUNUS[engine] = (pat, terms)
+    pat, terms = _OKUNUS[engine]
     return pat.sub(lambda m: terms[m.group(1)], text) if pat else text
 
 
@@ -361,7 +370,7 @@ def build_video(tts, day, n, total, v, out_dir):
         spoken = sentences(sc.get("say") or sc["text"])
         if len(spoken) != len(shown):  # hizalanamıyorsa tek blok olarak ele al
             shown, spoken = [sc["text"]], [sc.get("say") or sc["text"]]
-        plan.append((shown, [okunus(s) for s in spoken]))
+        plan.append((shown, [okunus(s, getattr(tts, "dictionary", None)) for s in spoken]))
     said = [s for _, spoken in plan for s in spoken]  # bağlam: önceki/sonraki cümle (ElevenLabs)
     k = 0
     sents = []  # her cümle: sahnesi, sesteki başı/sonu, ekranda görünen metni

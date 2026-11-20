@@ -145,10 +145,14 @@ varsa açılış ve başlık için onlardan da yararlan; yoksa aşağıdaki kura
     yanıltma riski); yalnızca `photos.py`'nin bulduğu serbest lisanslı fotoğraflar.
 - `say` (isteğe bağlı): seslendirme motorunun doğru okuması için `text`'in okunuş hali.
   Rakamları yazıyla ("on yedi") yaz. Yabancı kelime ve kısaltmalar `okunus.json` sözlüğüyle
-  OTOMATİK çevrilir (CEO → Si-İ-O, Apple → Epıl, BDDK → Be-De-De-Ka); bunları `say`'de olduğu gibi
-  bırakabilirsin. Sözlükte olmayan kısaltmayı BÜYÜK harf ve tireyle ("Ka-Ye-Ka"), yabancı adı
-  okunduğu gibi ("Pleysteyşın") yaz. Boşluklu küçük harf ("si i o") YAZMA: önceki kelimeyle
-  birleşip bozuluyor. **Cümle sayısı `text` ile aynı olmalı.**
+  OTOMATİK çevrilir (Apple → Epıl, BDDK → Bededeka, TCMB → Te-Dje-Me-Be; ElevenLabs sesi için
+  denenmiş okunuşlar sözlüğün `_elevenlabs` bölümündedir); sözlükteki kısaltmaları `say`'de
+  olduğu gibi (BDDK, TCMB, CEO) bırak, kendin heceleme. Sözlükte olmayan TÜRKÇE kısaltmayı mutlaka
+  BÜYÜK harf ve tireyle hecele ("Ka-Ye-Ka"): ElevenLabs sesi ham Türkçe kısaltmayı İngilizce harf
+  adlarıyla okur (TCMB → "ti-si-em-bi"). İngilizce kısaltmaları (NASA dışı harf harf okunanlar:
+  FBI, CEO, NBA) olduğu gibi bırak. Yabancı adı okunduğu gibi ("Pleysteyşın") yaz. Boşluklu
+  yazım ("Be De De Ka", "si i o") YAZMA: önceki kelimeyle birleşip bozuluyor. **Cümle sayısı
+  `text` ile aynı olmalı.**
 
 ## 6. Videoları üret ve kontrol et
 

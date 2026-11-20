@@ -1,5 +1,5 @@
 {
-  "_aciklama": "Okunuş sözlüğü: seslendirmede soldaki yazılış sağdaki okunuşa çevrilir (altyazı değişmez). Büyük/küçük harfe duyarlıdır; 'CEO'su', 'NBA'de' gibi ekler korunur. Harf harf okunan kısaltmalar BÜYÜK harf ve tireyle yazılır: boşluklu küçük harf (si i o) önceki kelimeyle birleşip bozuluyor. Yeni kelime eklemek için ilgili gruba bir satır ekle.",
+  "_aciklama": "Okunuş sözlüğü: seslendirmede soldaki yazılış sağdaki okunuşa çevrilir (altyazı değişmez). Büyük/küçük harfe duyarlıdır; 'CEO'su', 'NBA'de' gibi ekler korunur. Harf harf okunan kısaltmalar BÜYÜK harf ve tireyle yazılır: boşluklu küçük harf (si i o) önceki kelimeyle birleşip bozuluyor. Yeni kelime eklemek için ilgili gruba bir satır ekle. ElevenLabs sesine özel, denenmiş okunuşlar en alttaki \"_elevenlabs\" bölümündedir (orada null: olduğu gibi oku).",
   "İngilizce kısaltmalar": {
     "CEO": "Si-İ-O",
     "NBA": "En-Bi-Ey",
@@ -157,5 +157,27 @@
     "Hollywood": "Holivud",
     "Oscar": "Oskar",
     "Grammy": "Gremi"
+  },
+  "_elevenlabs": {
+    "_aciklama": "Yalnız ElevenLabs sesinde (Brian, eleven_v4_turbo) geçerli, tek tek denenmiş okunuşlar (2026-11-20; konuşma tanıma ve ses benzerliğiyle ölçüldü). Değer null ise kısaltma olduğu gibi bırakılır: bu ses İngilizce kısaltmaları doğru İngilizce harflerle okur. Türkçe kısaltmaları ham bırakma: İngilizce harflerle okur (TCMB -> Ti-Si-Em-Bi). Tireli hecelerin başı yutulduğundan bazıları tek kelime yazılır; 'Ce' hecesi 'se' gibi çıktığından TCMB'de 'Dje' kullanılır. Diğer motorlar (Chatterbox, Piper) üstteki genel sözlüğü kullanır.",
+    "ABD": "Abede",
+    "AB": "Abe",
+    "TBMM": "Tebememe",
+    "BDDK": "Bededeka",
+    "THY": "Tehaye",
+    "TSK": "Teseka",
+    "TRT": "Terete",
+    "TCMB": "Te-Dje-Me-Be",
+    "CEO": null,
+    "NBA": null,
+    "NFL": null,
+    "FBI": null,
+    "CIA": null,
+    "AI": null,
+    "GTA": null,
+    "BBC": null,
+    "CNN": null,
+    "USB": null,
+    "SUV": null
   }
 }
