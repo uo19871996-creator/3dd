@@ -63,6 +63,7 @@ def fetch(token):
                 "published": sn["publishedAt"], "age_h": round((now - pub).total_seconds() / 3600, 1),
                 "views": int(st.get("viewCount", 0)), "likes": int(st.get("likeCount", 0)),
                 "comments": int(st.get("commentCount", 0)), "duration": _dur(it["contentDetails"]["duration"]),
+                "kind": "viral" if "#viral" in sn.get("description", "").lower() else "haber",
             })
     return out
 
@@ -77,7 +78,8 @@ def rank(vids, min_age=24.0):
 
 def _row(v):
     k = f"{v['multiple']:.1f}x" if v["multiple"] is not None else "  -"
-    return f"  {k:>6}  {v['views']:>7} izl  {v['likes']:>4} beğ  {v['age_h']:>5.0f} sa  {v['title']}"
+    return (f"  {k:>6}  {v['views']:>7} izl  {v['likes']:>4} beğ  {v['age_h']:>5.0f} sa  "
+            f"{'[viral] ' if v.get('kind') == 'viral' else ''}{v['title']}")
 
 
 def main():
@@ -94,6 +96,13 @@ def main():
     rows = mature if not top or len(mature) <= 2 * top else mature[:top] + [None] + mature[-top:]
     for v in rows:
         print("  ..." if v is None else _row(v))
+    viral = [v for v in mature if v.get("kind") == "viral"]
+    if viral and med:  # 5 haber + 5 viral denemesi: türlerin medyana göre karşılaştırması
+        for kind in ("haber", "viral"):
+            m = statistics.median([v["views"] for v in mature if v.get("kind") == kind])
+            n = sum(1 for v in mature if v.get("kind") == kind)
+            print(f"\n{kind:>5}: {n} olgun video, medyan {m:.0f} izlenme ({m / med:.2f}x)", end="")
+        print()
     if young:
         print(f"\nHenüz {min_age:.0f} saati doldurmayan {len(young)} video (sıralamaya girmedi):")
         for v in sorted(young, key=lambda v: v["age_h"]):
