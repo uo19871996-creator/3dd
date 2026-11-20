@@ -164,7 +164,7 @@ for f in out/TARIH/*.mp4; do ffmpeg -v error -y -ss 8 -i "$f" -frames:v 1 -vf sc
 
 Sorun varsa senaryoyu düzeltip yalnızca o videoyu yeniden üret (`--only 3`).
 
-`[ok]` satırındaki `ses:` bilgisi okuyan motoru gösterir (ör. `ElevenLabs george (eleven_v4), 640
+`[ok]` satırındaki `ses:` bilgisi okuyan motoru gösterir (ör. `ElevenLabs brian (eleven_v4_turbo), 292
 kredi` ya da `Chatterbox, kanal sahibinin sesi`). Ana ses kullanılamazsa (ör. ElevenLabs kredisi
 bitti) betik bunu `[bilgi]` satırıyla yazar ve videoyu yedek sesle baştan üretir; hata değildir.
 `[uyarı] ElevenLabs kredisi bitmek üzere` görürsen (kalan kredi satırı, anahtarda izin varsa yazılır)

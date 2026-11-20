@@ -6,7 +6,7 @@
     "piper"
   ],
   "elevenlabs_voice": "brian",
-  "elevenlabs_model": "eleven_v4",
+  "elevenlabs_model": "eleven_v4_turbo",
   "speech_length_scale": 0.95,
   "google_voice": "tr-TR-Wavenet-E",
   "google_speaking_rate": 1.05,
