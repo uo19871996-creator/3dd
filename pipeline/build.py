@@ -363,9 +363,11 @@ def build_video(tts, day, n, total, v, out_dir):
     scenes = []
     template = os.environ.get("GUNDEM_TEMPLATE") or CONFIG.get("template", "v1")
     script_scenes = list(v["scenes"])
-    if template == "v2" and CONFIG.get("outro_text"):  # her videonun sonunda "abone ol" kapanışı
-        script_scenes.append({"heading": "", "text": CONFIG["outro_text"],
-                              "say": CONFIG.get("outro_say") or CONFIG["outro_text"], "subscribe": True})
+    outro = (CONFIG.get("outro_text_viral") if v.get("type") == "viral" else None) or CONFIG.get("outro_text")
+    if template == "v2" and outro:  # her videonun sonunda "abone ol" kapanışı (viralde kendi cümlesi)
+        script_scenes.append({"heading": "", "text": outro,
+                              "say": (CONFIG.get("outro_say") if outro == CONFIG.get("outro_text") else None) or outro,
+                              "subscribe": True})
     spent0 = getattr(tts, "spent", None)  # ElevenLabs: bu videonun kredisi [ok] satırında yazılır
     plan = []  # sahne başına (ekranda görünen cümleler, okunacak cümleler)
     for sc in script_scenes:
