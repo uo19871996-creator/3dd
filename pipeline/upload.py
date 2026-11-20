@@ -88,6 +88,36 @@ def today_count(items):
                if datetime.fromisoformat(s["publishedAt"].replace("Z", "+00:00")).astimezone(IST).date() == today)
 
 
+def kind_of(snippet):
+    """Videonun türü: açıklamasında #viral varsa viral, yoksa haber."""
+    return "viral" if "#viral" in snippet.get("description", "").lower() else "haber"
+
+
+def today_mix(items):
+    """Bugün (İstanbul) yüklenenlerin türlere göre sayısı ve en son yüklenenin türü (items en yeni önce)."""
+    today = datetime.now(IST).date()
+    todays = [s for s in items
+              if datetime.fromisoformat(s["publishedAt"].replace("Z", "+00:00")).astimezone(IST).date() == today]
+    counts = {"haber": 0, "viral": 0}
+    for s in todays:
+        counts[kind_of(s)] += 1
+    return counts, (kind_of(todays[0]) if todays else None)
+
+
+def next_kind(counts, last):
+    """Günlük karışıma (config daily_mix, ör. 5 haber + 5 viral) göre bu çalışmanın türü; ikisi de
+    dolduysa None. Kalanı çok olan seçilir; eşitlikte son yüklenenin tersi (gün boyu sırayla)."""
+    mix = CONFIG.get("daily_mix", {"haber": 5, "viral": 5})
+    left = {k: mix[k] - counts.get(k, 0) for k in mix}
+    best = max(left.values(), default=0)
+    if best <= 0:
+        return None
+    tied = [k for k, n in left.items() if n == best]
+    if len(tied) > 1 and last in tied:
+        tied.remove(last)
+    return "haber" if "haber" in tied else tied[0]
+
+
 def clean_title(t):
     """Başlıktan #shorts'u çıkarır (açıklamada zaten var; başlıkta görünen 40-60 karakteri harcar)."""
     return " ".join(re.sub(r"#shorts\b", "", t, flags=re.I).split())[:100] or t.strip()[:100]
@@ -105,14 +135,20 @@ def upload(token, path, v, privacy):
         lines = [f"- {c['title'].removeprefix('File:')} — {c['artist']}, {c['license']} ({c['page']})"
                  for c in json.loads(cred.read_text(encoding="utf-8"))]
         desc += "\n\nGörseller (Wikimedia Commons):\n" + "\n".join(lines)
-    desc += "\n\n" + CONFIG.get("description_footer", "#shorts #gündem #haber")
-    tags = list(dict.fromkeys(v.get("tags", []) + CONFIG.get("default_tags", [])))
+    viral = v.get("type") == "viral"
+    footer = (CONFIG.get("description_footer_viral") if viral else None) or \
+        CONFIG.get("description_footer", "#shorts #gündem #haber")
+    if viral and "#viral" not in footer.lower():  # --today tür sayımı bu etikete bakar
+        footer += " #viral"
+    desc = desc[:4900 - len(footer) - 2] + "\n\n" + footer  # kesilirse dipnot (tür etiketi) korunur
+    tags = list(dict.fromkeys(v.get("tags", []) + CONFIG.get("default_tags_viral" if viral else "default_tags", [])))
+    category = CONFIG.get("youtube_category_id_viral", "27") if viral else CONFIG.get("youtube_category_id", "25")
     body = {
         "snippet": {
             "title": clean_title(v["yt_title"]),
-            "description": desc[:4900],
+            "description": desc,
             "tags": tags,
-            "categoryId": v.get("youtube_category_id", CONFIG.get("youtube_category_id", "25")),
+            "categoryId": v.get("youtube_category_id", category),
             "defaultLanguage": "tr",
             "defaultAudioLanguage": "tr",
         },
@@ -163,7 +199,16 @@ def main():
         return
     cap = int(CONFIG.get("daily_upload_cap", 10) or 0)
     if "--today" in args:
-        print(f"Bugün (İstanbul) kanala yüklenen video: {today_count(recent_items(token))} / {cap or '-'}")
+        items = recent_items(token)
+        counts, last = today_mix(items)
+        mix = CONFIG.get("daily_mix", {"haber": 5, "viral": 5})
+        print(f"Bugün (İstanbul) kanala yüklenen video: {today_count(items)} / {cap or '-'} "
+              f"(haber {counts['haber']}, viral {counts['viral']})")
+        kind = next_kind(counts, last)
+        if cap and today_count(items) >= cap:
+            kind = None
+        left = ", ".join(f"{k} {max(0, mix[k] - counts.get(k, 0))}" for k in mix)
+        print(f"Sıradaki video türü: {kind or 'yok (bugünkü videolar tamam)'}  (kalan: {left})")
         return
     if "--recent" in args:
         # Kanala son yüklenen videoların başlıkları (aynı konuyu tekrar işlememek için)

@@ -244,7 +244,8 @@ SOUNDS = dict(whoosh=sfx_whoosh, pop=sfx_pop, stamp=sfx_stamp, impact=sfx_impact
 # ------------------------------------------------------------------ ElevenLabs kütüphanesi (assets/sounds)
 LIB = Path(__file__).resolve().parent.parent / "assets" / "sounds"
 MOODS = {"SPOR": "enerjik", "SİYASET": "gergin", "DÜNYA": "gergin", "TEKNOLOJİ": "modern",
-         "BİLİM": "modern", "MAGAZİN": "modern", "KÜLTÜR": "modern", "YAŞAM": "modern"}  # diğerleri: haber
+         "BİLİM": "modern", "MAGAZİN": "modern", "KÜLTÜR": "modern", "YAŞAM": "modern",
+         "DOĞA": "modern", "SEYAHAT": "modern", "İLGİNÇ": "modern", "VİRAL": "enerjik"}  # diğerleri: haber
 _ONSET_ALIGNED = ("ticks", "shimmer")  # doku sesleri başlangıcından, diğerleri tepe anından hizalanır
 _LIB_SFX = None
 

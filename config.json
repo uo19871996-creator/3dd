@@ -1,5 +1,6 @@
 {
   "brand": "GÜNDEM",
+  "brand_viral": "İLGİNÇ",
   "tts": "elevenlabs",
   "tts_fallback": [
     "chatterbox",
@@ -21,6 +22,15 @@
     "shorts"
   ],
   "description_footer": "#shorts #gündem #haber\n\nBu video, haber kaynaklarından derlenen bilgilerle otomatik olarak hazırlanmıştır.",
+  "description_footer_viral": "#shorts #viral #ilginçbilgiler\n\nBu video, güvenilir kaynaklardan derlenen bilgilerle otomatik olarak hazırlanmıştır.",
+  "default_tags_viral": [
+    "ilginç bilgiler",
+    "bunu biliyor muydunuz",
+    "bilgi",
+    "viral",
+    "shorts"
+  ],
+  "youtube_category_id_viral": "27",
   "template": "v2",
   "music": true,
   "sounds": "elevenlabs",
@@ -31,5 +41,9 @@
   "word_align": true,
   "grain": 0.025,
   "daily_upload_cap": 10,
+  "daily_mix": {
+    "haber": 5,
+    "viral": 5
+  },
   "map3d": true
 }

@@ -3,9 +3,14 @@
 Bu dosya, otomatik açılan oturumun izleyeceği adımlardır. Görev **İstanbul saatiyle günde 10 kez**
 (09, 10, 12, 13, 15, 16, 18, 19, 21 ve 22'de) çalışır ve her çalışmada **1 video** (görev metni
 başka bir sayı söylüyorsa o kadar) üretip yükler. Günde 10'dan fazla yükleme yapılmaz: kanal
-verisinde günün 10. videosundan sonrakiler neredeyse hiç izlenmedi. Amaç: Türkiye'de şu an en çok
-konuşulan ve kanalda henüz işlenmemiş konuyu, kanalda en çok izlenen konu türlerine öncelik vererek
-seçmek, YouTube Shorts videosu üretmek ve kanala yüklemek.
+verisinde günün 10. videosundan sonrakiler neredeyse hiç izlenmedi.
+Günlük karışım (kanal sahibinin isteği): **5 haber + 5 viral** (`config.json` → `daily_mix`).
+- **Haber:** Türkiye'de şu an en çok konuşulan ve kanalda henüz işlenmemiş konu, kanalda en çok
+  izlenen haber türlerine öncelik vererek.
+- **Viral:** ilgi çekici, bilgilendirici kısa video ("Dünyanın en...", "Neden...?", şaşırtıcı
+  hayvan, ülke ve rekor bilgileri, o an patlayan viral gündem); en çok etkileşim alan konu
+  türlerinden, her çalışmada YENİDEN araştırılarak seçilir.
+Bu çalışmanın türünü 2. adım söyler; ona uy.
 Tarih olarak İstanbul saatine göre bugünü kullan (`TZ=Europe/Istanbul date +%F`).
 Senaryo dosyasının adı: `scripts/TARIH-SSDD.json` (ör. `scripts/2026-11-14-1407.json`).
 Dosyanın içindeki `"date"` alanı yine yalnızca tarihtir (`"2026-11-14"`).
@@ -16,7 +21,27 @@ Dosyanın içindeki `"date"` alanı yine yalnızca tarihtir (`"2026-11-14"`).
 bash setup.sh
 ```
 
-## 2. Adayları topla
+## 2. Bugünkü durum ve bu çalışmanın türü
+
+```bash
+python3 pipeline/upload.py --today
+python3 pipeline/upload.py --recent
+```
+
+`--today` bugün yüklenen video sayısını türlere göre verir ve **bu çalışmanın türünü** söyler
+(`Sıradaki video türü: haber` ya da `viral`). Bu türde 1 video üret. `Sıradaki video türü: yok`
+yazıyorsa ya da bugün 10 video yüklendiyse **dur**: video üretme ve yükleme, raporda "bugünkü
+videolar tamam" de ve bitir (`upload.py` de 10 videoda yüklemeyi kendisi atlar). Tür, videonun
+açıklamasındaki `#viral` etiketinden sayılır; senaryoda `"type": "viral"` olan video bu etiketle
+yüklenir.
+
+`--recent` kanalın son ~50 videosudur (yaklaşık son 3 gün). Son 48 saatte işlenmiş bir konuyu
+(aynı olay ya da aynı kişi/kurumun aynı haberi; viralde aynı hayvan, ülke ya da bilgi) yalnızca
+önemli YENİ bir gelişme varsa ve yeni gelişmeyi anlatarak tekrar seç.
+
+## 3. Adayları topla (araştırma her çalışmada yapılır)
+
+Haber çalışması:
 
 ```bash
 mkdir -p out && python3 pipeline/trends.py --days 3 > out/gundem.md
@@ -26,21 +51,23 @@ mkdir -p out && python3 pipeline/trends.py --days 3 > out/gundem.md
 birden çok kaynakta/manşette tekrar eden ve arama hacmi yüksek konulara öncelik ver. Gerekirse web
 aramasıyla listeyi genişlet.
 
-## 3. Daha önce işlenenleri kontrol et
+Viral çalışma:
 
 ```bash
-python3 pipeline/upload.py --today
-python3 pipeline/upload.py --recent
+mkdir -p out && python3 pipeline/viral.py > out/viral.md && python3 pipeline/trends.py --days 3 > out/gundem.md
 ```
 
-`--today` bugün yüklenen video sayısını verir. **10 ya da fazlaysa dur**: video üretme ve yükleme,
-raporda "bugünkü 10 video tamam" de ve bitir (`upload.py` de bu sınırda yüklemeyi kendisi atlar).
-
-Liste kanalın son ~50 videosudur (yaklaşık son 3 gün). Son 48 saatte işlenmiş bir konuyu
-(aynı olay ya da aynı kişi/kurumun aynı haberi) yalnızca önemli YENİ bir gelişme varsa ve yeni
-gelişmeyi anlatarak tekrar seç.
+`out/viral.md`: YouTube Türkiye trendleri ve o saatin iki konu aramasında son 14 günün en çok
+izlenen ve en çok etkileşim alan Türkçe kısa videoları (günlük izlenme, (beğeni+yorum)/izlenme,
+yorum sayısı), en altta kanalın son 3 günde yüklediği başlıklar. Bu liste yalnızca **konu ve
+format fikri** içindir: oradaki videoların görüntüsü, sesi ya da metni ASLA kullanılmaz. Hangi
+konuların ve başlık kalıplarının etkileşim aldığına bak, `out/gundem.md`'deki viral gündemi de
+değerlendir, sonra web aramasıyla konuyu derinleştir ve doğrula. `viral.py` YouTube kotasından
+~200 birim harcar; aynı çalışmada tekrar tekrar çalıştırma.
 
 ## 4. Konu seç (bu çalışmada 1 konu)
+
+### 4A. Haber çalışması
 
 - Son 24-48 saatin en çok konuşulan, kanalda henüz işlenmemiş konusunu seç; son dakika gelişmeler önceliklidir.
 - Çeşitlilik: kanalın son 5 videosunda aynı kategoriden (GÜNDEM, EKONOMİ, SPOR, SİYASET, DÜNYA,
@@ -80,6 +107,40 @@ gelişmeyi anlatarak tekrar seç.
 - Siyasi konularda tarafsız, yorumsuz dil kullan.
 - Metni kendi cümlelerinle yaz; haber sitelerinden cümle kopyalama.
 
+### 4B. Viral çalışma
+
+Amaç: izleyiciyi ilk saniyede durduran, sonuna kadar izleten ve yorum yazdıran **ilgi çekici,
+bilgilendirici** bir video. Konuyu `out/viral.md` ile o an etkileşim alan konulardan seç.
+20 Kasım incelemesinde (Türkçe bilgilendirici Shorts kanalları, videoyu kendi kanal medyanıyla
+kıyaslayarak) en çok sıçrayan türler; bunlara öncelik ver:
+1. **Şaşırtıcı hayvan davranışları:** "Hamamböceğini zombiye çeviren böcek" 177 kat,
+   "Dünyanın en tuhaf papağanı" 45 kat, "Köle yapan Amazon karıncaları" 27 kat. Tek bir canlı,
+   tek bir ters köşe.
+2. **Ülkeler, seyahat, coğrafya; Türk izleyiciye dokunanlar önde:** "Vizesiz seyahat rotaları"
+   155 kat ve 6.467 yorum, "Dünyanın en zengin küçük ülkesi Lihtenştayn" 76 kat, "Japonya Türkiye'den
+   vize istemiyor mu?" 43 kat. Burada `map` sahnesi (3D küre) kullan.
+3. **"Neden?" günlük merak:** "Futbolcular kramponlarını neden atmıyor?" 84 kat (4 milyon izlenme),
+   "Tesla kapıları kışın donuyordu" 41 kat. Spor ve teknoloji açısı kanalımıza da uyar.
+4. **"Dünyanın en..." rekorlar ve uç örnekler** (en küçük, en hızlı, en pahalı, en eski).
+5. **O an Türkiye'de patlayan viral gündem** (ör. GTA 6 çıkışı): yalnızca ana akım medyada da
+   haber olduysa ve bilgilendirici bir açıyla ("GTA 6 neden bu kadar pahalı?").
+
+Kurallar:
+- Her çalışmada yeniden araştır: `out/viral.md`'deki güncel listeye ve web aramasına bak; aynı
+  türü üst üste seçme (`--recent` listesinde `[viral]` başlıklara bak); aynı bilgiyi 30 gün içinde
+  tekrar işleme.
+- **Doğrulama daha sıkı:** internetteki "ilginç bilgi"lerin çoğu efsane ya da abartı. Her iddiayı
+  en az 2 güvenilir kaynakta doğrula (ansiklopedi ve kaynakları, bilimsel/müze/üniversite
+  sayfaları, National Geographic, BBC, resmi kurum siteleri, ana akım haber). Doğrulanamayan ya da
+  efsane çıkan bilgiyi yazma (istersen videoyu "doğru sanılan yanlış" olarak kur).
+- Başkasının videosu, görüntüsü, sesi ya da metni KULLANILMAZ; konuyu kendi şablonumuzla (kart,
+  harita, serbest lisanslı fotoğraf, rakam) anlat. Gerçek kişi/olay için yapay zekâ görseli yok.
+- Kaçın: din ve siyaset kışkırtması, komplo teorileri, sağlık tavsiyesi, şiddetin grafik
+  ayrıntısı, çocuklar ve mağdurlar, korku/şok uğruna gerçeği zorlamak. 4A'daki doğrulama,
+  kaçınma ve yayın yasağı kuralları burada da geçerli.
+- Fotoğraf bulunabilecek konuları seç (hayvan, yer, nesne Wikimedia'da bol); görselsiz anlatılamayan
+  konuyu seçme.
+
 ## 5. Senaryoyu yaz: `scripts/TARIH-SSDD.json`
 
 Örnek için `scripts/` klasöründeki önceki dosyalara bak. Kurallar:
@@ -88,6 +149,18 @@ Oturumda `social-media-skills:hook-writer` ve `social-media-skills:youtube-short
 varsa açılış ve başlık için onlardan da yararlan; yoksa aşağıdaki kurallar yeterli.
 
 - `slug`: küçük harf, ASCII, tireli. `category`: yukarıdaki listeden.
+- **Viral videoda** (örnek: `tests/ornek-viral.json`) video nesnesine `"type": "viral"` ekle (haberde yazma; yükleme açıklamaya
+  `#viral` koyar, günlük sayım buna bakar). `category`: DOĞA (hayvan, doğa), SEYAHAT (ülke, şehir,
+  vize), İLGİNÇ (genel merak, rekor), VİRAL (sosyal medya gündemi); uygunsa BİLİM, TEKNOLOJİ, SPOR,
+  DÜNYA. Ekranda marka yerine "İLGİNÇ" yazar, müzik kategoriye göre seçilir.
+  - `title` kalıpları: "Dünyanın en ...", "... neden ...?", "... biliyor muydun?", ters köşe
+    ("Hamamböceğini zombiye çeviren böcek"). Vaat videoda mutlaka verilir.
+  - İlk sahne ters köşeyi tek cümlede söyler (en fazla 12 kelime); sonraki her sahne rakamlı,
+    somut, şaşırtıcı bir bilgi verir; en etkileyici bilgi sona yakın gelir.
+  - Son soru yorum yazdıran türden: "Sen olsan dener miydin?", "Bunu biliyor muydun?"
+    (en fazla 8 kelime).
+  - `hashtags`: ilk ikisi konu, sonuncusu `ilginçbilgiler`. `description`'ın ilk cümlesinde
+    anahtar kelimeler; `sources`: doğruladığın 2 güvenilir kaynak.
 - Shorts kuralı: izleyici ilk 1-3 saniyede kaydırıp geçerse video yayılmaz. Her şey bunun için:
   - `title` (ilk karede ekranda duran yazı, ses kapalı da okunur): en fazla 50 karakter, açılışla
     AYNI vaadi taşısın. Kalıplar: soru/açık döngü ("BDDK Başkanı neden istifa etti?"), rakam
@@ -207,8 +280,8 @@ devam et ve raporda hangi sesin kullanıldığını belirt.
 ## 8. Raporla
 
 Commit ve push YAPMA: zamanlanmış oturumların bu depoya yazma izni yok, kayıt da gerekmiyor (aynı
-konuyu tekrarlamamak için 3. adımda kanalın son videolarına bakılıyor). Bir "push edilmemiş commit"
+konuyu tekrarlamamak için 2. adımda kanalın son videolarına bakılıyor). Bir "push edilmemiş commit"
 uyarısı görürsen yok say.
 
-Son mesajında yüklenen videoların başlık + bağlantı listesini, atlanan/başarısız adımları ve
-nedenlerini yaz.
+Son mesajında bu çalışmanın türünü (haber/viral), yüklenen videonun başlık + bağlantısını,
+atlanan/başarısız adımları ve nedenlerini yaz.

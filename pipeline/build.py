@@ -43,11 +43,14 @@ ACCENTS = {
     "TEKNOLOJİ": "#22d3ee", "MAGAZİN": "#f472b6", "DÜNYA": "#a78bfa",
     "GÜNDEM": "#facc15", "SAĞLIK": "#4ade80", "EĞİTİM": "#60a5fa",
     "YAŞAM": "#fbbf24", "BİLİM": "#38bdf8", "KÜLTÜR": "#e879f9",
+    # viral / bilgilendirici videolar (senaryoda "type": "viral")
+    "DOĞA": "#2dd4bf", "SEYAHAT": "#0ea5e9", "İLGİNÇ": "#c084fc", "VİRAL": "#fb7185",
 }
 CATEGORY_ICONS = {  # v2 şablonu: kategori ikonu (Lucide adları)
     "EKONOMİ": "trending-up", "SPOR": "trophy", "SİYASET": "landmark", "TEKNOLOJİ": "cpu",
     "MAGAZİN": "star", "DÜNYA": "globe", "GÜNDEM": "newspaper", "SAĞLIK": "heart-pulse",
     "EĞİTİM": "graduation-cap", "YAŞAM": "sun", "BİLİM": "atom", "KÜLTÜR": "palette",
+    "DOĞA": "paw-print", "SEYAHAT": "plane", "İLGİNÇ": "sparkles", "VİRAL": "flame",
 }
 
 
@@ -482,7 +485,8 @@ def build_video(tts, day, n, total, v, out_dir):
     y, m, d = day.split("-")
     cat = tr_upper(v.get("category", "GÜNDEM"))
     props = {
-        "brand": CONFIG["brand"], "date": f"{int(d)} {MONTHS[int(m) - 1]} {y}",
+        "brand": CONFIG.get("brand_viral", "İLGİNÇ") if v.get("type") == "viral" else CONFIG["brand"],
+        "date": f"{int(d)} {MONTHS[int(m) - 1]} {y}",
         "index": n, "total": total, "category": cat,
         "accent": v.get("accent") or ACCENTS.get(cat, "#facc15"),
         "title": v["title"], "audio": f"{day}/{slug}.wav",
