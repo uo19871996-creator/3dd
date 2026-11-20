@@ -7,8 +7,12 @@ Her video için: Türkçe seslendirme -> altyazı zamanlaması ->
 Remotion ile 1080x1920 MP4 (out/TARIH/N-slug.mp4).
 
 Seslendirme motoru config.json içindeki "tts" ile seçilir:
-  "piper"  : çevrimdışı, ücretsiz (tr_TR-dfki sesi; lisansı CC BY-NC-SA, ticari değil)
-  "google" : Google Cloud Text-to-Speech (resmi API, ticari kullanım serbest)
+  "elevenlabs" : ElevenLabs API (anahtar ortamda ağ kimliği olarak kayıtlı; ticari kullanım ücretli planda)
+  "chatterbox" : Chatterbox Multilingual, kanal sahibinin ses örneğiyle (MIT, işlemcide çalışır)
+  "google"     : Google Cloud Text-to-Speech (resmi API, ticari kullanım serbest)
+  "piper"      : çevrimdışı, ücretsiz (tr_TR-dfki sesi; lisansı CC BY-NC-SA, ticari değil)
+Motor açılamazsa ya da video sırasında kullanılamaz olursa (ör. kredi biter) video, "tts_fallback"
+sırasındaki motorla baştan üretilir; tek videoda iki farklı ses karışmaz.
 """
 import base64
 import glob
@@ -19,6 +23,7 @@ import re
 import struct
 import subprocess
 import sys
+import time
 import wave
 import zlib
 from pathlib import Path
@@ -86,7 +91,7 @@ class ChatterboxTTS:
                     self.sr = int(msg["sr"])
                     break
 
-    def synth(self, text):
+    def synth(self, text, prev=None, nxt=None):  # bağlam (prev/nxt) bu motorda kullanılmaz
         self.n += 1
         out = self.tmp / f"{self.n}.wav"
         self.proc.stdin.write(json.dumps({"text": text, "out": str(out)}, ensure_ascii=False) + "\n")
@@ -112,7 +117,7 @@ class PiperTTS:
         self.sr = self.voice.config.sample_rate
         self.label = "Piper (ücretsiz yedek ses)"
 
-    def synth(self, text):
+    def synth(self, text, prev=None, nxt=None):
         audio = [c.audio_int16_array for c in self.voice.synthesize(text, syn_config=self.cfg)]
         return np.concatenate(audio) if audio else np.zeros(0, dtype=np.int16)
 
@@ -128,7 +133,7 @@ class GoogleTTS:
         self.rate = CONFIG.get("google_speaking_rate", 1.05)
         self.key = os.environ.get("GOOGLE_TTS_API_KEY", "proxy-tarafindan-eklenir")
 
-    def synth(self, text):
+    def synth(self, text, prev=None, nxt=None):
         r = requests.post(self.URL, headers={"X-Goog-Api-Key": self.key}, timeout=120, json={
             "input": {"text": text},
             "voice": {"languageCode": "tr-TR", "name": self.voice},
@@ -139,6 +144,83 @@ class GoogleTTS:
             raise RuntimeError(f"Google TTS ({r.status_code}): {r.text[:300]}")
         with wave.open(io.BytesIO(base64.b64decode(r.json()["audioContent"]))) as w:
             return np.frombuffer(w.readframes(w.getnframes()), dtype=np.int16)
+
+
+class TTSUnavailable(RuntimeError):
+    """Ses motoru bu çalıştırmada kullanılamıyor (kredi bitti, anahtar geçersiz ya da yetkisiz, servis
+    yanıt vermiyor). main() o videoyu sıradaki motorla baştan üretir."""
+
+
+class ElevenLabsTTS:
+    """ElevenLabs (resmi API). Anahtar ortamda ağ kimliği olarak kayıtlıdır: vekil sunucu
+    api.elevenlabs.io isteklerine xi-api-key başlığını kendisi ekler, anahtar ne bu betikte ne depoda
+    durur (ortam dışında ELEVENLABS_API_KEY ortam değişkeni de olur).
+
+    Her cümle ayrı istenir; önceki ve sonraki cümle bağlam olarak gider (ücretlendirilmez), böylece
+    tonlama cümleler arasında kopmaz. Kredi: eleven_v4 ve eleven_multilingual_v2 harf başına 1,
+    eleven_v4_turbo ve eleven_flash_v2_5 harf başına 0,5."""
+    URL = "https://api.elevenlabs.io/v1/text-to-speech/{voice}?output_format=pcm_24000"
+    VOICES = {  # hazır sesler; klonlanmış bir ses için config'e ses kimliğini (voice_id) yaz
+        "george": "JBFqnCBsd6RMkjVDRZzb", "brian": "nPczCjzI2devNBz1zQrb", "daniel": "onwK4e9ZLuTAKqWW03F9",
+        "sarah": "EXAVITQu4vr4xnSDxMaL", "alice": "Xb7hH8MSUJpSbSDYk0k2",
+    }
+    OPTIONAL = ("language_code", "previous_text", "next_text")  # kabul etmeyen modelde çıkarılır
+
+    def __init__(self):
+        self.sr = 24000
+        name = str(CONFIG.get("elevenlabs_voice", "george"))
+        self.voice = self.VOICES.get(name.lower(), name)
+        self.model = CONFIG.get("elevenlabs_model", "eleven_v4")
+        self.settings = {"stability": 0.5, "similarity_boost": 0.75, "style": 0.0, "use_speaker_boost": True,
+                         **CONFIG.get("elevenlabs_settings", {})}
+        key = os.environ.get("ELEVENLABS_API_KEY")
+        self.headers = {"xi-api-key": key} if key else {}
+        self.drop = set()
+        self.spent = 0  # harcanan kredi (yanıttaki Character-Cost başlığından)
+        who = name.lower() if name.lower() in self.VOICES else "klon ses"
+        self.label = f"ElevenLabs {who} ({self.model})"
+        left = self.credits_left()
+        if left is not None:
+            per_video = 700 * (0.5 if "turbo" in self.model or "flash" in self.model else 1)
+            print(f"[bilgi] ElevenLabs kalan kredi: {left} (yaklaşık {int(left // per_video)} video)", flush=True)
+            if left < 3 * per_video:
+                print("[uyarı] ElevenLabs kredisi bitmek üzere; bitince videolar yedek sesle üretilir. "
+                      "Raporda belirt.", flush=True)
+
+    def credits_left(self):
+        """Kalan kredi; anahtarda "User: Read" izni yoksa None (kredi harcamaz)."""
+        try:
+            r = requests.get("https://api.elevenlabs.io/v1/user/subscription", headers=self.headers, timeout=20)
+            if r.status_code == 200:
+                s = r.json()
+                return int(s["character_limit"]) - int(s["character_count"])
+        except Exception:
+            pass
+        return None
+
+    def synth(self, text, prev=None, nxt=None):
+        body = {"text": text, "model_id": self.model, "language_code": "tr", "voice_settings": self.settings,
+                "previous_text": prev, "next_text": nxt}
+        err = ""
+        for attempt in range(5):
+            body = {k: v for k, v in body.items() if v is not None and k not in self.drop}
+            try:
+                r = requests.post(self.URL.format(voice=self.voice), headers=self.headers, json=body, timeout=90)
+            except requests.RequestException as e:  # bağlantı/zaman aşımı: bekleyip yeniden dene
+                err = f"bağlantı: {str(e)[:160]}"
+            else:
+                if r.status_code == 200:
+                    self.spent += int(r.headers.get("character-cost") or len(text))
+                    return np.frombuffer(r.content, dtype=np.int16)  # ham PCM: 16 bit, 24 kHz, mono
+                err = f"{r.status_code}: {r.text[:240]}"
+                bad = [k for k in self.OPTIONAL if k in body and k in r.text] if r.status_code in (400, 422) else []
+                if bad:  # model bu alanı desteklemiyor: çıkarıp hemen yeniden dene
+                    self.drop.update(bad)
+                    continue
+                if r.status_code < 500 and r.status_code not in (408, 409, 429):
+                    raise TTSUnavailable(err)  # kredi bitti / anahtar ya da yetki sorunu / ses yok
+            time.sleep(2 * 2 ** attempt)
+        raise TTSUnavailable(err)
 
 
 def chrome_path():
@@ -262,15 +344,22 @@ def build_video(tts, day, n, total, v, out_dir):
     if template == "v2" and CONFIG.get("outro_text"):  # her videonun sonunda "abone ol" kapanışı
         script_scenes.append({"heading": "", "text": CONFIG["outro_text"],
                               "say": CONFIG.get("outro_say") or CONFIG["outro_text"], "subscribe": True})
-    sents = []  # her cümle: sahnesi, sesteki başı/sonu, ekranda görünen metni
-    for si, sc in enumerate(script_scenes):
+    spent0 = getattr(tts, "spent", None)  # ElevenLabs: bu videonun kredisi [ok] satırında yazılır
+    plan = []  # sahne başına (ekranda görünen cümleler, okunacak cümleler)
+    for sc in script_scenes:
         shown = sentences(sc["text"])
         spoken = sentences(sc.get("say") or sc["text"])
         if len(spoken) != len(shown):  # hizalanamıyorsa tek blok olarak ele al
             shown, spoken = [sc["text"]], [sc.get("say") or sc["text"]]
+        plan.append((shown, [okunus(s) for s in spoken]))
+    said = [s for _, spoken in plan for s in spoken]  # bağlam: önceki/sonraki cümle (ElevenLabs)
+    k = 0
+    sents = []  # her cümle: sahnesi, sesteki başı/sonu, ekranda görünen metni
+    for si, (sc, (shown, spoken)) in enumerate(zip(script_scenes, plan)):
         start = pos / sr
         for shown_s, spoken_s in zip(shown, spoken):
-            a = trim(tts.synth(okunus(spoken_s)), sr)
+            a = trim(tts.synth(spoken_s, said[k - 1] if k else None, said[k + 1] if k + 1 < len(said) else None), sr)
+            k += 1
             sents.append({"scene": si, "t0": pos / sr, "t1": (pos + a.size) / sr, "text": shown_s})
             track += [a, gap_sentence]
             pos += a.size + gap_sentence.size
@@ -430,6 +519,8 @@ def build_video(tts, day, n, total, v, out_dir):
     elif cred_file.exists():
         cred_file.unlink()
     voice_label = getattr(tts, "label", type(tts).__name__)
+    if spent0 is not None:
+        voice_label += f", {tts.spent - spent0} kredi"
     print(f"[ok] {out.relative_to(ROOT)}  {duration:.1f} sn · ses: {voice_label} · "
           f"fotoğraf: {len(credits)} · miks: {mix_label} · altyazı: {cap_label}{map_label}", flush=True)
     if duration > 175:
@@ -451,30 +542,52 @@ def main():
     out_dir = ROOT / "out" / day
     out_dir.mkdir(parents=True, exist_ok=True)
     engine = os.environ.get("GUNDEM_TTS") or CONFIG.get("tts", "google")  # GUNDEM_TTS=piper ile test
-    tts = None
-    if engine == "chatterbox":
-        try:
-            tts = ChatterboxTTS()
-        except Exception as e:
-            print(f"[bilgi] Chatterbox sesi kullanılamadı ({str(e)[:120]}); ücretsiz Piper sesine geçildi. "
-                  "Bu bir hata değil, işleme devam et.", flush=True)
-            tts = None
-    if engine == "google":
-        try:
-            tts = GoogleTTS()
-            tts.synth("Merhaba.")  # anahtar/faturalandırma çalışıyor mu?
-        except Exception as e:
-            print(f"[bilgi] Google sesi kullanılamadı ({str(e)[:80]}...); ücretsiz sese geçildi. "
-                  "Bu bir hata değil, işleme devam et.", flush=True)
-            tts = None
-    if tts is None:
-        tts = PiperTTS()
-    print(f"[bilgi] Seslendirme motoru: {type(tts).__name__}", flush=True)
+    chain = [engine] + [e for e in CONFIG.get("tts_fallback", ["chatterbox", "piper"]) if e != engine]
+    if "piper" not in chain:
+        chain.append("piper")  # son çare: çevrimdışı ses her makinede açılır
+
+    def next_tts():
+        while chain:
+            t = open_tts(chain.pop(0))
+            if t:
+                print(f"[bilgi] Seslendirme motoru: {getattr(t, 'label', type(t).__name__)}", flush=True)
+                return t
+        raise RuntimeError("Hiçbir ses motoru açılamadı (önce: bash setup.sh)")
+
+    tts = next_tts()
     vids = data["videos"]
     for n, v in enumerate(vids, 1):
         if only and n not in only:
             continue
-        build_video(tts, day, n, len(vids), v, out_dir)
+        while True:
+            try:
+                build_video(tts, day, n, len(vids), v, out_dir)
+                break
+            except TTSUnavailable as e:
+                print(f"[bilgi] {getattr(tts, 'label', type(tts).__name__)} bu videoda kullanılamadı "
+                      f"({str(e)[:200]}); video yedek sesle baştan üretiliyor. Bu bir hata değil, işleme "
+                      "devam et; raporda belirt.", flush=True)
+                tts = next_tts()
+
+
+def open_tts(engine):
+    """Ses motorunu açar; açılamazsa None döner ve main() sıradaki motora geçer."""
+    try:
+        if engine == "elevenlabs":
+            return ElevenLabsTTS()
+        if engine == "chatterbox":
+            return ChatterboxTTS()
+        if engine == "google":
+            t = GoogleTTS()
+            t.synth("Merhaba.")  # anahtar/faturalandırma çalışıyor mu?
+            return t
+        if engine == "piper":
+            return PiperTTS()
+        print(f"[bilgi] Bilinmeyen ses motoru: {engine}", flush=True)
+    except Exception as e:
+        print(f"[bilgi] {engine} sesi kullanılamadı ({str(e)[:160]}); sıradaki sese geçiliyor. "
+              "Bu bir hata değil, işleme devam et.", flush=True)
+    return None
 
 
 if __name__ == "__main__":

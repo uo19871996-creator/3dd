@@ -164,6 +164,12 @@ for f in out/TARIH/*.mp4; do ffmpeg -v error -y -ss 8 -i "$f" -frames:v 1 -vf sc
 
 Sorun varsa senaryoyu düzeltip yalnızca o videoyu yeniden üret (`--only 3`).
 
+`[ok]` satırındaki `ses:` bilgisi okuyan motoru gösterir (ör. `ElevenLabs george (eleven_v4), 640
+kredi` ya da `Chatterbox, kanal sahibinin sesi`). Ana ses kullanılamazsa (ör. ElevenLabs kredisi
+bitti) betik bunu `[bilgi]` satırıyla yazar ve videoyu yedek sesle baştan üretir; hata değildir.
+`[uyarı] ElevenLabs kredisi bitmek üzere` görürsen (kalan kredi satırı, anahtarda izin varsa yazılır)
+yüklemeye devam et ve raporda belirt.
+
 `[ok]` satırındaki `miks:` bilgisi sesi özetler (ör. `19 efekt + müzik, -14.0 LUFS / tepe -1.9 dBTP`).
 Efektler görsel olaylara (sahne geçişi, fotoğraf, harita iğnesi, sayaç, abone ol tıklaması) otomatik
 bağlanır; senaryoya ek alan gerekmez. `basit miks (yedek)` yazıyorsa gelişmiş miks o makinede
@@ -187,8 +193,9 @@ python3 pipeline/upload.py scripts/TARIH-SSDD.json
 
 Betik aynı videoyu iki kez yüklemez (`state/uploaded.json`). Yüklemeyi yalnızca `upload.py`'nin kendi
 verdiği hata durdurur: o zaman videoları üretilmiş bırak, yeniden deneme döngüsüne girme ve hatayı
-raporla. Üretim adımındaki seslendirme bilgileri (ör. "Google sesi kullanılamadı; ücretsiz sese
-geçildi") beklenen durumlardır; yüklemeyi **engellemez**, yüklemeye devam et.
+raporla. Üretim adımındaki seslendirme bilgileri (ör. "ElevenLabs ... bu videoda kullanılamadı;
+video yedek sesle baştan üretiliyor") beklenen durumlardır; yüklemeyi **engellemez**, yüklemeye
+devam et ve raporda hangi sesin kullanıldığını belirt.
 
 ## 8. Raporla
 

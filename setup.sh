@@ -6,7 +6,7 @@ cd "$(dirname "$0")"
 
 python3 -m pip install -q --root-user-action=ignore numpy requests
 
-# Çevrimdışı Piper sesi: "tts": "piper" ise ana ses, "google" ise anahtar yokken yedek ses.
+# Çevrimdışı Piper sesi: "tts": "piper" ise ana ses, değilse son çare yedek ses.
 python3 -m pip install -q --root-user-action=ignore piper-tts
 VOICE=tr_TR-dfki-medium
 BASE=https://huggingface.co/rhasspy/piper-voices/resolve/main/tr/tr_TR/dfki/medium
@@ -17,9 +17,10 @@ for f in "$VOICE.onnx" "$VOICE.onnx.json"; do
   fi
 done
 
-# Chatterbox Multilingual sesi ("tts": "chatterbox"): ayrı sanal ortam, işlemci (CPU) sürümü PyTorch
-TTS=$(python3 -c "import json; print(json.load(open('config.json')).get('tts', 'piper'))")
-if [ "$TTS" = "chatterbox" ]; then
+# Chatterbox Multilingual sesi: ana ses ("tts") ya da yedek ses ("tts_fallback", ör. ElevenLabs
+# kredisi bitince) chatterbox ise. Ayrı sanal ortam, işlemci (CPU) sürümü PyTorch.
+ENGINES=$(python3 -c "import json; c = json.load(open('config.json')); print(c.get('tts', 'piper'), *c.get('tts_fallback', ['chatterbox', 'piper']))")
+if [[ " $ENGINES " == *" chatterbox "* ]]; then
   if [ ! -x .venv-tts/bin/python ] || ! .venv-tts/bin/python -c "import chatterbox" 2>/dev/null; then
     python3 -m venv .venv-tts
     .venv-tts/bin/pip install -q --upgrade pip

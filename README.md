@@ -47,7 +47,14 @@ python3 pipeline/upload.py --check
 
 ## Lisans notları
 
-- **Ses motoru** `config.json` içindeki `"tts"` ile seçilir:
+- **Ses motoru** `config.json` içindeki `"tts"` ile seçilir. Motor açılamazsa ya da video sırasında
+  kullanılamaz olursa video `"tts_fallback"` sırasındaki motorla (varsayılan: Chatterbox, sonra Piper)
+  baştan üretilir; bir videoda iki ses karışmaz.
+  - `"elevenlabs"`: ElevenLabs API. Ses `elevenlabs_voice` (hazır ses adı: george, brian, daniel,
+    sarah, alice ya da klon sesin kimliği), model `elevenlabs_model` (`eleven_v4`: harf başına 1
+    kredi; `eleven_v4_turbo`: 0,5 kredi). Anahtar `api.elevenlabs.io` için ortamın ağ kimliği
+    (`xi-api-key`) ya da `ELEVENLABS_API_KEY` ile verilir. Ticari kullanım (para kazanan kanal) ücretli
+    planda serbesttir. Video başına ~600–700 harf okunur; `[ok]` satırı harcanan krediyi yazar.
   - `"chatterbox"`: Resemble AI Chatterbox Multilingual (MIT lisansı, ticari kullanım serbest).
     `assets/ses-ornegi.wav.enc` varsa kanal sahibinin sesiyle konuşur; yoksa modelin kendi sesini
     kullanır. İşlemcide video başına yaklaşık 6–7 dakika sürer; `setup.sh` ayrı bir sanal ortam
