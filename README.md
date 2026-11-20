@@ -12,6 +12,7 @@ bir YouTube Shorts videosu üreten ve kanala yükleyen otomasyon.
 | Üretim | `pipeline/build.py` | Türkçe seslendirme + altyazı zamanlaması + Remotion ile MP4 |
 | Ses | `pipeline/tts_chatterbox_worker.py`, `pipeline/voice.py` | Chatterbox ile kanal sahibinin sesi; ses örneği şifreli saklanır |
 | Ses kontrolü | `pipeline/check_audio.py` | Seslendirmeyi yazıya döker (telaffuz kontrolü, isteğe bağlı) |
+| Müzik ve efekt | `pipeline/audio_fx.py`, `pipeline/el_sounds.py` | Miks; ElevenLabs müzik/efekt kütüphanesi (`assets/sounds`, bir kez üretilir) |
 | Yükleme | `pipeline/upload.py` | YouTube Data API ile yükler, `state/uploaded.json`'a kaydeder |
 
 Görsel şablon `video/src/Short.tsx` içindedir (Remotion/React). Kanal adı, görünürlük ve etiketler
@@ -63,6 +64,12 @@ python3 pipeline/upload.py --check
     için ortamın ağ kimliği (`X-Goog-Api-Key`) ya da `GOOGLE_TTS_API_KEY` ile verilir.
   - `"piper"`: çevrimdışı Piper `tr_TR-dfki-medium`; diğerleri çalışmazsa otomatik yedek. Eğitim
     verisi CC BY-NC-SA 4.0 lisanslıdır; para kazanan bir kanalda ana ses olarak kullanılmamalıdır.
+- **Müzik ve efektler:** `assets/sounds` ElevenLabs ile üretildi (`pipeline/el_sounds.py`, Creator planı;
+  ücretli planda ticari kullanım serbest). 4 ruh hali x 2 parça müzik (haber, gergin, enerjik, modern;
+  kategoriye göre seçilir) ve 8 efektin 2'şer çeşidi. Videolar üretilirken API çağrılmaz, kredi
+  harcanmaz. Kütüphane yoksa ya da `config.json` → `"sounds": "synth"` ise eski sentez müzik/efekt
+  kullanılır. Müzik seviyesi `library_music_db` ile ayarlanır (varsayılan -3 dB). Yeniden üretmek:
+  `python3 pipeline/el_sounds.py --force` (müzik dakikası ~900 kredi).
 - **Ses örneği:** yalnızca kanal sahibinin kendi sesi kullanılır. Örnek, ortamdaki
   `YT_REFRESH_TOKEN`'dan türetilen anahtarla AES-256 şifreli saklanır; refresh token değişirse
   `python3 pipeline/voice.py encrypt <kayıt>` ile yeniden şifrelenmelidir.

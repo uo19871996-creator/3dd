@@ -170,7 +170,10 @@ bitti) betik bunu `[bilgi]` satırıyla yazar ve videoyu yedek sesle baştan ür
 `[uyarı] ElevenLabs kredisi bitmek üzere` görürsen (kalan kredi satırı, anahtarda izin varsa yazılır)
 yüklemeye devam et ve raporda belirt.
 
-`[ok]` satırındaki `miks:` bilgisi sesi özetler (ör. `19 efekt + müzik, -14.0 LUFS / tepe -1.9 dBTP`).
+`[ok]` satırındaki `miks:` bilgisi sesi özetler (ör. `19 efekt (ElevenLabs) + müzik (ElevenLabs
+haber-2), -14.0 LUFS / tepe -1.9 dBTP`). Müzik haberin kategorisine göre seçilir (spor: enerjik;
+siyaset/dünya: gergin; teknoloji/yaşam/magazin/kültür/bilim: modern; diğerleri: haber). `sentez`
+yazıyorsa kütüphane o makinede okunamamış ve eski sentez sesler kullanılmıştır; hata değildir.
 Efektler görsel olaylara (sahne geçişi, fotoğraf, harita iğnesi, sayaç, abone ol tıklaması) otomatik
 bağlanır; senaryoya ek alan gerekmez. `basit miks (yedek)` yazıyorsa gelişmiş miks o makinede
 çalışmamıştır; bu hata değildir, yüklemeye devam et ve raporda belirt.

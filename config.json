@@ -23,6 +23,8 @@
   "description_footer": "#shorts #gündem #haber\n\nBu video, haber kaynaklarından derlenen bilgilerle otomatik olarak hazırlanmıştır.",
   "template": "v2",
   "music": true,
+  "sounds": "elevenlabs",
+  "library_music_db": -3.0,
   "channel_name": "Ümit'ten Videolar",
   "channel_tagline": "Türkiye gündemi, gün boyu her saat",
   "outro_text": "Gündemi kaçırmamak için abone ol!",

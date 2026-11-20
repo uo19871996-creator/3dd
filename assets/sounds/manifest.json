@@ -1,0 +1,173 @@
+{
+ "files": {
+  "sfx/whoosh-1.wav": {
+   "kind": "sfx",
+   "model": "eleven_text_to_sound_v3",
+   "prompt": "Fast clean whoosh transition for a modern news video, airy swoosh passing from left to right, dry, no reverb tail",
+   "seconds": 0.8,
+   "created": "2026-11-20"
+  },
+  "sfx/whoosh-2.wav": {
+   "kind": "sfx",
+   "model": "eleven_text_to_sound_v3",
+   "prompt": "Fast clean whoosh transition for a modern news video, airy swoosh passing from left to right, dry, no reverb tail",
+   "seconds": 0.8,
+   "created": "2026-11-20"
+  },
+  "sfx/pop-1.wav": {
+   "kind": "sfx",
+   "model": "eleven_text_to_sound_v3",
+   "prompt": "Short soft pop for a graphic element appearing on screen, clean modern interface bubble pop, dry",
+   "seconds": 0.48,
+   "created": "2026-11-20"
+  },
+  "sfx/pop-2.wav": {
+   "kind": "sfx",
+   "model": "eleven_text_to_sound_v3",
+   "prompt": "Short soft pop for a graphic element appearing on screen, clean modern interface bubble pop, dry",
+   "seconds": 0.48,
+   "created": "2026-11-20"
+  },
+  "sfx/stamp-1.wav": {
+   "kind": "sfx",
+   "model": "eleven_text_to_sound_v3",
+   "prompt": "Heavy rubber stamp slammed onto paper on a wooden desk, punchy dry thud, close mic",
+   "seconds": 0.6,
+   "created": "2026-11-20"
+  },
+  "sfx/stamp-2.wav": {
+   "kind": "sfx",
+   "model": "eleven_text_to_sound_v3",
+   "prompt": "Heavy rubber stamp slammed onto paper on a wooden desk, punchy dry thud, close mic",
+   "seconds": 0.6,
+   "created": "2026-11-20"
+  },
+  "sfx/impact-1.wav": {
+   "kind": "sfx",
+   "model": "eleven_text_to_sound_v3",
+   "prompt": "Deep cinematic impact boom for a news intro, short low-end hit with a quick decay, no music",
+   "seconds": 1.48,
+   "created": "2026-11-20"
+  },
+  "sfx/impact-2.wav": {
+   "kind": "sfx",
+   "model": "eleven_text_to_sound_v3",
+   "prompt": "Deep cinematic impact boom for a news intro, short low-end hit with a quick decay, no music",
+   "seconds": 1.48,
+   "created": "2026-11-20"
+  },
+  "sfx/ticks-1.wav": {
+   "kind": "sfx",
+   "model": "eleven_text_to_sound_v3",
+   "prompt": "Fast mechanical number counter ticking that gradually slows down and stops, small dry clicks",
+   "seconds": 1.2,
+   "created": "2026-11-20"
+  },
+  "sfx/ticks-2.wav": {
+   "kind": "sfx",
+   "model": "eleven_text_to_sound_v3",
+   "prompt": "Fast mechanical number counter ticking that gradually slows down and stops, small dry clicks",
+   "seconds": 1.2,
+   "created": "2026-11-20"
+  },
+  "sfx/click-1.wav": {
+   "kind": "sfx",
+   "model": "eleven_text_to_sound_v3",
+   "prompt": "Single camera shutter click, modern digital camera, dry, close",
+   "seconds": 0.48,
+   "created": "2026-11-20"
+  },
+  "sfx/click-2.wav": {
+   "kind": "sfx",
+   "model": "eleven_text_to_sound_v3",
+   "prompt": "Single camera shutter click, modern digital camera, dry, close",
+   "seconds": 0.48,
+   "created": "2026-11-20"
+  },
+  "sfx/riser-1.wav": {
+   "kind": "sfx",
+   "model": "eleven_text_to_sound_v3",
+   "prompt": "Short whoosh riser building tension, rising noise sweep that ends abruptly at its peak",
+   "seconds": 1.2,
+   "created": "2026-11-20"
+  },
+  "sfx/riser-2.wav": {
+   "kind": "sfx",
+   "model": "eleven_text_to_sound_v3",
+   "prompt": "Short whoosh riser building tension, rising noise sweep that ends abruptly at its peak",
+   "seconds": 1.2,
+   "created": "2026-11-20"
+  },
+  "sfx/shimmer-1.wav": {
+   "kind": "sfx",
+   "model": "eleven_text_to_sound_v3",
+   "prompt": "Bright subtle sparkle shimmer, light glittering chimes, short and clean",
+   "seconds": 1.2,
+   "created": "2026-11-20"
+  },
+  "sfx/shimmer-2.wav": {
+   "kind": "sfx",
+   "model": "eleven_text_to_sound_v3",
+   "prompt": "Bright subtle sparkle shimmer, light glittering chimes, short and clean",
+   "seconds": 1.2,
+   "created": "2026-11-20"
+  },
+  "music/haber-1.mp3": {
+   "kind": "music",
+   "model": "music_v2_5",
+   "prompt": "Modern news background music for a short vertical news video. Steady mid-tempo pulse around 100 BPM, soft analog synth bass, light electronic percussion, subtle piano motif. Neutral, informative and confident. Consistent energy from start to end, no big build-ups or drops, no vocals. Mixed to sit under a voice-over.",
+   "seconds": 60.02,
+   "created": "2026-11-20"
+  },
+  "music/haber-2.mp3": {
+   "kind": "music",
+   "model": "music_v2_5",
+   "prompt": "Contemporary newsroom underscore at 96 BPM, plucked synth arpeggio, warm pads, tight minimal drums. Neutral and focused. Consistent energy from start to end, no big build-ups or drops, no vocals. Mixed to sit under a voice-over.",
+   "seconds": 60.02,
+   "created": "2026-11-20"
+  },
+  "music/gergin-1.mp3": {
+   "kind": "music",
+   "model": "music_v2_5",
+   "prompt": "Serious investigative news underscore with restrained tension, low staccato strings and a soft pulsing synth, 90 BPM, minor key, dark but not horror. Consistent energy from start to end, no big build-ups or drops, no vocals. Mixed to sit under a voice-over.",
+   "seconds": 60.02,
+   "created": "2026-11-20"
+  },
+  "music/gergin-2.mp3": {
+   "kind": "music",
+   "model": "music_v2_5",
+   "prompt": "Tense political news background, deep sub pulse, ticking hi-hats, low piano notes in a minor key, 92 BPM, serious and suspenseful. Consistent energy from start to end, no big build-ups or drops, no vocals. Mixed to sit under a voice-over.",
+   "seconds": 60.02,
+   "created": "2026-11-20"
+  },
+  "music/enerjik-1.mp3": {
+   "kind": "music",
+   "model": "music_v2_5",
+   "prompt": "Energetic sports highlight background music, driving drums and palm-muted electric guitar, 120 BPM, upbeat and motivating, no crowd noise. Consistent energy from start to end, no big build-ups or drops, no vocals. Mixed to sit under a voice-over.",
+   "seconds": 60.02,
+   "created": "2026-11-20"
+  },
+  "music/enerjik-2.mp3": {
+   "kind": "music",
+   "model": "music_v2_5",
+   "prompt": "Upbeat sports news music, punchy electronic drums, energetic synth bass, bright stabs, 124 BPM, exciting and positive. Consistent energy from start to end, no big build-ups or drops, no vocals. Mixed to sit under a voice-over.",
+   "seconds": 60.02,
+   "created": "2026-11-20"
+  },
+  "music/modern-1.mp3": {
+   "kind": "music",
+   "model": "music_v2_5",
+   "prompt": "Light modern tech background music, bright plucks and a soft electronic beat, 105 BPM, optimistic, clean and minimal. Consistent energy from start to end, no big build-ups or drops, no vocals. Mixed to sit under a voice-over.",
+   "seconds": 60.02,
+   "created": "2026-11-20"
+  },
+  "music/modern-2.mp3": {
+   "kind": "music",
+   "model": "music_v2_5",
+   "prompt": "Warm lifestyle and culture background music, soft acoustic guitar with a light electronic beat and gentle claps, 100 BPM, positive and friendly. Consistent energy from start to end, no big build-ups or drops, no vocals. Mixed to sit under a voice-over.",
+   "seconds": 60.02,
+   "created": "2026-11-20"
+  }
+ },
+ "note": "ElevenLabs ile üretildi (Creator planı, ticari kullanım serbest). Yeniden üretmek için: python3 pipeline/el_sounds.py --force"
+}

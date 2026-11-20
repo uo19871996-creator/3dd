@@ -1,0 +1,7 @@
+# Ana hattın Python paketleri (setup.sh kurar). Ağır ya da isteğe bağlı olanlar (piper-tts,
+# faster-whisper, Chatterbox) setup.sh içinde ayrıca kurulur.
+numpy
+requests
+# ElevenLabs SDK: pipeline/el_sounds.py müzik ve efekt kütüphanesini (assets/sounds) üretir.
+# Videolar üretilirken gerekmez; seslendirme (build.py) API'yi doğrudan çağırır.
+elevenlabs

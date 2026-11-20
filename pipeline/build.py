@@ -315,6 +315,14 @@ def ensure_grain(n=4, size=256):
                       + chunk(b"IDAT", zlib.compress(raw, 9)) + chunk(b"IEND", b""))
 
 
+def sound_opts(v):
+    """Miks ayarları: ElevenLabs müzik/efekt kütüphanesi (config "sounds"), kategoriye göre müzik."""
+    from audio_fx import mood_for
+    return {"lufs": CONFIG.get("loudness_lufs", -14.0), "mood": mood_for(tr_upper(v.get("category", "GÜNDEM"))),
+            "library": CONFIG.get("sounds", "elevenlabs") == "elevenlabs",
+            "library_music_db": CONFIG.get("library_music_db", -3.0)}
+
+
 def map3d_ok(video, scenes):
     """3D harita gerçekten çizildi mi? İğne indikten sonraki karenin orta bandına bakar: 3D sahnede
     ~120 parlaklık, en koyu normal sahnede ~30; çizim başarısızsa koyu zemin (~10) kalır."""
@@ -437,10 +445,11 @@ def build_video(tts, day, n, total, v, out_dir):
         try:
             from audio_fx import cues_for, mix_to_file
             cues = cues_for(scenes, FPS, map3d=bool(CONFIG.get("map3d", True)))
-            lufs, tp = mix_to_file(audio, sr, cues, slug, pub / f"{slug}.wav",
-                                   lufs=CONFIG.get("loudness_lufs", -14.0))
+            minfo = {}
+            lufs, tp = mix_to_file(audio, sr, cues, slug, pub / f"{slug}.wav", info=minfo, **sound_opts(v))
             final = None
-            mix_label = f"{len(cues)} efekt + müzik" + (f", {lufs:.1f} LUFS / tepe {tp:.1f} dBTP" if lufs else "")
+            mix_label = (f"{len(cues)} efekt ({minfo.get('sfx')}) + müzik ({minfo.get('music')})"
+                         + (f", {lufs:.1f} LUFS / tepe {tp:.1f} dBTP" if lufs else ""))
         except Exception as e:
             print(f"[bilgi] Gelişmiş ses miksi yapılamadı ({str(e)[-200:]}); basit miksle devam ediliyor. "
                   "Bu bir hata değil.", flush=True)
@@ -508,7 +517,7 @@ def build_video(tts, day, n, total, v, out_dir):
                 try:
                     from audio_fx import cues_for, mix_to_file
                     mix_to_file(audio, sr, cues_for(scenes, FPS, map3d=False), slug, pub / f"{slug}.wav",
-                                lufs=CONFIG.get("loudness_lufs", -14.0))
+                                **sound_opts(v))
                 except Exception as e:
                     print(f"[bilgi] Ses 2D haritaya göre yeniden mikslenemedi ({str(e)[-120:]}); "
                           "ilk miks kullanılıyor.", flush=True)

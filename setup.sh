@@ -4,7 +4,7 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 
-python3 -m pip install -q --root-user-action=ignore numpy requests
+python3 -m pip install -q --root-user-action=ignore -r requirements.txt
 
 # Çevrimdışı Piper sesi: "tts": "piper" ise ana ses, değilse son çare yedek ses.
 python3 -m pip install -q --root-user-action=ignore piper-tts

@@ -1,11 +1,17 @@
-"""Arka plan müziği, ses efektleri ve son miks: hepsi burada sentezlenir (telif yok).
+"""Arka plan müziği, ses efektleri ve son miks.
+
+Müzik ve efektler önce ElevenLabs kütüphanesinden gelir (assets/sounds; pipeline/el_sounds.py bir kez
+üretir, ücretli planda ticari kullanım serbest). Kütüphane yoksa ya da config "sounds": "synth" ise
+burada numpy ile sentezlenir (telif yok).
 
 mix_to_file(voice, sr, cues, seed, out_path)  -> profesyonel miks (ffmpeg):
   - Ses: alçak frekans temizliği, de-esser, hafif kompresör (cümleler arası seviye eşitlenir).
-  - Müzik: 96 BPM yumuşak yatak; seslendirme konuşurken sidechain ile kısılır, 2,4 kHz'de
-    sesin "varlık" bandı müzikten açılır.
+  - Müzik: haber kategorisine uygun parça (MOODS: haber, gergin, enerjik, modern) ya da 96 BPM
+    sentez yatak; seslendirme konuşurken sidechain ile kısılır, 2,4 kHz'de sesin "varlık" bandı
+    müzikten açılır.
   - Efektler: görsel olaylara bağlı (cues_for): whoosh, pop, damga, sayaç tıkırtısı, deklanşör,
-    riser, impact, ışıltı.
+    riser, impact, ışıltı. Kütüphane sesi, sentez karşılığının tepe anına ve seviyesine hizalanır;
+    zamanlamalar ve kazançlar iki kaynakta da aynı kalır.
   - İki geçiş: karışım ölçülür, tek kazançla -14 LUFS'ye (YouTube'un referansı) çekilir, tepeler
     limitleyiciyle -2 dBFS'de tutulur.
   - Seviyeler ölçülerek ayarlandı: efektler konuşmanın ~7-11 dB, müzik ~15 dB altında.
@@ -235,13 +241,103 @@ SOUNDS = dict(whoosh=sfx_whoosh, pop=sfx_pop, stamp=sfx_stamp, impact=sfx_impact
               click=sfx_click, riser=sfx_riser, shimmer=sfx_shimmer)
 
 
-def _sfx_bed(cues, duration):
+# ------------------------------------------------------------------ ElevenLabs kütüphanesi (assets/sounds)
+LIB = Path(__file__).resolve().parent.parent / "assets" / "sounds"
+MOODS = {"SPOR": "enerjik", "SİYASET": "gergin", "DÜNYA": "gergin", "TEKNOLOJİ": "modern",
+         "BİLİM": "modern", "MAGAZİN": "modern", "KÜLTÜR": "modern", "YAŞAM": "modern"}  # diğerleri: haber
+_ONSET_ALIGNED = ("ticks", "shimmer")  # doku sesleri başlangıcından, diğerleri tepe anından hizalanır
+_LIB_SFX = None
+
+
+def mood_for(category):
+    """Büyük harfli kategori (build.py tr_upper) -> müzik ruh hali."""
+    return MOODS.get(category or "", "haber")
+
+
+def _decode(path, channels=1):
+    raw = subprocess.run(["ffmpeg", "-v", "error", "-i", str(path), "-f", "f32le", "-ac", str(channels),
+                          "-ar", str(SR), "-"], capture_output=True, check=True).stdout
+    x = np.frombuffer(raw, np.float32).astype(np.float64)
+    return x.reshape(-1, channels).T.copy() if channels > 1 else x
+
+
+def _env(x):  # 10 ms RMS zarfı
+    w = _n(.01)
+    return np.sqrt(np.convolve(x ** 2, np.ones(w) / w, "same"))
+
+
+def _anchor(x, name):
+    e = _env(x)
+    return int(np.argmax(e > e.max() * 0.05)) if name in _ONSET_ALIGNED else int(np.argmax(e))
+
+
+def _active_rms(x):
+    e = _env(x)
+    act = x[e > e.max() * 0.03]
+    return float(np.sqrt(np.mean(act ** 2))) if len(act) else 0.0
+
+
+def _lib_sfx():
+    """assets/sounds/sfx/<ad>-<n>.wav -> {ad: [ses, ...]}: mono 48 kHz; seviyesi aynı adlı sentez
+    sesin etkin RMS'ine eşitlenir (ipucu kazançları aynen geçerli kalsın). Sessiz/bozuk dosya atlanır."""
+    global _LIB_SFX
+    if _LIB_SFX is None:
+        _LIB_SFX = {}
+        for f in sorted((LIB / "sfx").glob("*.wav")):
+            name = f.stem.rsplit("-", 1)[0]
+            if name not in SOUNDS:
+                continue
+            try:
+                x = _decode(f)
+            except Exception:
+                continue
+            r = _active_rms(x)
+            if r < 10 ** (-45 / 20):
+                continue
+            g = min(_active_rms(SOUNDS[name](7)) / r, 1.5 / (np.max(np.abs(x)) or 1.0))  # ipucu kazancı <= 0,5
+            _LIB_SFX.setdefault(name, []).append(x * g)
+    return _LIB_SFX
+
+
+def _music_from_library(dur, h, mood):
+    """Ruh haline uygun ElevenLabs parçası (assets/sounds/music/<ruh hali>-<n>.mp3), video boyunda:
+    kısaysa 2 sn çapraz geçişle döngü, başta 0,05 sn açılma, son 1,2 sn kısılma.
+    Döner: ((2, n) stereo, parça adı) ya da kütüphane yoksa (None, None)."""
+    files = sorted((LIB / "music").glob(f"{mood}-*.mp3")) or sorted((LIB / "music").glob("*.mp3"))
+    if not files:
+        return None, None
+    f = files[h % len(files)]
+    orig = x = _decode(f, 2)
+    n, xf = int(dur * SR), _n(2.0)
+    while x.shape[1] < n:
+        ramp = np.linspace(0, 1, xf)
+        x = np.concatenate([x[:, :-xf], x[:, -xf:] * (1 - ramp) + orig[:, :xf] * ramp, orig[:, xf:]], axis=1)
+    x = x[:, :n].copy()
+    t = np.arange(n) / SR
+    return x * (np.clip(t / 0.05, 0, 1) * np.clip((dur - t) / 1.2, 0, 1)), f.stem
+
+
+def _sfx_bed(cues, duration, seed=0, library=False):
+    """Efekt kanalı (2, n) ve kütüphaneden gelen efekt sayısı."""
     n = int(duration * SR)
     buf = np.zeros((2, n))
+    lib = _lib_sfx() if library else {}
+    used = 0
     for i, c in enumerate(cues):
         fn = SOUNDS[c["type"]]
         sig = fn(100 + i, c["dur"]) if "dur" in c and c["type"] in ("ticks", "riser") else fn(100 + i)
         s = int(max(c["t"], 0) * SR)
+        variants = lib.get(c["type"])
+        if variants and len(sig):  # ElevenLabs sesi, sentez sesin tepe (ya da başlangıç) anına oturur
+            x = variants[(seed + i) % len(variants)]
+            if c["type"] == "ticks" and "dur" in c:  # sayaç süresince tıkırdasın
+                x = x[: _n(c["dur"] + .1)].copy()
+                f = min(_n(.06), len(x) // 2)
+                x[-f:] *= np.linspace(1, 0, f)
+            s = int(c["t"] * SR) + _anchor(sig, c["type"]) - _anchor(x, c["type"])
+            if s < 0:
+                x, s = x[-s:], 0
+            sig, used = x, used + 1
         if s >= n or len(sig) == 0:
             continue
         sig = sig[: n - s].copy()
@@ -257,7 +353,7 @@ def _sfx_bed(cues, duration):
     peak = np.max(np.abs(buf))
     if peak > 0.89:  # seviyeler cue kazançlarıyla sabit kalsın; yalnızca taşarsa kıs
         buf = buf / peak * 0.89
-    return buf
+    return buf, used
 
 
 # ------------------------------------------------------------------ görsel olaylardan efekt listesi
@@ -368,22 +464,40 @@ def _graph(has_music, tap="mix", music_db=-7.0, sfx_db=-7.0):
             + "|c1=" + "+".join(f"c{2 * i + 1}" for i in range(n)))
 
 
-def mix_to_file(voice, sr, cues, seed, out_path, lufs=-14.0, music=True, stems_dir=None):
+def mix_to_file(voice, sr, cues, seed, out_path, lufs=-14.0, music=True, stems_dir=None, mood=None,
+                library=True, info=None, library_music_db=-3.0):
     """Seslendirme + efekt + (isteğe bağlı) müzik -> out_path (48 kHz stereo WAV).
 
+    library: ElevenLabs kütüphanesi (assets/sounds) varsa onu kullan; mood: müzik ruh hali (mood_for).
+    info (dict verilirse): {"sfx": "ElevenLabs"|"sentez", "music": "ElevenLabs <parça>"|"sentez"}.
     Önce karışımın ses yüksekliği ölçülür, sonra tek bir kazançla hedefe (-14 LUFS) çekilip tepe
     noktaları limitleyiciyle -2 dBFS'de tutulur. Döner: (LUFS, true peak dBTP) ya da ölçülemezse None'lar."""
     dur = len(voice) / sr
     h = _seed_of(seed)
+    info = {} if info is None else info
     with tempfile.TemporaryDirectory() as td:
         td = Path(td)
         _write_wav(td / "voice.wav", voice.astype(np.float64) / 32768.0, sr, 1)
-        _write_wav(td / "sfx.wav", _sfx_bed(cues, dur), SR, 2)
+        bed, used = _sfx_bed(cues, dur, h, library)
+        _write_wav(td / "sfx.wav", bed, SR, 2)
+        info["sfx"] = "ElevenLabs" if used else "sentez"
         inputs = ["-i", str(td / "voice.wav"), "-i", str(td / "sfx.wav")]
         if music:
-            m = _music(dur, SR, np.random.default_rng(h), PROGRESSIONS[h % len(PROGRESSIONS)])
-            rms = float(np.sqrt(np.mean(m ** 2))) or 1.0
-            _write_wav(td / "music.wav", m * 0.1 / rms, SR, 1)  # -20 dBFS RMS
+            m, name = None, None
+            if library:
+                try:
+                    m, name = _music_from_library(dur, h, mood or "haber")
+                except Exception:  # bozuk dosya / çözülemedi: sentez müziğe dön
+                    m = None
+            if m is not None:  # -20 dBFS RMS (+ library_music_db), sentez yatakla aynı başlangıç seviyesi
+                rms = float(np.sqrt(np.mean(m ** 2))) or 1.0
+                _write_wav(td / "music.wav", m * 0.1 * 10 ** (library_music_db / 20) / rms, SR, 2)
+                info["music"] = f"ElevenLabs {name}"
+            else:
+                m = _music(dur, SR, np.random.default_rng(h), PROGRESSIONS[h % len(PROGRESSIONS)])
+                rms = float(np.sqrt(np.mean(m ** 2))) or 1.0
+                _write_wav(td / "music.wav", m * 0.1 / rms, SR, 1)  # -20 dBFS RMS
+                info["music"] = "sentez"
             inputs += ["-i", str(td / "music.wav")]
         pre, _ = _measure(inputs, _graph(music))
         gain = f",volume={max(-20.0, min(20.0, lufs - pre)):.2f}dB"
