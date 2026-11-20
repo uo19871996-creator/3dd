@@ -1,11 +1,11 @@
 {
   "brand": "GÜNDEM",
-  "tts": "chatterbox",
+  "tts": "elevenlabs",
   "tts_fallback": [
     "chatterbox",
     "piper"
   ],
-  "elevenlabs_voice": "george",
+  "elevenlabs_voice": "brian",
   "elevenlabs_model": "eleven_v4",
   "speech_length_scale": 0.95,
   "google_voice": "tr-TR-Wavenet-E",

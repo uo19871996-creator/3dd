@@ -173,6 +173,8 @@ class ElevenLabsTTS:
         self.model = CONFIG.get("elevenlabs_model", "eleven_v4")
         self.settings = {"stability": 0.5, "similarity_boost": 0.75, "style": 0.0, "use_speaker_boost": True,
                          **CONFIG.get("elevenlabs_settings", {})}
+        if self.model.startswith("eleven_v4"):  # v4 yalnız bu ikisini alır (style ve speed yok)
+            self.settings = {k: v for k, v in self.settings.items() if k in ("stability", "similarity_boost")}
         key = os.environ.get("ELEVENLABS_API_KEY")
         self.headers = {"xi-api-key": key} if key else {}
         self.drop = set()
