@@ -64,21 +64,29 @@ def save_state(state):
     STATE.write_text(json.dumps(state, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
-def recent_items(token):
-    """Kanalın son 50 yüklemesi (playlistItems snippet'leri, en yeni önce)."""
+def recent_items(token, limit=50):
+    """Kanalın son `limit` yüklemesi (playlistItems snippet'leri, en yeni önce)."""
     h = {"Authorization": f"Bearer {token}"}
     r = requests.get(f"{API}/channels", params={"part": "contentDetails", "mine": "true"},
                      headers=h, timeout=60)
     if r.status_code != 200 or not r.json().get("items"):
         die(f"Kanal okunamadı ({r.status_code}): {r.text[:300]}")
     uploads = r.json()["items"][0]["contentDetails"]["relatedPlaylists"]["uploads"]
-    r = requests.get(f"{API}/playlistItems", headers=h, timeout=60,
-                     params={"part": "snippet", "playlistId": uploads, "maxResults": 50})
-    if r.status_code == 404:  # henüz hiç video yok
-        return []
-    if r.status_code != 200:
-        die(f"Son videolar okunamadı ({r.status_code}): {r.text[:300]}")
-    return [it["snippet"] for it in r.json().get("items", [])]
+    out, page = [], None
+    while len(out) < limit:
+        p = {"part": "snippet", "playlistId": uploads, "maxResults": min(50, limit - len(out))}
+        if page:
+            p["pageToken"] = page
+        r = requests.get(f"{API}/playlistItems", headers=h, timeout=60, params=p)
+        if r.status_code == 404:  # henüz hiç video yok
+            return out
+        if r.status_code != 200:
+            die(f"Son videolar okunamadı ({r.status_code}): {r.text[:300]}")
+        out += [it["snippet"] for it in r.json().get("items", [])]
+        page = r.json().get("nextPageToken")
+        if not page:
+            break
+    return out
 
 
 def today_count(items):
@@ -211,10 +219,13 @@ def main():
         print(f"Sıradaki video türü: {kind or 'yok (bugünkü videolar tamam)'}  (kalan: {left})")
         return
     if "--recent" in args:
-        # Kanala son yüklenen videoların başlıkları (aynı konuyu tekrar işlememek için)
+        # Kanala son yüklenen videoların başlıkları (aynı konuyu tekrar işlememek için); --recent 300
+        i = args.index("--recent")
+        limit = int(args[i + 1]) if i + 1 < len(args) and args[i + 1].isdigit() else 50
         try:
-            for s in recent_items(token):
-                print(f"{s['publishedAt'][:10]} | {s['title']}", flush=True)
+            for s in recent_items(token, limit):
+                tag = "[viral] " if kind_of(s) == "viral" else ""
+                print(f"{s['publishedAt'][:10]} | {tag}{s['title']}", flush=True)
         except BrokenPipeError:  # `| head -5` okumayı erken kesti: hata değil, sessizce çık
             os.dup2(os.open(os.devnull, os.O_WRONLY), sys.stdout.fileno())
         return

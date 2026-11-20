@@ -127,8 +127,8 @@ kıyaslayarak) en çok sıçrayan türler; bunlara öncelik ver:
 
 Kurallar:
 - Her çalışmada yeniden araştır: `out/viral.md`'deki güncel listeye ve web aramasına bak; aynı
-  türü üst üste seçme (`--recent` listesinde `[viral]` başlıklara bak); aynı bilgiyi 30 gün içinde
-  tekrar işleme.
+  türü üst üste seçme. Kanalın son ~30 gününe bak ve aynı bilgiyi/konuyu tekrar işleme:
+  `python3 pipeline/upload.py --recent 300 | grep viral` (viral videolar `[viral]` ile işaretli).
 - **Doğrulama daha sıkı:** internetteki "ilginç bilgi"lerin çoğu efsane ya da abartı. Her iddiayı
   en az 2 güvenilir kaynakta doğrula (ansiklopedi ve kaynakları, bilimsel/müze/üniversite
   sayfaları, National Geographic, BBC, resmi kurum siteleri, ana akım haber). Doğrulanamayan ya da
