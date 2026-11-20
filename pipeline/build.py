@@ -183,7 +183,7 @@ class ElevenLabsTTS:
         self.label = f"ElevenLabs {who} ({self.model})"
         left = self.credits_left()
         if left is not None:
-            per_video = 700 * (0.5 if "turbo" in self.model or "flash" in self.model else 1)
+            per_video = 600 * (0.5 if "turbo" in self.model or "flash" in self.model else 1)
             print(f"[bilgi] ElevenLabs kalan kredi: {left} (yaklaşık {int(left // per_video)} video)", flush=True)
             if left < 3 * per_video:
                 print("[uyarı] ElevenLabs kredisi bitmek üzere; bitince videolar yedek sesle üretilir. "
