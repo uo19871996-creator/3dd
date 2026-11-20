@@ -336,8 +336,9 @@ def sound_opts(v):
 
 
 def map3d_ok(video, scenes):
-    """3D harita gerçekten çizildi mi? İğne indikten sonraki karenin orta bandına bakar: 3D sahnede
-    ~120 parlaklık, en koyu normal sahnede ~30; çizim başarısızsa koyu zemin (~10) kalır."""
+    """3D harita gerçekten çizildi mi? İğne indikten sonraki karenin orta bandına bakar. Türkiye
+    kabartması ~120 parlaklık; dünya küresi Avrupa gibi koyu bölgelerde ~30 ama sınır çizgileri ve
+    kara/deniz farkıyla dokulu (std ~16). Çizim başarısızsa düz koyu zemin (~10, dokusuz) kalır."""
     for s in scenes:
         if not s.get("map"):
             continue
@@ -349,7 +350,8 @@ def map3d_ok(video, scenes):
                               "-f", "rawvideo", "-"], capture_output=True).stdout
         if len(raw) != 108 * 192:
             return False
-        if np.frombuffer(raw, np.uint8).reshape(192, 108)[57:119].mean() < 45:
+        band = np.frombuffer(raw, np.uint8).reshape(192, 108)[57:119].astype(float)
+        if band.mean() < 45 and band.std() < 8:
             return False
     return True
 
