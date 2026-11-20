@@ -6,3 +6,5 @@ video/out/
 __pycache__/
 *.pyc
 .venv-tts/
+# Local secrets written by `elevenlabs onboard`
+/.env.local
