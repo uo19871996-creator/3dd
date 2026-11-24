@@ -1,0 +1,2 @@
+Yazı tipleri: Oswald (cond.ttf, Bold) ve Montserrat (label.ttf Bold, labelm.ttf SemiBold), SIL Open Font License 1.1.
+Kaynak: github.com/google/fonts (ofl/oswald, ofl/montserrat); değişken yazı tipinden sabit kalınlık örneği alındı.

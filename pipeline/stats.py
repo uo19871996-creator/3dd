@@ -63,7 +63,7 @@ def fetch(token):
                 "published": sn["publishedAt"], "age_h": round((now - pub).total_seconds() / 3600, 1),
                 "views": int(st.get("viewCount", 0)), "likes": int(st.get("likeCount", 0)),
                 "comments": int(st.get("commentCount", 0)), "duration": _dur(it["contentDetails"]["duration"]),
-                "kind": "viral" if "#viral" in sn.get("description", "").lower() else "haber",
+                "kind": ("belgesel" if "#belgesel" in sn.get("description", "").lower() else "viral" if "#viral" in sn.get("description", "").lower() else "haber"),
             })
     return out
 

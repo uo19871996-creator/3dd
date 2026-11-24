@@ -5,6 +5,7 @@ Kullanım:
   python3 pipeline/upload.py --check                    # sadece kimlik doğrulamayı dener
   python3 pipeline/upload.py --recent                   # kanaldaki son 50 videonun başlığı
   python3 pipeline/upload.py --today                    # bugün kaç video yüklendi (sınır: config)
+  python3 pipeline/upload.py --belgesel PROJE/yukleme.json   # haftalık yatay belgesel (BELGESEL.md)
   python3 pipeline/upload.py scripts/2026-11-11.json    # o günün videolarını yükler
   python3 pipeline/upload.py scripts/2026-11-11.json --only 1,3 --privacy private
 
@@ -90,15 +91,16 @@ def recent_items(token, limit=50):
 
 
 def today_count(items):
-    """İstanbul saatine göre bugün yüklenen video sayısı."""
+    """İstanbul saatine göre bugün yüklenen Shorts sayısı (haftalık belgesel sayılmaz)."""
     today = datetime.now(IST).date()
-    return sum(1 for s in items
-               if datetime.fromisoformat(s["publishedAt"].replace("Z", "+00:00")).astimezone(IST).date() == today)
+    return sum(1 for s in items if kind_of(s) != "belgesel"
+               and datetime.fromisoformat(s["publishedAt"].replace("Z", "+00:00")).astimezone(IST).date() == today)
 
 
 def kind_of(snippet):
-    """Videonun türü: açıklamasında #viral varsa viral, yoksa haber."""
-    return "viral" if "#viral" in snippet.get("description", "").lower() else "haber"
+    """Videonun türü açıklamasındaki etiketten: #belgesel (haftalık yatay), #viral ya da haber."""
+    desc = snippet.get("description", "").lower()
+    return "belgesel" if "#belgesel" in desc else ("viral" if "#viral" in desc else "haber")
 
 
 def today_mix(items):
@@ -108,8 +110,11 @@ def today_mix(items):
               if datetime.fromisoformat(s["publishedAt"].replace("Z", "+00:00")).astimezone(IST).date() == today]
     counts = {"haber": 0, "viral": 0}
     for s in todays:
-        counts[kind_of(s)] += 1
-    return counts, (kind_of(todays[0]) if todays else None)
+        k = kind_of(s)
+        if k in counts:
+            counts[k] += 1
+    shorts = [x for x in todays if kind_of(x) != "belgesel"]
+    return counts, (kind_of(shorts[0]) if shorts else None)
 
 
 def next_kind(counts, last):
@@ -166,6 +171,11 @@ def upload(token, path, v, privacy):
             "embeddable": True,
         },
     }
+    return send_video(token, path, body)
+
+
+def send_video(token, path, body):
+    """Sürdürülebilir (resumable) yükleme; döner: YouTube video kaynağı."""
     size = path.stat().st_size
     start = requests.post(
         UPLOAD_URL,
@@ -192,6 +202,62 @@ def upload(token, path, v, privacy):
     return r.json()
 
 
+def upload_long(token, meta_path):
+    """Haftalık yatay belgesel (BELGESEL.md). meta: video, thumbnail, yt_title, description, chapters
+    [[sn, başlık]], sources, credits, tags, publish_at (ISO, İstanbul saati; gizli yüklenip o anda
+    kendiliğinden yayına girer). Açıklamaya #belgesel eklenir: Shorts sayımına girmez."""
+    meta = json.loads(Path(meta_path).read_text(encoding="utf-8"))
+    base = Path(meta_path).parent
+    path = (base / meta["video"]).resolve()
+    if not path.exists():
+        die(f"Video dosyası yok: {path}")
+    if any(s["title"] == meta["yt_title"] for s in recent_items(token, 100)):
+        print(f"[atla] Aynı başlıkta video zaten var: {meta['yt_title']}")
+        return
+    desc = meta["description"].strip()
+    if meta.get("chapters"):  # YouTube bölümleri: ilki 00:00, en az 3 bölüm, her biri en az 10 sn
+        desc += "\n\nBölümler:\n" + "\n".join(f"{int(t) // 60:02d}:{int(t) % 60:02d} {title}"
+                                                 for t, title in meta["chapters"])
+    if meta.get("sources"):
+        desc += "\n\nKaynaklar:\n" + "\n".join(meta["sources"])
+    if meta.get("credits"):
+        desc += "\n\nGörseller:\n" + "\n".join(f"- {c}" for c in meta["credits"])
+    footer = CONFIG.get("description_footer_belgesel",
+                        "#belgesel #siberguvenlik\n\nBu video güvenilir kaynaklardan derlenen bilgilerle hazırlanmıştır.")
+    if "#belgesel" not in footer.lower():
+        footer += " #belgesel"
+    desc = desc[:4900 - len(footer) - 2] + "\n\n" + footer
+    status = {"privacyStatus": CONFIG.get("privacy", "public"), "selfDeclaredMadeForKids": False, "embeddable": True}
+    if meta.get("publish_at"):
+        when = datetime.fromisoformat(meta["publish_at"])
+        if when.tzinfo is None:
+            when = when.replace(tzinfo=IST)
+        status.update(privacyStatus="private", publishAt=when.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"))
+    body = {"snippet": {"title": meta["yt_title"][:100], "description": desc,
+                        "tags": list(dict.fromkeys(meta.get("tags", []) + CONFIG.get("default_tags_belgesel", []))),
+                        "categoryId": CONFIG.get("youtube_category_id_belgesel", "28"),
+                        "defaultLanguage": "tr", "defaultAudioLanguage": "tr"},
+            "status": status}
+    res = send_video(token, path, body)
+    vid = res["id"]
+    print(f"[ok] https://youtube.com/watch?v={vid}  ({res.get('status', {}).get('privacyStatus')}"
+          f"{', yayın ' + meta['publish_at'] if meta.get('publish_at') else ''})  {meta['yt_title']}")
+    thumb = (base / meta["thumbnail"]).resolve() if meta.get("thumbnail") else None
+    if thumb and thumb.exists():
+        r = requests.post(f"https://www.googleapis.com/upload/youtube/v3/thumbnails/set?videoId={vid}",
+                          headers={"Authorization": f"Bearer {token}", "Content-Type": "image/png"},
+                          data=thumb.read_bytes(), timeout=120)
+        if r.status_code == 200:
+            print("[ok] Küçük resim yüklendi")
+        else:  # kanal doğrulanmamışsa YouTube özel küçük resme izin vermez; video yine yayına girer
+            print(f"[uyarı] Küçük resim yüklenemedi ({r.status_code}): {r.text[:200]}. Video yine de yüklendi; "
+                  "kanal doğrulaması (YouTube Studio > Ayarlar > Kanal > Özellik uygunluğu) gerekebilir.")
+    state = load_state()
+    state[f"belgesel/{meta.get('slug', vid)}"] = {"id": vid, "url": f"https://youtube.com/watch?v={vid}",
+                                                   "title": meta["yt_title"], "publish_at": meta.get("publish_at")}
+    save_state(state)
+
+
 def main():
     args = sys.argv[1:]
     token = access_token()
@@ -204,6 +270,9 @@ def main():
         if not items:
             die("Bu Google hesabına bağlı bir YouTube kanalı bulunamadı.")
         print(f"[ok] Bağlı kanal: {items[0]['snippet']['title']}")
+        return
+    if "--belgesel" in args:
+        upload_long(token, args[args.index("--belgesel") + 1])
         return
     cap = int(CONFIG.get("daily_upload_cap", 10) or 0)
     if "--today" in args:
@@ -224,7 +293,7 @@ def main():
         limit = int(args[i + 1]) if i + 1 < len(args) and args[i + 1].isdigit() else 50
         try:
             for s in recent_items(token, limit):
-                tag = "[viral] " if kind_of(s) == "viral" else ""
+                tag = {"viral": "[viral] ", "belgesel": "[belgesel] "}.get(kind_of(s), "")
                 print(f"{s['publishedAt'][:10]} | {tag}{s['title']}", flush=True)
         except BrokenPipeError:  # `| head -5` okumayı erken kesti: hata değil, sessizce çık
             os.dup2(os.open(os.devnull, os.O_WRONLY), sys.stdout.fileno())

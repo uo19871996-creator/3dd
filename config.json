@@ -46,5 +46,16 @@
     "haber": 5,
     "viral": 5
   },
-  "map3d": true
+  "map3d": true,
+  "belgesel_model": "eleven_v4",
+  "youtube_category_id_belgesel": "28",
+  "description_footer_belgesel": "#belgesel #siberguvenlik #siberSaldırı\n\nBu video güvenilir kaynaklardan derlenen bilgilerle hazırlanmıştır. Saldırı teknikleri anlatılmaz; amaç farkındalık ve korunmadır.",
+  "default_tags_belgesel": [
+    "siber güvenlik",
+    "siber saldırı",
+    "belgesel",
+    "fidye yazılımı",
+    "veri sızıntısı",
+    "nasıl korunurum"
+  ]
 }

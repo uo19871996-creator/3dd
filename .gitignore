@@ -8,3 +8,5 @@ __pycache__/
 .venv-tts/
 # Local secrets written by `elevenlabs onboard`
 /.env.local
+# Haftalık belgesel çalışma klasörleri (ses, görsel, render)
+belgesel/projeler/
