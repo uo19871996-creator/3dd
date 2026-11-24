@@ -111,19 +111,23 @@ değerlendir, sonra web aramasıyla konuyu derinleştir ve doğrula. `viral.py` 
 
 Amaç: izleyiciyi ilk saniyede durduran, sonuna kadar izleten ve yorum yazdıran **ilgi çekici,
 bilgilendirici** bir video. Konuyu `out/viral.md` ile o an etkileşim alan konulardan seç.
-20 Kasım incelemesinde (Türkçe bilgilendirici Shorts kanalları, videoyu kendi kanal medyanıyla
-kıyaslayarak) en çok sıçrayan türler; bunlara öncelik ver:
-1. **Şaşırtıcı hayvan davranışları:** "Hamamböceğini zombiye çeviren böcek" 177 kat,
-   "Dünyanın en tuhaf papağanı" 45 kat, "Köle yapan Amazon karıncaları" 27 kat. Tek bir canlı,
-   tek bir ters köşe.
-2. **Ülkeler, seyahat, coğrafya; Türk izleyiciye dokunanlar önde:** "Vizesiz seyahat rotaları"
-   155 kat ve 6.467 yorum, "Dünyanın en zengin küçük ülkesi Lihtenştayn" 76 kat, "Japonya Türkiye'den
-   vize istemiyor mu?" 43 kat. Burada `map` sahnesi (3D küre) kullan.
-3. **"Neden?" günlük merak:** "Futbolcular kramponlarını neden atmıyor?" 84 kat (4 milyon izlenme),
-   "Tesla kapıları kışın donuyordu" 41 kat. Spor ve teknoloji açısı kanalımıza da uyar.
-4. **"Dünyanın en..." rekorlar ve uç örnekler** (en küçük, en hızlı, en pahalı, en eski).
-5. **O an Türkiye'de patlayan viral gündem** (ör. GTA 6 çıkışı): yalnızca ana akım medyada da
-   haber olduysa ve bilgilendirici bir açıyla ("GTA 6 neden bu kadar pahalı?").
+Öncelik sırası, kendi kanalımızın 20-24 Kasım viral verisine göre (viral medyanı 388, haber
+medyanı 914 izlenme; en iyi viraller haber kadar izlendi):
+1. **"Dünyanın en..." rekorlar ve uç örnekler, başlıkta rakamla:** "Kola kuyusu: Dünyanın en derin
+   deliği 12 kilometre" 1.119, "Grönland köpekbalığı: Yaklaşık 400 yıl yaşayan canlı" 963,
+   "Tabanca karidesi: Kıskacıyla 4.700 derece ısı üretiyor" 850 izlenme.
+2. **Doğru sanılan yanlışlar ve uç hayvanlar; tek canlı, tek çarpıcı rakam:** "Kutup ayısı aslında
+   beyaz değil: Derisi kapkara" 762 izlenme.
+3. **Gündemle bağlantılı viral:** "GTA 6: 13 yıllık bekleyiş ve rekor kıran rakamlar" 20 saatte 973.
+   `out/viral.md` trendlerinde ya da `out/gundem.md`'de Türkiye'de patlayan bir konu varsa (oyun,
+   film, dizi, spor, teknoloji) günde en az 1 viral bu türden olsun; yalnızca ana akım medyada da
+   haber olduysa ve bilgilendirici bir açıyla.
+4. **Ülkeler ve coğrafya, Türk izleyiciye bağlanarak:** Lihtenştayn 750, Vatikan 615. `map`
+   sahnesi (3D küre) kullan.
+Geri planda kalsın: nesnelerle ilgili "Neden?" soruları (golf topu 168, F klavye 280, uçak
+penceresi 388), hava/iklim rekorları (en yağmurlu yer 90), çarpıcı rakamı olmayan az bilinen
+canlılar (orman kurbağası 134). Dış araştırmada (20 Kasım) en çok sıçrayan türler de benzerdi:
+tuhaf hayvan davranışları, vizesiz ülkeler, "dünyanın en...".
 
 Kurallar:
 - Her çalışmada yeniden araştır: `out/viral.md`'deki güncel listeye ve web aramasına bak; aynı
@@ -157,8 +161,10 @@ varsa açılış ve başlık için onlardan da yararlan; yoksa aşağıdaki kura
     ("Hamamböceğini zombiye çeviren böcek"). Vaat videoda mutlaka verilir.
   - İlk sahne ters köşeyi tek cümlede söyler (en fazla 12 kelime); sonraki her sahne rakamlı,
     somut, şaşırtıcı bir bilgi verir; en etkileyici bilgi sona yakın gelir.
-  - Son soru yorum yazdıran türden: "Sen olsan dener miydin?", "Bunu biliyor muydun?"
-    (en fazla 8 kelime).
+  - Son sahne yorum yazdırır: 20-24 Kasım'da hiçbir viral video yorum almadı, genel sorular işe
+    yaramıyor. Kolay ve somut bir cevap iste, "yaz" diye bitir (en fazla 8 kelime): tahmin
+    ("Sence kaç yaşında? Tahminini yaz."), iki seçenek ("Kara mı, deniz mi? Yaz."), "Bunu
+    biliyor muydun? Evet ya da hayır yaz." Aynı kalıbı üst üste kullanma.
   - `hashtags`: ilk ikisi konu, sonuncusu `ilginçbilgiler`. `description`'ın ilk cümlesinde
     anahtar kelimeler; `sources`: doğruladığın 2 güvenilir kaynak.
 - Shorts kuralı: izleyici ilk 1-3 saniyede kaydırıp geçerse video yayılmaz. Her şey bunun için:

@@ -24,10 +24,10 @@ from upload import API, IST, access_token, recent_items
 # 2026-11-20 incelemesi: Türkçe bilgilendirici Shorts'ta kendi kanal medyanının en çok katlandığı türler
 # (tuhaf hayvan davranışları 30-177x, vizesiz ülke/seyahat 43-155x, "neden?" günlük merak 41-84x,
 # "dünyanın en ..." 45-76x). Sorgular bu türleri sırayla tarar.
-QUERIES = [
-    "dünyanın en tuhaf hayvanı", "vizesiz ülkeler", "neden biliyor musun", "dünyanın en küçük ülkesi",
+QUERIES = [  # 24 Kasım: kanalda zayıf kalan "neden?" sorguları rekor/hayvan sorgularıyla değişti
+    "dünyanın en tuhaf hayvanı", "vizesiz ülkeler", "dünyanın en derin", "dünyanın en küçük ülkesi",
     "ilginç bilgiler", "hayvanlar belgesel ilginç", "biliyor muydunuz", "dünyanın en",
-    "rekor kırdı ilginç", "bilinmeyen gerçekler", "tarihin ilginç olayları", "teknoloji neden",
+    "rekor kırdı ilginç", "bilinmeyen gerçekler", "en uzun yaşayan hayvan", "dünyanın en büyük",
 ]
 _TR = re.compile(r"[çğıöşüÇĞİÖŞÜ]|\b(ve|bir|bu|en|ile|için|neden|nasıl|ne|gerçek|dünya)\b", re.I)
 
