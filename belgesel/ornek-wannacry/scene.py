@@ -40,7 +40,7 @@ def build_film(doc):
                      caption="NHS'İN ZARARI", rgb=YELLOW))
 
     # 6  acil durdurma anahtarı: terminal canlandırması, kalkan
-    film.add(BigText("13 MAYIS 2017", XD - 1200, -2600, 480, L(6) + 0.05, rgb=CREAM, type_on=0.6))
+    film.add(BigText("12 MAYIS · AKŞAM", XD - 1200, -2600, 480, L(6) + 0.05, rgb=CREAM, type_on=0.6))
     film.add(Screen(XD - 1200, -400, 5400, L(6) + 0.3, kind="terminal", title="analiz.log",
                     lines=["> örnek incelemeye alındı", "> şüpheli bir alan adı sorgusu bulundu",
                            "> alan adı kaydedildi", "[!] yayılma durdu"], step=0.95))
