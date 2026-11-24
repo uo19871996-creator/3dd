@@ -1,29 +1,68 @@
 {
-  "title": "WannaCry: Dünyayı kilitleyen cuma",
-  "takes": [
-    {"take": "T01_acilis", "lines": [
-      {"id": 1, "text": "12 Mayıs 2017, Cuma. Dünyanın dört bir yanında ekranlar aynı anda kırmızıya döndü.",
-       "spoken": "On iki Mayıs iki bin on yedi, Cuma. Dünyanın dört bir yanında ekranlar aynı anda kırmızıya döndü.",
-       "hero": "tarih", "typed": "12 MAYIS 2017"},
-      {"id": 2, "text": "Dosyalar kilitlenmişti. Açmak isteyen 300 dolar değerinde Bitcoin ödeyecekti.",
-       "spoken": "Dosyalar kilitlenmişti. Açmak isteyen üç yüz dolar değerinde Bitcoin ödeyecekti.",
-       "hero": "fidye ekranı (canlandırma)", "typed": "$300"}
-    ]},
-    {"take": "T02_yayilma", "lines": [
-      {"id": 3, "text": "Adı WannaCry'dı. Bir gün içinde 150 ülkede 200 binden fazla bilgisayara yayıldı.",
-       "spoken": "Adı Vana Kray'dı. Bir gün içinde yüz elli ülkede iki yüz binden fazla bilgisayara yayıldı.",
-       "hero": "sayaçlar", "typed": "150 ÜLKE"},
-      {"id": 4, "text": "En ağır darbeyi İngiltere'nin sağlık sistemi NHS aldı; hastaneler hastaları başka yerlere yönlendirdi.",
-       "spoken": "En ağır darbeyi İngiltere'nin sağlık sistemi NHS aldı; hastaneler hastaları başka yerlere yönlendirdi.",
-       "hero": "NHS kartı", "typed": "NHS"},
-      {"id": 5, "text": "Faturası yalnızca NHS için 92 milyon sterlini buldu.",
-       "spoken": "Faturası yalnızca NHS için doksan iki milyon sterlini buldu.",
-       "hero": "sayaç 92 milyon", "typed": "£92 MİLYON"}
-    ]},
-    {"take": "T03_durdurma", "lines": [
-      {"id": 6, "text": "Ertesi gün genç bir araştırmacı, Marcus Hutchins, saldırının yayılmasını büyük ölçüde durduran bir acil durdurma anahtarı buldu.",
-       "spoken": "Ertesi gün genç bir araştırmacı, Markıs Haçins, saldırının yayılmasını büyük ölçüde durduran bir acil durdurma anahtarı buldu.",
-       "hero": "KILL SWITCH", "typed": "KILL SWITCH"}
-    ]}
-  ]
+ "title": "WannaCry: Dünyayı kilitleyen cuma",
+ "takes": [
+  {
+   "take": "T01_acilis",
+   "lines": [
+    {
+     "id": 1,
+     "text": "12 Mayıs 2017. Sıradan bir cuma… ta ki ekranlar birer birer kırmızıya dönene kadar.",
+     "spoken": "On iki Mayıs iki bin on yedi. Sıradan bir cuma... ta ki ekranlar birer birer kırmızıya dönene kadar.",
+     "hero": "tarih",
+     "typed": "12 MAYIS 2017",
+     "tone": "[dramatic]"
+    },
+    {
+     "id": 2,
+     "text": "Dosyalar kilitli. Mesaj net: Ya 300 dolarlık Bitcoin ödersin ya da dosyalarına veda edersin.",
+     "spoken": "Dosyalar kilitli. Mesaj net: Ya üç yüz dolarlık Bitcoin ödersin ya da dosyalarına veda edersin.",
+     "hero": "fidye ekranı (canlandırma)",
+     "typed": "$300",
+     "tone": "[tense]"
+    }
+   ]
+  },
+  {
+   "take": "T02_yayilma",
+   "lines": [
+    {
+     "id": 3,
+     "text": "Adı WannaCry. Ve durmuyor: tek bir günde 150 ülke, 200 binden fazla bilgisayar.",
+     "spoken": "Adı Vana Kray. Ve durmuyor: tek bir günde yüz elli ülke, iki yüz binden fazla bilgisayar.",
+     "hero": "sayaçlar",
+     "typed": "150 ÜLKE",
+     "tone": "[excited]"
+    },
+    {
+     "id": 4,
+     "text": "En ağır darbe İngiltere'ye: sağlık sistemi NHS sarsılıyor, hastalar başka hastanelere yönlendiriliyor.",
+     "spoken": "En ağır darbe İngiltere'ye: sağlık sistemi NHS sarsılıyor, hastalar başka hastanelere yönlendiriliyor.",
+     "hero": "NHS kartı",
+     "typed": "NHS",
+     "tone": "[excited]"
+    },
+    {
+     "id": 5,
+     "text": "Fatura mı? Sadece NHS için 92 milyon sterlin.",
+     "spoken": "Fatura mı? Sadece NHS için doksan iki milyon sterlin.",
+     "hero": "sayaç 92 milyon",
+     "typed": "£92 MİLYON",
+     "tone": "[dramatic]"
+    }
+   ]
+  },
+  {
+   "take": "T03_durdurma",
+   "lines": [
+    {
+     "id": 6,
+     "text": "Ve ertesi gün… 22 yaşındaki araştırmacı Marcus Hutchins, saldırının gizli acil durdurma anahtarını buluyor.",
+     "spoken": "Ve ertesi gün... yirmi iki yaşındaki araştırmacı Markıs Haçins, saldırının gizli acil durdurma anahtarını buluyor.",
+     "hero": "KILL SWITCH",
+     "typed": "KILL SWITCH",
+     "tone": "[excited]"
+    }
+   ]
+  }
+ ]
 }

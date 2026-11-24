@@ -75,7 +75,12 @@ mkdir -p belgesel/projeler/SLUG/fonts && cp belgesel/fonts/*.ttf belgesel/projel
 Biçim `belgesel/ornek-wannacry/script.json` gibi: `takes` (bölümler) içinde `lines`; her satırda
 `text` (ekranda/altyazıda), `spoken` (rakamlar yazıyla, yabancı adlar okunduğu gibi: "Vana Kray",
 "Markıs Haçins"), `hero` (o satırda kameranın baktığı tek şey), `typed` (ekrana basılan kısa yazı).
-Toplam **520-600 kelime** (4 dakika). Akış:
+**Anlatım heyecanlı olsun (kanal sahibinin isteği):** şimdiki zamanla anlat ("ekranlar kırmızıya
+dönüyor"), kısa ve vurucu cümleler kur, bölüm geçişlerinde merak bırak ("Ve durmuyor:", "Fatura mı?",
+"Ve ertesi gün…"), her bölümün sonunda bir sonrakine çeken bir soru ya da ters köşe koy. Satıra
+`"tone"` ile duygu etiketi verilebilir: varsayılan `[excited]`; gerilim için `[tense]`, ağır anlar için
+`[dramatic]` (etiket okunmaz, tonu belirler). Örnek: `belgesel/ornek-wannacry/script.json`.
+Toplam **520-600 kelime** (4 dakika; tempolu okumada 600'e yakın yaz). Akış:
 
 | Süre | Bölüm |
 |---|---|
@@ -141,7 +146,7 @@ taşan var mı, koyu üstüne koyu yazı var mı, boş kare var mı. Düzeltmede
 cd belgesel/projeler/SLUG
 python3 ../../engine/render.py --project . --cues
 python3 ../../engine/build_sfx.py --project .
-python3 ../../engine/mix_soundtrack.py --project . --music ../../../assets/sounds/music/gergin-1.mp3 --music-eq-dip 3
+python3 ../../engine/mix_soundtrack.py --project . --music ../../../assets/sounds/music/gergin-1.mp3 --music-eq-dip 3 --music-db -4
 python3 ../../engine/render.py --project . --size 1920x1080 --out out/film.mp4 --audio audio/mix.m4a
 python3 ../../engine/burn_captions.py --project . --video out/film.mp4 --audio audio/mix.m4a --style clean --out out/final.mp4
 python3 ../../thumbnail.py --project . --t SANIYE --text "2-4 KELİME" --small "KONU · YIL" --accent-word KELİME
