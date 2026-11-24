@@ -1,0 +1,42 @@
+{
+ "grade": "natural",
+ "photos": [
+  {
+   "id": "P01",
+   "kind": "doc",
+   "commons": "File:Countries initially affected in WannaCry ransomware attack.svg",
+   "file": "P01_Countries_initially_affected_in_WannaCry_ransomw.png",
+   "source": "https://commons.wikimedia.org/wiki/File:Countries_initially_affected_in_WannaCry_ransomware_attack.svg",
+   "credit": "This SVG version is by TheAwesomeHwyh, original PNG version by User:Roke",
+   "license": "CC BY-SA 3.0",
+   "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+   "date": "2019-01-05",
+   "license_ok": true
+  },
+  {
+   "id": "P02",
+   "kind": "photo",
+   "commons": "File:Royal London Hospital New.jpg",
+   "file": "P02_Royal_London_Hospital_New.jpg",
+   "source": "https://commons.wikimedia.org/wiki/File:Royal_London_Hospital_New.jpg",
+   "credit": "ClippednPinned",
+   "license": "CC BY-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+   "date": "2018-06-24 15:28:53",
+   "license_ok": true
+  },
+  {
+   "id": "P03",
+   "kind": "photo",
+   "commons": "File:Racks Amravati Data Center.jpg",
+   "file": "P03_Racks_Amravati_Data_Center.jpg",
+   "source": "https://commons.wikimedia.org/wiki/File:Racks_Amravati_Data_Center.jpg",
+   "credit": "PiDatacenters",
+   "license": "CC BY-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+   "date": "2021-08-17",
+   "license_ok": true
+  }
+ ],
+ "recreations": []
+}

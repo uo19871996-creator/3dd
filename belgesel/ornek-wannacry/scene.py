@@ -1,58 +1,68 @@
-"""Pilot: WannaCry (45 sn). Gece görünümü, kırmızı vurgu; dört küme yan yana, kamera soldan sağa."""
-from engine import BigText, Card, Counter, Film, PenMark, Stamp
+"""Pilot: WannaCry (45 sn). Gece görünümü; her satırda gerçek fotoğraf/harita ya da hareketli canlandırma."""
+from engine import BigText, Counter, Film, PenMark, Print, Stamp
+from extras import GREEN, RED, YELLOW, DeviceGrid, Icon, Screen
 
-RED = (214, 38, 38)
-YELLOW = (250, 204, 21)
 CREAM = (246, 240, 228)
-X1, X2, X3, X4 = 0, 7600, 15200, 22800
+XA, XB, XC, XD = 0, 9800, 19600, 29400
 
 
 def build_film(doc):
     L, E, W = doc.L, doc.E, doc.W
     film = Film(doc.duration, fps=30, look="night")
 
-    # 1-2  tarih, sonra fidye ekranı (canlandırma: üstteki cümle gerçek ekrandaki İngilizce metin)
-    film.add(BigText("12 MAYIS 2017", X1, -1150, 560, L(1) + 0.05, rgb=CREAM, type_on=0.8))
-    film.add(PenMark("underline", X1, -1000, 4200, 60, t_in=W(1, "kırmızıya") - 0.1, dur=0.5, width=30, rgb=RED))
-    film.add(Card(X1, 700, 4200, 2100, L(2) + 0.05, title="Ooops, your files have been encrypted!",
-                  lines=["Ödeme: 300 dolar değerinde Bitcoin", "CANLANDIRMA"], rgb=(150, 18, 18),
-                  text_rgb=(255, 244, 240), accent=YELLOW, title_size=190, body_size=140))
-    film.add(Stamp("KİLİTLİ", X1 + 1200, 1250, size=380, rot=-9, t_in=W(2, "kilitlenmişti") + 0.2, rgb=YELLOW))
+    # 1  tarih; veri merkezinde ekranlar birer birer kırmızıya döner
+    film.add(Print("P03", XA, 250, 8600, rot=-0.8, t_in=0.0, pin=False, label="VERİ MERKEZİ · TEMSİLÎ", label_t=1.2))
+    film.add(BigText("12 MAYIS 2017", XA, -2350, 560, L(1) + 0.05, rgb=CREAM, type_on=0.8, bar=(10, 12, 22), bar_h=0.92))
+    film.add(DeviceGrid(XA, 350, 14, 7, 470, W(1, "ekranlar") - 0.3, dur=E(1) - W(1, "ekranlar") + 0.2))
+    film.add(PenMark("underline", XA, -2200, 4300, 60, t_in=W(1, "kırmızıya") - 0.1, dur=0.5, width=30, rgb=RED))
 
-    # 3  ad ve yayılma: iki sayaç
-    film.add(BigText("WANNACRY", X2, -1500, 640, W(3, "vana") - 0.05, rgb=CREAM, bar=RED, bar_h=0.42))
-    film.add(Counter(X2 - 1700, 300, 620, 150, W(3, "yüz elli") - 0.1, dur=1.0, caption="ÜLKE", rgb=YELLOW))
-    film.add(Counter(X2 + 1700, 300, 620, 200000, W(3, "iki yüz") - 0.1, dur=1.4, suffix="+", caption="BİLGİSAYAR",
+    # 2  fidye ekranı (canlandırma; üst cümle gerçek ekrandaki İngilizce metin)
+    film.add(Screen(XA, 300, 5600, L(2) + 0.05, kind="ransom", title="Ooops, your files have been encrypted!",
+                    lines=["Dosyalarınız kilitlendi.", "Ödeme: 300 dolar değerinde Bitcoin"], step=0.7))
+    film.add(Stamp("KİLİTLİ", XA + 3300, 2150, size=380, rot=-9, t_in=W(2, "kilitlenmişti") + 0.3, rgb=YELLOW))
+
+    # 3  ad, ilk etkilenen ülkeler haritası (gerçek), iki sayaç
+    film.add(BigText("WANNACRY", XB, -2500, 640, W(3, "vana") - 0.05, rgb=CREAM, bar=RED, bar_h=0.42))
+    film.add(Print("P01", XB, -350, 6800, rot=0.6, t_in=W(3, "vana") + 0.2, pin=False,
+                   label="İLK ETKİLENEN ÜLKELER", label_t=W(3, "yayıldı") - 0.2))
+    film.add(Counter(XB - 1900, 2500, 600, 150, W(3, "yüz elli") - 0.1, dur=1.0, caption="ÜLKE", rgb=YELLOW))
+    film.add(Counter(XB + 1900, 2500, 600, 200000, W(3, "iki yüz") - 0.1, dur=1.4, suffix="+", caption="BİLGİSAYAR",
                      rgb=YELLOW))
 
-    # 4-5  NHS ve fatura
-    film.add(Card(X3, -500, 4600, 1700, L(4) + 0.05, title="NHS · İngiltere sağlık sistemi",
-                  lines=["En ağır darbeyi aldı", "Hastaneler hastaları başka yerlere yönlendirdi"],
-                  rgb=(246, 242, 236), text_rgb=(30, 30, 34), accent=RED, title_size=210, body_size=150))
-    film.add(Counter(X3, 1500, 600, 92, W(5, "doksan") - 0.1, dur=0.9, prefix="£", suffix=" MİLYON",
+    # 4-5  NHS: hastane fotoğrafı, ikonlar, fatura
+    film.add(Print("P02", XC - 1300, -400, 5000, rot=1.4, t_in=L(4) + 0.05, pin=False, label="NHS HASTANESİ · LONDRA",
+                   label_t=W(4, "sağlık") + 0.1))
+    film.add(Icon("hospital", XC + 3500, -1500, 760, W(4, "sağlık") - 0.1, rgb=CREAM, ring=RED, label="EN AĞIR DARBE"))
+    film.add(Icon("siren", XC + 3500, 600, 760, W(4, "yönlendirdi") - 0.6, rgb=CREAM, ring=RED,
+                  label="HASTALAR YÖNLENDİRİLDİ"))
+    film.add(Icon("banknote", XC - 2300, 2450, 640, W(5, "faturası") - 0.1, rgb=YELLOW))
+    film.add(Counter(XC + 600, 2650, 620, 92, W(5, "doksan") - 0.1, dur=0.9, prefix="£", suffix=" MİLYON",
                      caption="NHS'İN ZARARI", rgb=YELLOW))
 
-    # 6  acil durdurma anahtarı
-    film.add(Card(X4, -1300, 4200, 1000, W(6, "araştırmacı") - 0.1, title="13 Mayıs 2017 · Marcus Hutchins",
-                  lines=["Genç bir güvenlik araştırmacısı"], rgb=(246, 242, 236), text_rgb=(30, 30, 34),
-                  accent=YELLOW, title_size=170, body_size=130))
-    film.add(BigText("KILL SWITCH", X4, 650, 720, W(6, "acil") - 0.05, rgb=CREAM, bar=YELLOW, bar_h=0.42,
-                     hit=0.25))
-    film.add(PenMark("underline", X4, 840, 4800, 60, t_in=W(6, "anahtarı"), dur=0.5, width=34, rgb=YELLOW))
+    # 6  acil durdurma anahtarı: terminal canlandırması, kalkan
+    film.add(BigText("13 MAYIS 2017", XD - 1200, -2600, 480, L(6) + 0.05, rgb=CREAM, type_on=0.6))
+    film.add(Screen(XD - 1200, -400, 5400, L(6) + 0.3, kind="terminal", title="analiz.log",
+                    lines=["> örnek incelemeye alındı", "> şüpheli bir alan adı sorgusu bulundu",
+                           "> alan adı kaydedildi", "[!] yayılma durdu"], step=0.95))
+    film.add(Icon("shield-check", XD + 3300, -900, 950, W(6, "durduran") - 0.1, rgb=CREAM, ring=GREEN))
+    film.add(BigText("KILL SWITCH", XD, 2350, 700, W(6, "acil") - 0.05, rgb=CREAM, bar=YELLOW, bar_h=0.42, hit=0.25))
+    film.add(PenMark("underline", XD, 2540, 4800, 60, t_in=W(6, "anahtarı"), dur=0.5, width=34, rgb=YELLOW))
 
-    # kamera: her kümede kahramana it, kümeler arasında hızlı geçiş, sonda tüm duvar
-    film.shot(0.0, X1, -1100, 0.5)
-    film.shot(L(1) + 1.2, X1, -1000, 0.62, rot=-0.5)
-    film.shot(L(2) + 0.4, X1, 650, 0.7, rot=0.4)
-    film.shot(E(2) - 0.2, X1 + 200, 700, 0.74)
-    film.shot(L(3) + 0.3, X2, -900, 0.52, rot=-0.4)
-    film.shot(W(3, "yüz elli") + 0.3, X2, 0, 0.6)
-    film.shot(E(3) - 0.1, X2 + 300, 100, 0.62, rot=0.5)
-    film.shot(L(4) + 0.4, X3, -500, 0.66, rot=-0.4)
-    film.shot(W(5, "doksan") + 0.3, X3, 600, 0.5, rot=0.4)
-    film.shot(E(5) - 0.1, X3 + 200, 650, 0.52)
-    film.shot(L(6) + 0.4, X4, -1100, 0.7, rot=-0.4)
-    film.shot(W(6, "acil") + 0.3, X4, 500, 0.62, rot=0.3)
-    film.shot(E(6) + 0.2, X4 + 200, 400, 0.6)
-    film.shot(film.duration, (X1 + X4) / 2, 0, 0.16, radius=24000, strength=0.1)
+    # kamera
+    film.shot(0.0, XA, -800, 0.36)
+    film.shot(L(1) + 1.0, XA, -1400, 0.46, rot=-0.5)
+    film.shot(W(1, "ekranlar") + 0.2, XA, 0, 0.42, rot=0.3)
+    film.shot(L(2) + 0.45, XA, 300, 0.62, rot=0.4)
+    film.shot(E(2) - 0.2, XA + 300, 500, 0.6)
+    film.shot(L(3) + 0.3, XB, -1500, 0.5, rot=-0.4)
+    film.shot(W(3, "yüz elli") - 0.2, XB, 400, 0.36)
+    film.shot(E(3) - 0.1, XB + 200, 900, 0.42, rot=0.5)
+    film.shot(L(4) + 0.4, XC - 800, -500, 0.52, rot=-0.4)
+    film.shot(W(4, "yönlendirdi") - 0.3, XC + 900, -300, 0.44)
+    film.shot(W(5, "doksan") + 0.2, XC, 1500, 0.5, rot=0.4)
+    film.shot(E(5) - 0.1, XC + 200, 1600, 0.52)
+    film.shot(L(6) + 0.5, XD - 1200, -900, 0.48, rot=-0.4)
+    film.shot(W(6, "durduran") + 0.3, XD + 700, -500, 0.4, rot=0.3)
+    film.shot(W(6, "acil") + 0.4, XD, 1500, 0.5)
+    film.shot(film.duration, (XA + XD) / 2, 0, 0.115, radius=30000, strength=0.1)
     return film

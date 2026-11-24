@@ -109,8 +109,24 @@ Brian (ElevenLabs, `config.json` → `belgesel_model`, tam model); okunuş sözl
 ## 8. Sahne ve kontrol
 
 `scene.py`'yi `references/film.md`'ye göre yaz (örnek: `belgesel/ornek-wannacry/scene.py`).
-Görünüm `night`, vurgu kırmızı (saldırı) ve sarı (rakam, öneri). Her satırda tek kahraman; korunma
-önerileri bölümünde her öneri ayrı kart, sırayla.
+Görünüm `night`, vurgu kırmızı (saldırı) ve sarı (rakam, öneri). Her satırda tek kahraman.
+
+**Görsel zenginlik (kanal sahibinin isteği; düz yazı/kart videosu YAPMA).** Motorun parçalarına ek
+olarak `belgesel/engine/extras.py` var (`from extras import Icon, Screen, DeviceGrid, Timeline, SIBER`):
+- `Screen(x, y, w, t_in, kind, title, lines)`: monitörde hareketli CANLANDIRMA. `ransom` (fidye ekranı,
+  geri sayım), `terminal` (satır satır kayıt; "[!]" ile başlayan satır kırmızı), `email` (oltalama
+  e-postası: Kimden, Konu, gövde, bağlantı), `progress` (dosyalar şifreleniyor), `login` (giriş formu).
+  Ekranda yalnızca genel ifadeler yaz; komut, kod, gerçek kişi verisi yok.
+- `DeviceGrid(x, y, cols, rows, cell, t_in, dur)`: bilgisayarlar sırayla kırmızıya döner (yayılma).
+- `Icon(ad, x, y, size, t_in, ring=RENK, label="...")`: `belgesel/icons` içindeki 90 Lucide ikonu
+  (lock, shield-check, hospital, server, skull, mail-x, smartphone, key-round, refresh-cw, wifi-off,
+  fuel, landmark, banknote, credit-card, cloud, users, siren, ...).
+- `Timeline(x, y, w, [(t, "TARİH", "olay"), ...], t_in)`, koyu harita: `GeoMap(doc.map(ad), K, look=SIBER)`.
+Her bölümde en az: **5 gerçek fotoğraf/belge** (Commons; kişi, kurum, yer, olayın gerçek haritası
+ya da belgesi; bulunamazsa sunucu, hastane, şehir gibi temsilî fotoğraf "TEMSİLÎ" etiketiyle),
+**1 harita**, **2 ekran canlandırması** (saldırıya uygun tür), **1 ölçek görseli** (DeviceGrid ya da
+sayaç) ve korunma bölümünde **her öneri için ikon + kısa kart**. Arka arkaya ikiden fazla satır
+yalnızca yazıdan oluşmasın; fotoğrafı büyük ve kameraya yakın kullan, üstüne ikon/ekran bindir.
 
 ```bash
 python3 belgesel/engine/render.py --project belgesel/projeler/SLUG --probe T1,T2,... --size 1280x720

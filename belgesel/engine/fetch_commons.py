@@ -34,16 +34,25 @@ UA = "cinematic-film/1.0 (+https://github.com/Moh4696/open-3d-skills)"
 FREE = re.compile(r"public domain|^pd\b|^pd-|cc0|cc[- ]by(?!.*\bnc\b)(?!.*\bnd\b)", re.I)
 
 
+def _wait(err, attempt):
+    """429/503 sonrası bekleme: sunucunun Retry-After'ı ya da 5, 10, 20, 40, 60 sn."""
+    try:
+        ra = float(err.headers.get("Retry-After") or 0)
+    except (TypeError, ValueError):
+        ra = 0
+    return min(90.0, max(ra, 5 * 2 ** attempt))
+
+
 def api(**params):
     params.update(format="json", formatversion="2")
     req = urllib.request.Request(API + "?" + urllib.parse.urlencode(params), headers={"User-Agent": UA})
-    for attempt in range(4):
+    for attempt in range(7):
         try:
             with urllib.request.urlopen(req, timeout=40) as r:
                 return json.loads(r.read())
         except urllib.error.HTTPError as e:
-            if e.code in (429, 503) and attempt < 3:
-                time.sleep(3 * (attempt + 1)); continue
+            if e.code in (429, 503) and attempt < 6:   # Wikimedia hız sınırı: Retry-After'a uy, artan bekleme
+                time.sleep(_wait(e, attempt)); continue
             raise
 
 
@@ -85,13 +94,13 @@ def cmd_category(a):
 
 def download(url, dst):
     req = urllib.request.Request(url, headers={"User-Agent": UA})
-    for attempt in range(4):
+    for attempt in range(7):
         try:
             with urllib.request.urlopen(req, timeout=120) as r:
                 dst.write_bytes(r.read()); return
         except urllib.error.HTTPError as e:
-            if e.code in (429, 503) and attempt < 3:
-                time.sleep(5 * (attempt + 1)); continue
+            if e.code in (429, 503) and attempt < 6:
+                time.sleep(_wait(e, attempt)); continue
             raise
 
 
