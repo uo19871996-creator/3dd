@@ -88,6 +88,8 @@ def main():
     ap.add_argument("--project", required=True)
     ap.add_argument("--size", default="1920x1080")
     ap.add_argument("--probe", default="", help="comma-separated times: one PNG still each")
+    ap.add_argument("--no-safe", action="store_true",
+                    help="probe stills: omit the caption-area guide (bottom 22%%, where burned captions sit)")
     ap.add_argument("--strip", default="", help="t0:t1:n  contact sheet of n frames between t0 and t1")
     ap.add_argument("--t0", type=float, default=0.0)
     ap.add_argument("--t1", type=float, default=None)
@@ -116,8 +118,14 @@ def main():
         pdir = proj / "out" / "probe"; pdir.mkdir(parents=True, exist_ok=True)
         if a.probe:
             for ts in [float(x) for x in a.probe.split(",") if x.strip()]:
-                t0 = time.time(); img = r.frame(round(ts * film.fps))
-                p = pdir / f"t{ts:07.2f}.png"; Image.fromarray(img).save(p)
+                t0 = time.time(); img = Image.fromarray(r.frame(round(ts * film.fps)))
+                if not a.no_safe:   # burn_captions altyazısı alt ~%22'de: kart/yazı bu çizginin altına düşmesin
+                    from PIL import ImageDraw
+                    d = ImageDraw.Draw(img); yy = int(img.height * 0.78)
+                    for xx in range(0, img.width, 24):
+                        d.line([(xx, yy), (xx + 12, yy)], fill=(255, 0, 200), width=2)
+                    d.text((8, yy + 4), "ALTYAZI ALANI", fill=(255, 0, 200))
+                p = pdir / f"t{ts:07.2f}.png"; img.save(p)
                 print(f"{p}  ({time.time() - t0:.2f}s)")
         if a.strip:
             s0, s1, n = a.strip.split(":"); s0, s1, n = float(s0), float(s1), int(n)

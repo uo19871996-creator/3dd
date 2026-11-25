@@ -59,5 +59,29 @@
     "nasıl korunurum"
   ],
   "belgesel_tone": "[excited]",
-  "belgesel_stability": 0.3
+  "belgesel_stability": 0.3,
+  "belgesel_seriler": {
+    "suc": {
+      "footer": "#belgesel #yeninesilsuç #suçasürüklenençocuklar\n\nBu video bilgilendirme ve farkındalık amaçlıdır. Kişilerin adı ve çocukların kimliği bilerek verilmemiştir; rakamlar resmi açıklamalardan alınmıştır.\n\nYardım ve ihbar: Acil durumda 112 · Aile ve Sosyal Hizmetler Bakanlığı ALO 183",
+      "tags": [
+        "yeni nesil suç",
+        "suç örgütleri",
+        "suça sürüklenen çocuklar",
+        "belgesel",
+        "çocuk koruma",
+        "aileler için"
+      ]
+    },
+    "siber": {
+      "footer": "#belgesel #siberguvenlik #siberSaldırı\n\nBu video güvenilir kaynaklardan derlenen bilgilerle hazırlanmıştır. Saldırı teknikleri anlatılmaz; amaç farkındalık ve korunmadır.",
+      "tags": [
+        "siber güvenlik",
+        "siber saldırı",
+        "belgesel",
+        "fidye yazılımı",
+        "veri sızıntısı",
+        "nasıl korunurum"
+      ]
+    }
+  }
 }

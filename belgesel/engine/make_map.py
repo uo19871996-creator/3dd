@@ -28,6 +28,7 @@ Downloads are cached in assets/data/. Writes assets/prep/map_<name>.json.
 """
 import argparse
 import json
+import re
 import math
 import pathlib
 import sys
@@ -36,7 +37,19 @@ import urllib.request
 UA = "cinematic-film/1.0 (+https://github.com/Moh4696/open-3d-skills)"
 
 
+def local_npm(src):
+    """https://cdn.jsdelivr.net/npm/world-atlas@2/x.json -> depodaki video/node_modules/world-atlas/x.json (varsa)."""
+    m = re.match(r"https://cdn\.jsdelivr\.net/npm/(@?[^@/]+(?:/[^@/]+)?)@[^/]+/(.+)$", str(src))
+    if m:
+        p = pathlib.Path(__file__).resolve().parents[2] / "video" / "node_modules" / m.group(1) / m.group(2)
+        if p.exists():
+            return p
+    return None
+
+
 def load(src, cache):
+    if local_npm(src):   # ağ kapalı olabilir (jsdelivr engelli ortamlar): depodaki kopya
+        return json.loads(local_npm(src).read_text())
     if str(src).startswith(("http://", "https://")):
         p = cache / pathlib.Path(src.split("?")[0]).name
         if not p.exists():

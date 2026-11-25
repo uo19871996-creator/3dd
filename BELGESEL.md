@@ -229,6 +229,9 @@ python3 belgesel/engine/render.py --project belgesel/projeler/SLUG --probe T1,T2
 
 Her satırdan bir kare al, kareleri tek sayfada birleştirip **bak**: yazı okunuyor mu, kadrajdan
 taşan var mı, koyu üstüne koyu yazı var mı, boş kare var mı. Düzeltmeden render alma.
+Karelerdeki pembe kesikli çizginin altı **altyazı alanıdır** (alt %22; altyazılar sonra basılır):
+kart, sayaç, ikon etiketi ya da ekran yazısı o çizginin altına düşmesin (bölüm 1'de önleme
+kartlarının alt satırı altyazıyla çakıştı). Gerekirse kamerayı (`film.shot` y değeri) aşağı kaydır.
 
 ## 9. Ses, render, küçük resim
 
@@ -262,6 +265,7 @@ Küçük resimde en çarpıcı karenin üstüne 2-4 kelime; başlıkla aynı vaa
   "sources": ["https://...", "https://..."],
   "credits": ["Fotoğraf adı — yazar, lisans (bağlantı)"],
   "tags": ["wannacry", "fidye yazılımı"],
+  "seri": "siber",
   "publish_at": "2026-11-28T12:00:00"
 }
 ```
@@ -272,6 +276,8 @@ Sahibin onayına bırakılacak bölümde `publish_at` yerine `"privacy": "privat
 - `yt_title` en fazla 70 karakter; konu ilk 40 karakterde; tık tuzağı yok.
 - `chapters`: ilki 0, en az 3 bölüm, her biri en az 10 sn; sürelerini `audio/timing.json`'dan al.
 - `publish_at`: bu haftanın cumartesisi 12:00 (İstanbul); "Yayın kuralı" aksini söylüyorsa yok.
+- `seri`: `"suc"` (YENİ NESİL SUÇ) ya da `"siber"` (SİBER OTOPSİ); açıklama dipnotu ve varsayılan
+  etiketler `config.json` → `belgesel_seriler`'den gelir (suç serisinde destek hatları ve sorumluluk notu).
 
 ```bash
 python3 pipeline/upload.py --belgesel belgesel/projeler/SLUG/yukleme.json

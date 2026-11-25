@@ -223,8 +223,9 @@ def upload_long(token, meta_path):
         desc += "\n\nKaynaklar:\n" + "\n".join(meta["sources"])
     if meta.get("credits"):
         desc += "\n\nGörseller:\n" + "\n".join(f"- {c}" for c in meta["credits"])
-    footer = CONFIG.get("description_footer_belgesel",
-                        "#belgesel #siberguvenlik\n\nBu video güvenilir kaynaklardan derlenen bilgilerle hazırlanmıştır.")
+    seri = CONFIG.get("belgesel_seriler", {}).get(meta.get("seri", ""), {})   # seriye özel dipnot/etiket
+    footer = seri.get("footer") or CONFIG.get("description_footer_belgesel",
+                                              "#belgesel #siberguvenlik\n\nBu video güvenilir kaynaklardan derlenen bilgilerle hazırlanmıştır.")
     if "#belgesel" not in footer.lower():
         footer += " #belgesel"
     desc = desc[:4900 - len(footer) - 2] + "\n\n" + footer
@@ -236,7 +237,7 @@ def upload_long(token, meta_path):
             when = when.replace(tzinfo=IST)
         status.update(privacyStatus="private", publishAt=when.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"))
     body = {"snippet": {"title": meta["yt_title"][:100], "description": desc,
-                        "tags": list(dict.fromkeys(meta.get("tags", []) + CONFIG.get("default_tags_belgesel", []))),
+                        "tags": list(dict.fromkeys(meta.get("tags", []) + (seri.get("tags") or CONFIG.get("default_tags_belgesel", [])))),
                         "categoryId": CONFIG.get("youtube_category_id_belgesel", "28"),
                         "defaultLanguage": "tr", "defaultAudioLanguage": "tr"},
             "status": status}

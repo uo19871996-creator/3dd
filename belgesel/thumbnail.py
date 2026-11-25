@@ -72,7 +72,8 @@ def main():
         for w in ln.split():
             tw = d.textlength(w, font=big)
             if a.accent_word and w.strip(".,!?") == tr_upper(a.accent_word):
-                d.rectangle([x - 10, y + big.size * 0.18, x + tw + 10, y + big.size * 1.08], fill=YELLOW)
+                l, t, r, b = d.textbbox((x, y), w, font=big)   # Ç/Ş çengeli ve İ/Ö noktaları şeridin içinde kalsın
+                d.rectangle([l - 12, min(t, y + big.size * 0.18) - 8, r + 12, max(b, y + big.size * 1.08) + 8], fill=YELLOW)
                 d.text((x, y), w, font=big, fill=(10, 10, 14))
             else:
                 d.text((x + 4, y + 5), w, font=big, fill=(0, 0, 0))

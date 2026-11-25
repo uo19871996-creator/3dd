@@ -17,7 +17,7 @@ credit and licence yourself from the archive's record page (Library of Congress,
 
 Search tips: Commons search matches file names and descriptions, so search the archive's words
 ("first flight", "Kitty Hawk 1903"), then open the category of a good hit to see its siblings.
-Large originals are fetched as 3200 px renders, which is more than a print on screen ever needs.
+Large originals are fetched as 1920 px renders (3200 px requests hit HTTP 429 on Wikimedia), which is more than a print on screen ever needs.
 """
 import argparse
 import html
@@ -71,7 +71,7 @@ def info(page):
             "desc": g("ImageDescription")[:160]}
 
 
-IIPROP = dict(prop="imageinfo", iiprop="url|size|mime|extmetadata", iiurlwidth=3200)
+IIPROP = dict(prop="imageinfo", iiprop="url|size|mime|extmetadata", iiurlwidth=1920)
 
 
 def show(pages):
@@ -122,7 +122,7 @@ def cmd_get(a):
             ok = bool(FREE.search(d["license"] or ""))
             if not ok and not a.allow_nonfree:
                 print(f"{p['id']}: REFUSED, licence {d['license']!r} is not free ({d['source']})"); refused += 1; continue
-            url = d["thumb"] if d["thumb"] and (d["w"] or 0) > 3200 and "svg" not in (d["mime"] or "") else d["url"]
+            url = d["thumb"] if d["thumb"] and (d["w"] or 0) > 1920 and "svg" not in (d["mime"] or "") else d["url"]
             if "svg" in (d["mime"] or ""):
                 url = d["thumb"]
             ext = pathlib.Path(urllib.parse.urlparse(url).path).suffix.lower() or ".jpg"
