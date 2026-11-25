@@ -1,18 +1,104 @@
-# Haftalık belgesel: siber saldırılar ve korunma
+# Haftalık belgesel
 
 Bu dosya haftalık zamanlanmış oturumun izleyeceği adımlardır. Görev **her cuma** çalışır, bir
-bölümü baştan sona üretir ve **gizli** yükler. Video **cumartesi 12:00'de (İstanbul) kendiliğinden
-yayına girer**. Kanal sahibi o zamana kadar videoyu YouTube Studio'da izleyip isterse siler.
-Shorts hattından (GUNLUK.md) bağımsızdır; Shorts'un günlük 10 video sayımına girmez (`#belgesel`).
+bölümü baştan sona üretir ve **gizli** yükler. Normalde video **cumartesi 12:00'de (İstanbul)
+kendiliğinden yayına girer**; kanal sahibi o zamana kadar YouTube Studio'da izleyip isterse siler
+(istisnalar: bölüm 0 → "Yayın kuralı"). Shorts hattından (GUNLUK.md) bağımsızdır; Shorts'un günlük
+10 video sayımına girmez (`#belgesel`).
 
 Bölüm: **4 dakika** (3:40-4:30), yatay 1920x1080, belgesel tarzı (tek kamera, arşiv görselleri,
-rakam kartları, haritalar). Konu her hafta **gerçek bir siber saldırı, sonuçları ve izleyicinin o
-tür saldırıdan korunması için 3-4 somut öneri**.
+rakam kartları, haritalar). **Konu: aşağıdaki güncel serinin sıradaki bölümü.** Seri bittiğinde ya da
+bölüm kurallara uygun yapılamıyorsa yedek konu: gerçek bir siber saldırı, sonuçları ve korunma
+önerileri ("SİBER OTOPSİ" serisi; bölüm 2'deki adaylar).
 
 Motor: `belgesel/engine` (cinematic-film; MIT, github.com/Moh4696/cinematic-skill'den uyarlandı).
 Motorun kendi kılavuzu `belgesel/engine/SKILL.md` ve `belgesel/engine/references/*.md`; sahne
 yazmadan önce `SKILL.md` ile `references/film.md`'yi oku. Örnek pilot (45 sn):
 `belgesel/ornek-wannacry/` (script.json + scene.py).
+
+## 0. Güncel seri: YENİ NESİL SUÇ (Türkiye'de yeni nesil suç örgütleri)
+
+Kanal sahibinin ana serisi. Odak: örgütlerin **gençleri ve çocukları nasıl kullandığı, bunun
+bedeli, devletin karşı hamlesi ve ailelerin ne yapabileceği**. Suçluyu değil, kurbanı, aileyi ve
+önlemeyi anlat. Bölümler (sırayla):
+
+| # | Bölüm | Odak |
+|---|---|---|
+| 1 | Tetikçi çocuklar | Örgütler neden çocukları kullanıyor; resmi rakamlar; "kolay para" vaadinin gerçek bedeli; aileler için uyarı işaretleri |
+| 2 | Ekrandaki suç ilanı | Sosyal medya ve mesajlaşma uygulamalarından eleman toplama (genel, platform/kanal adı ve ilan ayrıntısı yok); dijital ebeveynlik |
+| 3 | Haraç ve kurşunlama | İşyerlerine yönelik tehdit ve kurşunlama olayları, esnafın korkusu, ihbar yolları |
+| 4 | Sokaklar Güvende | Devletin karşı hamlesi: operasyonlar, yasal düzenlemeler, resmi bilanço |
+| 5 | Kara para ve yasa dışı bahis | Örgütlerin parası nereden geliyor; gençleri borca sokan bahis tuzağı |
+| 6 | Sahte polis, sahte savcı | Telefon dolandırıcılığı çağrı merkezleri; yaşlıları koruma |
+
+**Sıradaki bölüm:** `python3 pipeline/upload.py --belgeseller` çıktısında "YENİ NESİL SUÇ Bölüm N"
+başlıklarına bak; sıradaki = en büyük N + 1 (hiç yoksa 1). 6 bölüm bittiyse yedek konuya geç.
+
+**Yayın kuralı:** `yukleme.json`'da
+- Bölüm 1: `"privacy": "private"`, `publish_at` YOK (kanal sahibi izleyip kendisi yayına alır).
+- Sonraki bölümler: listede bu seriden "GİZLİ (tarih yok)" duran bir bölüm varsa (sahibi henüz
+  onaylamadı) yine `"privacy": "private"` ve tarih yok; yoksa normal kural (cumartesi 12:00).
+
+**Seri kuralları (zorunlu; bölüm 4'teki genel kurallara ek). Biri sağlanamıyorsa o bilgiyi kullanma:**
+- **Çocukların kimliği asla:** suça sürüklenen ya da mağdur çocuğun adı, baş harfi, yaşı+mahallesi,
+  okulu, yüzü (bulanık bile), sesi, aile bilgisi yok. Tekil çocuk vakası anlatma; resmi toplu
+  rakamlar ve genel örüntü kullan.
+- **Örgüte reklam yok (TCK 220/8 örgüt propagandası):** örgüt adı, lider/üye adı ya da lakabı,
+  sembol, el işareti, şarkı, sosyal medya videosu, silah/para/lüks yaşam görseli yok. "Bir suç
+  örgütü", "örgüt lideri olduğu iddia edilen kişi" de. Operasyon adı örgüt adını içeriyorsa onu da
+  kullanma. Anlatım "kazanç" değil **bedel** üzerinden: cezaevi, ölüm, yıkılan aileler.
+- **Kişi adı yok:** şüpheli, sanık, mağdur adı yok (kesinleşmiş hüküm olsa bile gerekmez). Ad
+  yalnızca resmi açıklama yapan kamu görevlisi için (bakan, başsavcı) ve kimin söylediği belirtilir.
+- **Yayın yasağı ve gizlilik kontrolü:** kullanacağın her olay/soruşturma için "yayın yasağı" ve
+  "kısıtlama kararı" araması yap (haber metinleri, RTÜK duyuruları); kararı olan olayı hiç kullanma.
+  Devam eden davada suçu kesinleşmiş gibi anlatma ("iddianameye göre", "savcılığın açıklamasına göre").
+- **Yöntem tarifi yok, taklit riski yok:** silah temini, ödeme ve para aktarma yolu, ilan metni,
+  fiyat listesi, uygulama/kanal/kullanıcı adı, polisten kaçma, eylem planı anlatılmaz. Okul
+  saldırısı ve benzeri taklit riski yüksek olaylar seri dışı.
+- **Şiddet anı yok:** güvenlik kamerası, olay yeri, kan, cenaze, gözaltı görüntüsü, kelepçeli kişi
+  yok. Haber ajansı/gazete fotoğrafı yok (telif); Commons'tan genel görseller.
+- **Siyaset yok:** hükümeti ya da muhalefeti övme/yerme; rakamı kimin açıkladığını söyle, yorum katma.
+- **Kaynak:** her rakam ve iddia için resmi açıklama (İçişleri, Adalet Bakanlığı, Emniyet,
+  Jandarma, başsavcılık, TBMM, TÜİK) + **en az 2 ana akım yayın** (BBC Türkçe, DW Türkçe, TRT
+  Haber, Anadolu Ajansı, büyük gazeteler). Çelişen rakamı kullanma. `kaynaklar.md`'ye yaz.
+- **Önleme bölümü:** aileler ve gençler için 3-4 somut adım (uyarı işaretleri: açıklanamayan
+  para/eşya, yeni ve gizli çevre, ikinci telefon/gizli uygulama, okuldan kopma; ne yapmalı:
+  yargılamadan konuşmak, okul rehberlik servisi, resmi destek ve ihbar hatları). **Hat numaralarını
+  resmi sitesinden doğrula** (ör. 112 Acil Çağrı; Aile ve Sosyal Hizmetler Bakanlığı ALO 183);
+  doğrulanamayan numarayı yazma.
+- **Kapanış sorusu** örgüt ya da olay hakkında bilgi/yorum istemez; ör. "Sence bu çocukları en çok
+  kim koruyabilir: aile mi, okul mu? Yaz."
+
+**Başlık:** `YENİ NESİL SUÇ Bölüm N: ...` (toplam en fazla 70 karakter; kanal sahibinin
+"SİBER OTOPSİ Bölüm 1: ..." biçimiyle aynı). Açıklamanın ilk satırı konu; sonda:
+"Bu video bilgilendirme ve farkındalık amaçlıdır. Kişilerin adı ve çocukların kimliği bilerek
+verilmemiştir; rakamlar resmi açıklamalardan alınmıştır." ve doğrulanmış destek/ihbar hatları.
+
+**Akış (4 dk; bölüm 5'teki tablo yerine):**
+
+| Süre | Bölüm |
+|---|---|
+| 0:00-0:20 | Soğuk açılış: resmi bir rakam ya da genel bir an, isimsiz ("Bir gece yarısı bir işyerinin camına mermi isabet ediyor. Tetiği çeken on altı yaşında.") |
+| 0:20-1:20 | Ne oluyor: olgu, resmi rakamlar, ne zamandan beri |
+| 1:20-2:20 | Nasıl işliyor ve neden gençler (genel; tarif yok): vaat edilen ile gerçek |
+| 2:20-3:00 | Bedel ve karşı hamle: cezalar, operasyonlar, aileler |
+| 3:00-3:50 | **Aileler ve gençler ne yapabilir?** 3-4 adım, her biri tek satır, ikon + kısa kart |
+| 3:50-4:10 | Kapanış: tek cümle + tek soru + abone ol |
+
+**Ton:** heyecan = tempo, merak ve gerilim; eğlence ya da hayranlık değil. `narrate_el.py`'ye
+`--tone "[dramatic]"`; açılış ve gerilim satırlarına `"tone": "[tense]"`; önleme bölümündeki
+satırlara `"tone": ""` (etiketsiz, sakin ve net). `[excited]` kullanma.
+
+**Görseller (bölüm 8'deki asgari sayılar geçerli, içeriği şöyle):** Türkiye haritası (resmi
+açıklamadaki il sayısı/dağılım, `look=SIBER`), resmi rakamlar için `Counter` ve `Timeline`,
+Commons'tan **genel ve kimliksiz** fotoğraflar "TEMSİLÎ" etiketiyle (gece şehir, adliye ya da
+emniyet binası dış cephesi, boş sokak, okul binası, telefon tutan el; yüzü seçilen kişi yok),
+canlandırma: `Screen(kind="chat")` (genel ifadeli mesajlaşma: kanal adı "Kanal", mesajlar "Kolay
+para. Hemen başla." gibi; gerçek ilan metni, fiyat, kullanıcı adı yok); ölçek için `Counter` ya
+da `DeviceGrid` (ör. operasyon yapılan il sayısı). İkonlar: users, users-round,
+smartphone, message-circle, messages-square, gavel, scale, landmark, siren, shield, shield-check,
+banknote, house, school, hand-heart, handshake, eye, phone, megaphone, ear, triangle-alert.
+Küçük resim: karanlık şehir ya da telefon karesi + 2-4 kelime ("TETİKÇİ ÇOCUKLAR"); silah, yüz yok.
 
 ## 1. Kurulum
 
@@ -22,13 +108,15 @@ bash setup.sh && bash belgesel/setup.sh
 
 ## 2. Konu seç
 
-Kanalın önceki bölümleri (tekrar etme):
+Güncel seri sürüyorsa konu onun sıradaki bölümüdür (bölüm 0); bu bölümün geri kalanı yedek siber
+konular içindir. Kanalın önceki belgeselleri ve durumları (tekrar etme):
 
 ```bash
-python3 pipeline/upload.py --recent 300 | grep belgesel
+python3 pipeline/upload.py --belgeseller
 ```
 
-Adaylar (önce izleyicinin kendi hayatına dokunanlar; korunma önerileri ona göre işe yarar):
+Yedek siber adaylar (başlık `SİBER OTOPSİ Bölüm N: ...`; önce izleyicinin kendi hayatına
+dokunanlar, korunma önerileri ona göre işe yarar):
 - Fidye yazılımları: WannaCry (2017, pilotta kısaca işlendi; tam bölüm yapılabilir), NotPetya ve
   Maersk (2017), Colonial Pipeline (2021), Kaseya (2021)
 - Veri sızıntıları ve hesap ele geçirme: Equifax (2017), Yahoo (2013-2014), 23andMe (2023),
@@ -100,7 +188,8 @@ python3 belgesel/narrate_el.py --project belgesel/projeler/SLUG
 python3 belgesel/engine/build_narration.py --project belgesel/projeler/SLUG
 ```
 
-Brian (ElevenLabs, `config.json` → `belgesel_model`, tam model); okunuş sözlüğü uygulanır. Süre
+Brian (ElevenLabs, `config.json` → `belgesel_model`, tam model); okunuş sözlüğü uygulanır.
+YENİ NESİL SUÇ serisinde ilk komuta `--tone "[dramatic]"` ekle (bölüm 0, "Ton"). Süre
 3:40'ın altında ya da 4:30'un üstündeyse senaryoyu kısalt/uzat, yeniden seslendir.
 
 ## 7. Görseller
@@ -120,7 +209,8 @@ Görünüm `night`, vurgu kırmızı (saldırı) ve sarı (rakam, öneri). Her s
 olarak `belgesel/engine/extras.py` var (`from extras import Icon, Screen, DeviceGrid, Timeline, SIBER`):
 - `Screen(x, y, w, t_in, kind, title, lines)`: monitörde hareketli CANLANDIRMA. `ransom` (fidye ekranı,
   geri sayım), `terminal` (satır satır kayıt; "[!]" ile başlayan satır kırmızı), `email` (oltalama
-  e-postası: Kimden, Konu, gövde, bağlantı), `progress` (dosyalar şifreleniyor), `login` (giriş formu).
+  e-postası: Kimden, Konu, gövde, bağlantı), `progress` (dosyalar şifreleniyor), `login` (giriş formu),
+  `chat` (mesajlaşma: title kanal adı; ">" ile başlayan satır giden mesaj, diğerleri gelen).
   Ekranda yalnızca genel ifadeler yaz; komut, kod, gerçek kişi verisi yok.
 - `DeviceGrid(x, y, cols, rows, cell, t_in, dur)`: bilgisayarlar sırayla kırmızıya döner (yayılma).
 - `Icon(ad, x, y, size, t_in, ring=RENK, label="...")`: `belgesel/icons` içindeki 90 Lucide ikonu
@@ -157,7 +247,7 @@ Render 1080p'de 4 dakika için ~20-30 dk sürer; komutlara yeterli zaman aşım�
 birkaç kare al ve bak. Müzik için `gergin-1` ya da `gergin-2` kullan (haftadan haftaya değiştir).
 Küçük resimde en çarpıcı karenin üstüne 2-4 kelime; başlıkla aynı vaadi taşısın.
 
-## 10. Yükle (gizli, cumartesi 12:00'de yayın)
+## 10. Yükle (gizli; cumartesi 12:00'de yayın ya da sahibin onayı)
 
 `belgesel/projeler/SLUG/yukleme.json`:
 
@@ -176,9 +266,12 @@ Küçük resimde en çarpıcı karenin üstüne 2-4 kelime; başlıkla aynı vaa
 }
 ```
 
+Sahibin onayına bırakılacak bölümde `publish_at` yerine `"privacy": "private"` yaz (bölüm 0,
+"Yayın kuralı"): video gizli kalır, tarih konmaz.
+
 - `yt_title` en fazla 70 karakter; konu ilk 40 karakterde; tık tuzağı yok.
 - `chapters`: ilki 0, en az 3 bölüm, her biri en az 10 sn; sürelerini `audio/timing.json`'dan al.
-- `publish_at`: bu haftanın cumartesisi 12:00 (İstanbul).
+- `publish_at`: bu haftanın cumartesisi 12:00 (İstanbul); "Yayın kuralı" aksini söylüyorsa yok.
 
 ```bash
 python3 pipeline/upload.py --belgesel belgesel/projeler/SLUG/yukleme.json
@@ -188,5 +281,6 @@ Küçük resim yüklenemezse (kanal doğrulaması) video yine yüklenir; raporda
 
 ## 11. Rapor
 
-Commit ve push YAPMA. Son mesajda: konu, video bağlantısı (gizli, yayın zamanı), süre, kullanılan
-kaynaklar, ElevenLabs kredisi, atlanan/sorunlu adımlar.
+Commit ve push YAPMA. Son mesajda: konu (seri ve bölüm no), video bağlantısı (gizli; yayın zamanı ya
+da "sahibin onayını bekliyor"), süre, kullanılan kaynaklar, yayın yasağı kontrolünün sonucu,
+ElevenLabs kredisi, atlanan/sorunlu adımlar.

@@ -4,6 +4,7 @@
 Kullanım:
   python3 pipeline/upload.py --check                    # sadece kimlik doğrulamayı dener
   python3 pipeline/upload.py --recent                   # kanaldaki son 50 videonun başlığı
+  python3 pipeline/upload.py --belgeseller              # belgeseller ve durumları (yayında/gizli/zamanlanmış)
   python3 pipeline/upload.py --today                    # bugün kaç video yüklendi (sınır: config)
   python3 pipeline/upload.py --belgesel PROJE/yukleme.json   # haftalık yatay belgesel (BELGESEL.md)
   python3 pipeline/upload.py scripts/2026-11-11.json    # o günün videolarını yükler
@@ -227,8 +228,9 @@ def upload_long(token, meta_path):
     if "#belgesel" not in footer.lower():
         footer += " #belgesel"
     desc = desc[:4900 - len(footer) - 2] + "\n\n" + footer
-    status = {"privacyStatus": CONFIG.get("privacy", "public"), "selfDeclaredMadeForKids": False, "embeddable": True}
-    if meta.get("publish_at"):
+    status = {"privacyStatus": meta.get("privacy") or CONFIG.get("privacy", "public"),
+              "selfDeclaredMadeForKids": False, "embeddable": True}
+    if meta.get("publish_at") and meta.get("privacy") != "private":   # "privacy": "private" = önizleme, tarih yok
         when = datetime.fromisoformat(meta["publish_at"])
         if when.tzinfo is None:
             when = when.replace(tzinfo=IST)
@@ -286,6 +288,26 @@ def main():
             kind = None
         left = ", ".join(f"{k} {max(0, mix[k] - counts.get(k, 0))}" for k in mix)
         print(f"Sıradaki video türü: {kind or 'yok (bugünkü videolar tamam)'}  (kalan: {left})")
+        return
+    if "--belgeseller" in args:
+        # Kanaldaki belgeseller ve durumları (yayında / gizli / zamanlanmış): sıradaki bölümü seçmek için
+        items = [s for s in recent_items(token, 300) if kind_of(s) == "belgesel"]
+        ids = [s["resourceId"]["videoId"] for s in items]
+        st = {}
+        for k in range(0, len(ids), 50):
+            r = requests.get(f"{API}/videos", params={"part": "status", "id": ",".join(ids[k:k + 50])},
+                             headers={"Authorization": f"Bearer {token}"}, timeout=60)
+            st.update({v["id"]: v["status"] for v in r.json().get("items", [])} if r.status_code == 200 else {})
+        for s, vid in zip(items, ids):
+            v = st.get(vid, {})
+            when = v.get("publishAt")
+            if when:
+                when = datetime.fromisoformat(when.replace("Z", "+00:00")).astimezone(IST).strftime("%Y-%m-%d %H:%M")
+            durum = {"public": "YAYINDA", "unlisted": "liste dışı"}.get(v.get("privacyStatus"),
+                                                                          f"zamanlandı {when}" if when else "GİZLİ (tarih yok)")
+            print(f"{s['publishedAt'][:10]} | {durum} | {s['title']} | https://youtube.com/watch?v={vid}")
+        if not items:
+            print("Kanalda belgesel yok.")
         return
     if "--recent" in args:
         # Kanala son yüklenen videoların başlıkları (aynı konuyu tekrar işlememek için); --recent 300

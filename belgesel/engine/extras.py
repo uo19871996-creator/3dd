@@ -8,7 +8,9 @@
   kind: "ransom" (fidye ekranı + geri sayım), "terminal" (satır satır yazılan kayıt),
   "email" (oltalama e-postası: lines[0] Kimden, lines[1] Konu, gerisi gövde; "http" geçen satır
   bağlantı gibi çizilir), "progress" (dosyalar şifreleniyor: dolan çubuk, akan dosya adları),
-  "login" (giriş formu: lines[0] kullanıcı adı; parola noktaları yazılır).
+  "login" (giriş formu: lines[0] kullanıcı adı; parola noktaları yazılır),
+  "chat" (mesajlaşma uygulaması: title = sohbet/kanal adı; lines = mesajlar, ">" ile başlayan giden
+  mesaj, diğerleri gelen; sırayla belirir). Gerçek kullanıcı adı, numara, logo YAZMA; genel ifade kullan.
   Köşede her zaman "CANLANDIRMA" yazar (gerçek ekran görüntüsü değil).
 - DeviceGrid(x, y, cols, rows, cell, t_in, dur): bilgisayarlar sırayla kırmızıya döner (yayılma).
 - Timeline(x, y, w, events, t_in): çizilen zaman çizgisi; events = [(t, "TARİH", "olay"), ...].
@@ -247,6 +249,34 @@ class Screen(Item):
         c.drawRRect(skia.RRect.MakeRectXY(skia.Rect.MakeXYWH(-fw / 2, H * 0.19, fw, fh), 14, 14),
                     paint((42, 92, 190), a))
         draw_text(c, res, "Giriş", 0, H * 0.19 + fh * 0.68, H * 0.045, "label", (255, 255, 255), a, 0.0, "center")
+
+    def _chat(self, c, res, t, W, H, a):
+        c.drawRect(skia.Rect.MakeXYWH(-W / 2, -H / 2, W, H), paint((14, 22, 33), a))
+        c.drawRect(skia.Rect.MakeXYWH(-W / 2, -H / 2, W, H * 0.12), paint((24, 36, 52), a))
+        c.drawCircle(-W / 2 + H * 0.07, -H / 2 + H * 0.06, H * 0.035, paint((90, 110, 140), a))
+        draw_text(c, res, self.title or "Kanal", -W / 2 + H * 0.13, -H / 2 + H * 0.078, H * 0.045, "label",
+                  (235, 240, 248), a)
+        size, y = H * 0.042, -H / 2 + H * 0.2
+        maxw = W * 0.62
+        for i, ln in enumerate(self.lines):
+            r = self._typed(t, i)
+            if r <= 0:
+                break
+            out = ln.startswith(">")
+            txt = ln[1:].strip() if out else ln
+            parts = wrap(res, txt, size, "labelm", maxw)
+            bw = max(text_width(res, p, size, "labelm") for p in parts) + size * 1.4
+            bh = len(parts) * size * 1.35 + size * 0.9
+            x0 = W / 2 - W * 0.04 - bw if out else -W / 2 + W * 0.04
+            col = (43, 82, 120) if out else (33, 44, 60)
+            rise = (1 - ease_out_cubic(r)) * size
+            c.drawRRect(skia.RRect.MakeRectXY(skia.Rect.MakeXYWH(x0, y + rise, bw, bh), size * 0.5, size * 0.5),
+                        paint(col, a * r))
+            yy = y + rise + size * 1.42
+            for ptxt in parts:
+                draw_text(c, res, ptxt, x0 + size * 0.7, yy, size, "labelm", (236, 242, 250), a * r)
+                yy += size * 1.35
+            y += bh + size * 0.6
 
 
 class DeviceGrid(Item):
