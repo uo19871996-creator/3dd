@@ -45,7 +45,7 @@ def main():
     a = ap.parse_args()
     proj = Path(a.project).resolve()
     r = subprocess.run([sys.executable, str(HERE / "engine" / "render.py"), "--project", str(proj),
-                        "--probe", f"{a.t}", "--size", "1920x1080"], capture_output=True, text=True)
+                        "--probe", f"{a.t}", "--size", "1920x1080", "--no-safe"], capture_output=True, text=True)
     stills = sorted((proj / "out" / "probe").glob(f"t{a.t:07.2f}*.png"))
     if r.returncode != 0 or not stills:
         sys.exit(f"Kare alınamadı: {r.stderr[-400:]}")
