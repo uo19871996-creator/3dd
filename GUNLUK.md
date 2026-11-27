@@ -195,10 +195,24 @@ varsa açılış ve başlık için onlardan da yararlan; yoksa aşağıdaki kura
     AYNI vaadi taşısın. Kalıplar: soru/açık döngü ("BDDK Başkanı neden istifa etti?"), rakam
     ("17 can kaybı: 3 soruda Aliağa"), doğrudan uyarı ("Yarın vapura binecekseniz dikkat").
   - İlk sahne (`heading` yok): TEK cümle, en fazla 12 kelime; `title` ile aynı merakı açar.
+  - **İzlenme oranı eğrisi (YouTube Analytics, 27 Kasım; son 25 haber ve 10 viral):** izleyicinin
+    tamamı ilk 4 saniyede kalıyor (açılış çalışıyor), ama açılış cümlesi bitip 2. sahneye geçilince
+    kaçış başlıyor: 6. sn %86, 13. sn %65, 22. sn %49, son %11. Ortalama izlenme yüzdesi %48 ve
+    %50'nin üstündeki videolar iki kat fazla izleniyor (1.046'ya 398). Bu yüzden:
+    - Açılış cümlesi başlığı TEKRAR ETMEZ ve konuyu kapatmaz; cevabı videonun sonunda verilen bir
+      soru ya da merak açar. Kötü: "Avrupa'nın ortasında ordusu olmayan bir ülke var: Lihtenştayn."
+      (başlıkla aynı; izleyici 5. sn'de her şeyi öğrenip gitti). İyi: "Bu ülkenin ordusu yok, ama
+      kişi başı geliri Türkiye'nin on katı. Nasıl mı?"
+    - 2. sahne ilk saniyesinde YENİ ve somut bir bilgi verir (rakam, isim, tarih); arka plan ve
+      tanım sonra gelir.
+    - Haberde izleyiciyi en çok ilgilendiren bilgi (kimleri kapsıyor, ne zaman, ne kadar) son
+      sahneye kadar saklanmaz ama açılışta da tamamen verilmez: açılış "ne oldu"yu, 2. sahne
+      "seni nasıl etkiliyor"u söyler.
+    - Viralde en çarpıcı bilgiyi açılışta ima et, son bilgi sahnesinde ver.
     Selamlama yok ("Merhaba", "Bugün sizlere..."), kanal adı yok, boş giriş yok.
   - Vaat edilen bilgi videoda mutlaka verilir (tık tuzağı yok; yanıltıcı açılış izlenmeyi düşürür).
 - **İzletme kuralları (kanal verisi, 27 Kasım; `out/ogrenim.md` farklı söylüyorsa onu uygula):**
-  - Haberde kısa kazanır: 45 sn altı medyan 969, üstü 870 izlenme. Toplam 70-85 kelimeyi aşma.
+  - Haberde kısa kazanır: 45 sn altı medyan 969, üstü 870 izlenme. Toplam 60-80 kelime.
   - Haberde başlık soru ya da hizmet kalıbıysa daha çok izleniyor (soru 1.006 / 883; "ne zaman,
     nasıl, kimler, hangi kanalda" 961 / 898): izleyicinin soracağı soruyu başlığa koy ve videoda
     cevapla ("KPSS sonuçları açıklandı: Nasıl bakılır?" 2.224).
@@ -206,7 +220,8 @@ varsa açılış ve başlık için onlardan da yararlan; yoksa aşağıdaki kura
   - İlk cümle izleyiciye "bu seni nasıl etkiliyor"u ya da en çarpıcı rakamı söyler; arka plan sonra.
   - Viral videolar hiç yorum almıyor, haberler alıyor: viral kapanış sorusu tahmin ya da kişisel
     deneyim istesin ("Sence kaç yıl? Yaz.").
-- `scenes`: 4-5 sahne, toplam 70-100 kelime (25-35 saniye; kapanış otomatik eklenir).
+- `scenes`: 4-5 sahne, toplam **60-80 kelime** (yaklaşık 25-32 saniye; kapanış otomatik eklenir). Kısa
+  video hem daha çok izleniyor hem izlenme yüzdesi yükseliyor; dolgu cümlesini sil.
   - Diğer sahnelerde `heading` (en fazla 20 karakter) ve 1-2 kısa cümlelik `text`.
   - Her sahne YENİ bir bilgi verir; dolgu ve tekrar cümlesi yok. Videolar arasında aynı kalıp
     cümleleri tekrarlama ("Peki ne oldu?", "Detaylar şöyle" gibi her videoda aynı açılış/geçiş):

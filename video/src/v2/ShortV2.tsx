@@ -620,7 +620,7 @@ type Geo = { x: number; y: number; w: number; h: number; r: number; acc: number;
 
 const STAGE_Y = 481; // başlık satırı (365) + 76 + 40
 const PRE = 6; // dönüşüm, sahne sınırından bu kadar kare önce başlar
-const MORPH = 18; // dönüşüm süresi (kare)
+const MORPH = 12; // dönüşüm süresi (kare); 18'den kısaltıldı: açılıştan sonraki geçişte izleyici kaçıyordu
 const morphEase = Easing.bezier(0.3, 1.16, 0.45, 1); // hafifçe taşıp yerine oturur
 const riseEase = Easing.bezier(0.2, 0, 0, 1);
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
@@ -1032,6 +1032,30 @@ const Caption: React.FC<{ chunk?: Chunk; accent: string; top: number }> = ({ chu
 
 /* ---------- Kompozisyon ---------- */
 
+// Açılış fotoğrafı, kart küçüldükten sonra da bulanık ve koyu bir arka plan olarak kalır: kanal
+// verisinde (27 Kasım, izlenme oranı eğrisi) izleyicinin en çok kaçtığı an, tam ekran açılış
+// fotoğrafının küçülüp ekranın boş kaldığı ilk geçişti (5. sn %93 -> 8. sn %58).
+const HookBackdrop: React.FC<{ p: ShortV2Props }> = ({ p }) => {
+  const frame = useCurrentFrame();
+  const { durationInFrames } = useVideoConfig();
+  const first = p.scenes[0];
+  if (!first?.photo || p.scenes.length < 2) return null;
+  const b = Math.round(p.scenes[1].start * FPS);
+  const op = interpolate(frame, [b - PRE - 6, b - PRE, durationInFrames], [0, 0.45, 0.26], clamp);
+  if (op <= 0) return null;
+  const k = interpolate(frame, [b, durationInFrames], [0, 1], clamp);
+  return (
+    <AbsoluteFill style={{ opacity: op, overflow: "hidden" }}>
+      <Img
+        src={staticFile(first.photo.src)}
+        style={{ width: "100%", height: "100%", objectFit: "cover", filter: "blur(10px) saturate(0.9)",
+                 transform: `scale(${1.18 + 0.08 * k})` }}
+      />
+      <AbsoluteFill style={{ background: "linear-gradient(180deg, rgba(4,7,15,0.35) 0%, rgba(4,7,15,0.6) 100%)" }} />
+    </AbsoluteFill>
+  );
+};
+
 export const ShortV2: React.FC<ShortV2Props> = (p) => {
   useFonts();
   const frame = useCurrentFrame();
@@ -1046,6 +1070,7 @@ export const ShortV2: React.FC<ShortV2Props> = (p) => {
   return (
     <AbsoluteFill style={{ opacity: fadeOut }}>
       <Background accent={p.accent} icon={p.categoryIcon} />
+      <HookBackdrop p={p} />
       <Stage p={p} />
       <TopBar p={p} sceneIdx={sceneIdx} sec={sec} />
       <TitleBlock p={p} />

@@ -359,7 +359,7 @@ def map3d_ok(video, scenes):
 def build_video(tts, day, n, total, v, out_dir):
     sr = tts.sr
     gap_sentence = np.zeros(int(0.16 * sr), dtype=np.int16)
-    gap_scene = np.zeros(int(0.42 * sr), dtype=np.int16)
+    gap_scene = np.zeros(int(0.28 * sr), dtype=np.int16)   # 0.42'ydi: sahne geçişinde ölü an izleyiciyi kaçırıyor
     track = [np.zeros(int(0.08 * sr), dtype=np.int16)]  # ilk karede söz başlasın (kaydırılmayı önler)
     pos = track[0].size
     scenes = []

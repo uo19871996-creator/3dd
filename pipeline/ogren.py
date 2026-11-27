@@ -79,6 +79,20 @@ def retention(token, ids, start):
     return {row[0]: row[2] for row in r.json().get("rows", [])}, None
 
 
+def curve(token, vid, start):
+    """Tek videonun izleyici tutma eğrisi {süre oranı: izleyen oranı}; Analytics kapalıysa None."""
+    try:
+        r = requests.get("https://youtubeanalytics.googleapis.com/v2/reports",
+                         headers={"Authorization": f"Bearer {token}"}, timeout=60,
+                         params={"ids": "channel==MINE", "startDate": start,
+                                 "endDate": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
+                                 "metrics": "audienceWatchRatio", "dimensions": "elapsedVideoTimeRatio",
+                                 "filters": f"video=={vid}"})
+    except requests.RequestException:
+        return None
+    return {round(row[0], 2): row[1] for row in r.json().get("rows", [])} if r.status_code == 200 else None
+
+
 def main():
     a = sys.argv[1:]
     days = int(a[a.index("--gun") + 1]) if "--gun" in a else 21
@@ -128,6 +142,22 @@ def main():
             L.append(f"  - en iyi: %{v['oran']:.0f} · {v['title'][:60]}")
         for v in sorted(withr, key=lambda v: v["oran"])[:3]:
             L.append(f"  - en zayıf: %{v['oran']:.0f} · {v['title'][:60]}")
+        start = (now - timedelta(days=days + 1)).strftime("%Y-%m-%d")
+        L.append("\n**Tutma eğrisi** (son videolar; saniyede hâlâ izleyenlerin oranı; %100 üstü = tekrar izleme):")
+        for kind in ("haber", "viral"):
+            sel = sorted([v for v in withr if v["kind"] == kind], key=lambda v: v["published"])[-12:]
+            cs = [c for c in (curve(token, v["id"], start) for v in sel) if c]
+            if not cs:
+                continue
+            d = med([v["duration"] for v in sel])
+            pts = (0.05, 0.1, 0.15, 0.2, 0.3, 0.5, 0.7, 0.9)
+            row = []
+            for p in pts:
+                xs = [c[p] for c in cs if p in c]
+                if xs:
+                    row.append(f"{p * d:.0f}. sn %{med(xs) * 100:.0f}")
+            L.append(f"- {kind} (n={len(cs)}, medyan {d:.0f} sn): " + " · ".join(row))
+        L.append("  En büyük düşüş hangi saniyedeyse o andaki sahneyi (genelde açılıştan 2. sahneye geçiş) güçlendir.")
     else:
         L.append(f"- YouTube Analytics verisi alınamadı ({why}). Kanal sahibi Google Cloud'da \"YouTube Analytics API\"yi "
                  "açınca izlenme oranı da burada görünür.")
