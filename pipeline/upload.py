@@ -5,6 +5,7 @@ Kullanım:
   python3 pipeline/upload.py --check                    # sadece kimlik doğrulamayı dener
   python3 pipeline/upload.py --recent                   # kanaldaki son 50 videonun başlığı
   python3 pipeline/upload.py --belgeseller              # belgeseller ve durumları (yayında/gizli/zamanlanmış)
+  python3 pipeline/upload.py --tanitim PROJE/tanitim.json # belgeselin dikey tanıtım Shorts'u (#fragman)
   python3 pipeline/upload.py --today                    # bugün kaç video yüklendi (sınır: config)
   python3 pipeline/upload.py --belgesel PROJE/yukleme.json   # haftalık yatay belgesel (BELGESEL.md)
   python3 pipeline/upload.py scripts/2026-11-11.json    # o günün videolarını yükler
@@ -99,8 +100,11 @@ def today_count(items):
 
 
 def kind_of(snippet):
-    """Videonun türü açıklamasındaki etiketten: #belgesel (haftalık yatay), #viral ya da haber."""
+    """Videonun türü açıklamasındaki etiketten: #fragman (belgeselin dikey tanıtımı), #belgesel
+    (haftalık yatay), #viral ya da haber."""
     desc = snippet.get("description", "").lower()
+    if "#fragman" in desc:
+        return "fragman"
     return "belgesel" if "#belgesel" in desc else ("viral" if "#viral" in desc else "haber")
 
 
@@ -112,6 +116,7 @@ def today_mix(items):
     counts = {"haber": 0, "viral": 0}
     for s in todays:
         k = kind_of(s)
+        k = "viral" if k == "fragman" else k   # belgesel tanıtımı o günün viral hakkından düşer
         if k in counts:
             counts[k] += 1
     shorts = [x for x in todays if kind_of(x) != "belgesel"]
@@ -119,7 +124,7 @@ def today_mix(items):
 
 
 def next_kind(counts, last):
-    """Günlük karışıma (config daily_mix, ör. 5 haber + 5 viral) göre bu çalışmanın türü; ikisi de
+    """Günlük karışıma (config daily_mix, ör. 7 haber + 3 viral) göre bu çalışmanın türü; ikisi de
     dolduysa None. Kalanı çok olan seçilir; eşitlikte son yüklenenin tersi (gün boyu sırayla)."""
     mix = CONFIG.get("daily_mix", {"haber": 5, "viral": 5})
     left = {k: mix[k] - counts.get(k, 0) for k in mix}
@@ -203,10 +208,12 @@ def send_video(token, path, body):
     return r.json()
 
 
-def upload_long(token, meta_path):
+def upload_long(token, meta_path, tanitim=False):
     """Haftalık yatay belgesel (BELGESEL.md). meta: video, thumbnail, yt_title, description, chapters
-    [[sn, başlık]], sources, credits, tags, publish_at (ISO, İstanbul saati; gizli yüklenip o anda
-    kendiliğinden yayına girer). Açıklamaya #belgesel eklenir: Shorts sayımına girmez."""
+    [[sn, başlık]], sources, credits, tags, seri, publish_at (ISO, İstanbul saati; gizli yüklenip o
+    anda kendiliğinden yayına girer) ya da "privacy": "private". Açıklamaya #belgesel eklenir: Shorts
+    sayımına girmez. tanitim=True: belgeselin dikey tanıtım Shorts'u (belgesel/tanitim.py); #belgesel
+    yerine #fragman, açıklamaya "belgesel_url"; günün Shorts sayımına (viral hakkına) girer."""
     meta = json.loads(Path(meta_path).read_text(encoding="utf-8"))
     base = Path(meta_path).parent
     path = (base / meta["video"]).resolve()
@@ -226,7 +233,13 @@ def upload_long(token, meta_path):
     seri = CONFIG.get("belgesel_seriler", {}).get(meta.get("seri", ""), {})   # seriye özel dipnot/etiket
     footer = seri.get("footer") or CONFIG.get("description_footer_belgesel",
                                               "#belgesel #siberguvenlik\n\nBu video güvenilir kaynaklardan derlenen bilgilerle hazırlanmıştır.")
-    if "#belgesel" not in footer.lower():
+    if tanitim:
+        if meta.get("belgesel_url"):
+            desc = desc.split("\n\n")[0] + f"\n\nBelgeselin tamamı: {meta['belgesel_url']}" + desc[len(desc.split("\n\n")[0]):]
+        footer = footer.replace("#belgesel", "#fragman")
+        if "#fragman" not in footer:
+            footer = "#fragman " + footer
+    elif "#belgesel" not in footer.lower():
         footer += " #belgesel"
     desc = desc[:4900 - len(footer) - 2] + "\n\n" + footer
     status = {"privacyStatus": meta.get("privacy") or CONFIG.get("privacy", "public"),
@@ -245,7 +258,7 @@ def upload_long(token, meta_path):
     vid = res["id"]
     print(f"[ok] https://youtube.com/watch?v={vid}  ({res.get('status', {}).get('privacyStatus')}"
           f"{', yayın ' + meta['publish_at'] if meta.get('publish_at') else ''})  {meta['yt_title']}")
-    thumb = (base / meta["thumbnail"]).resolve() if meta.get("thumbnail") else None
+    thumb = (base / meta["thumbnail"]).resolve() if meta.get("thumbnail") and not tanitim else None
     if thumb and thumb.exists():
         r = requests.post(f"https://www.googleapis.com/upload/youtube/v3/thumbnails/set?videoId={vid}",
                           headers={"Authorization": f"Bearer {token}", "Content-Type": "image/png"},
@@ -256,7 +269,7 @@ def upload_long(token, meta_path):
             print(f"[uyarı] Küçük resim yüklenemedi ({r.status_code}): {r.text[:200]}. Video yine de yüklendi; "
                   "kanal doğrulaması (YouTube Studio > Ayarlar > Kanal > Özellik uygunluğu) gerekebilir.")
     state = load_state()
-    state[f"belgesel/{meta.get('slug', vid)}"] = {"id": vid, "url": f"https://youtube.com/watch?v={vid}",
+    state[f"{'tanitim' if tanitim else 'belgesel'}/{meta.get('slug', vid)}"] = {"id": vid, "url": f"https://youtube.com/watch?v={vid}",
                                                    "title": meta["yt_title"], "publish_at": meta.get("publish_at")}
     save_state(state)
 
@@ -276,6 +289,9 @@ def main():
         return
     if "--belgesel" in args:
         upload_long(token, args[args.index("--belgesel") + 1])
+        return
+    if "--tanitim" in args:
+        upload_long(token, args[args.index("--tanitim") + 1], tanitim=True)
         return
     cap = int(CONFIG.get("daily_upload_cap", 10) or 0)
     if "--today" in args:
@@ -316,7 +332,7 @@ def main():
         limit = int(args[i + 1]) if i + 1 < len(args) and args[i + 1].isdigit() else 50
         try:
             for s in recent_items(token, limit):
-                tag = {"viral": "[viral] ", "belgesel": "[belgesel] "}.get(kind_of(s), "")
+                tag = {"viral": "[viral] ", "belgesel": "[belgesel] ", "fragman": "[fragman] "}.get(kind_of(s), "")
                 print(f"{s['publishedAt'][:10]} | {tag}{s['title']}", flush=True)
         except BrokenPipeError:  # `| head -5` okumayı erken kesti: hata değil, sessizce çık
             os.dup2(os.open(os.devnull, os.O_WRONLY), sys.stdout.fileno())

@@ -285,8 +285,51 @@ python3 pipeline/upload.py --belgesel belgesel/projeler/SLUG/yukleme.json
 
 Küçük resim yüklenemezse (kanal doğrulaması) video yine yüklenir; raporda belirt.
 
+### 10b. Dikey tanıtım Shorts'u (fragman; zorunlu)
+
+Kanal Shorts kanalı olarak tanındığı için yatay belgeseller neredeyse hiç gösterilmiyor (ilk iki
+bölüm 2-3 günde 1-21 izlenme). Her bölümden 30-50 saniyelik dikey bir tanıtım çıkar; izleyici oradan
+belgesele gider.
+
+```bash
+cd belgesel/projeler/SLUG
+python3 ../../tanitim.py --project . --lines A-B --hook "2-5 KELİMELİK KANCA" --series "YENİ NESİL SUÇ · BÖLÜM N"
+cd ../../..
+```
+
+- `--lines A-B`: `script.json` satır id'leri; genelde soğuk açılış ve onu izleyen, merak bırakan
+  satır(lar). Toplam 30-50 sn, bir soru ya da ters köşeyle bitsin. Önleme ve kapanış satırlarından
+  alma (onlar belgeselde kalsın). Araç `out/film.mp4` (altyazısız) ve `audio/mix.m4a` kullanır,
+  kendi büyük altyazısını basar, sona 3 sn "TAMAMI KANALDA" kartı ekler.
+- `out/tanitim.mp4`'ten 3 kare al (ör. 2., 15. sn ve son 2 sn) ve bak: kanca okunuyor mu, altyazı
+  taşıyor mu.
+- `belgesel/projeler/SLUG/tanitim.json`:
+
+```json
+{
+  "slug": "SLUG",
+  "video": "out/tanitim.mp4",
+  "yt_title": "Çocukları tetikçi yapan 'kolay para' tuzağı",
+  "description": "1-2 cümle: belgeselin vaadi.",
+  "belgesel_url": "https://youtube.com/watch?v=BELGESEL_ID",
+  "credits": ["belgeseldeki atıfların aynısı"],
+  "tags": ["..."],
+  "seri": "suc",
+  "publish_at": "belgeselle aynı (ya da belgesel tarihsiz gizliyse \"privacy\": \"private\")"
+}
+```
+
+```bash
+python3 pipeline/upload.py --tanitim belgesel/projeler/SLUG/tanitim.json
+```
+
+Başlık belgeselinkinden farklı olsun ("Bölüm N" yazma), en fazla 70 karakter. Açıklamaya `#fragman`
+eklenir; tanıtım o günün Shorts sayımına girer (viral hakkından düşer). YouTube API "ilgili video"
+bağlantısını kuramıyor: raporda kanal sahibine "Studio'da tanıtımın **İlgili video** alanına
+belgeseli seç" diye hatırlat.
+
 ## 11. Rapor
 
 Commit ve push YAPMA. Son mesajda: konu (seri ve bölüm no), video bağlantısı (gizli; yayın zamanı ya
-da "sahibin onayını bekliyor"), süre, kullanılan kaynaklar, yayın yasağı kontrolünün sonucu,
+da "sahibin onayını bekliyor"), tanıtım Shorts'unun bağlantısı ve "İlgili video" hatırlatması, süre, kullanılan kaynaklar, yayın yasağı kontrolünün sonucu,
 ElevenLabs kredisi, atlanan/sorunlu adımlar.

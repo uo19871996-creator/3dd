@@ -11,7 +11,7 @@ Her çalışmada:
      sorgular saate göre döner, gün içinde hepsi taranır
   3. Günlük izlenme, etkileşim ((beğeni + yorum) / izlenme) ve yorum oranıyla sıralı tablolar
   4. Kanalda son 3 günde yüklenen başlıklar (aynı konuyu tekrar seçmemek için)
-Kota: video yüklemesi aynı kotayı kullanır; günde 5 viral çalışma ~1.000 birim harcar.
+Kota: video yüklemesi aynı kotayı kullanır; günde 3 viral çalışma ~600 birim harcar.
 """
 import re
 import sys

@@ -4,7 +4,9 @@ Bu dosya, otomatik açılan oturumun izleyeceği adımlardır. Görev **İstanbu
 (09, 10, 12, 13, 15, 16, 18, 19, 21 ve 22'de) çalışır ve her çalışmada **1 video** (görev metni
 başka bir sayı söylüyorsa o kadar) üretip yükler. Günde 10'dan fazla yükleme yapılmaz: kanal
 verisinde günün 10. videosundan sonrakiler neredeyse hiç izlenmedi.
-Günlük karışım (kanal sahibinin isteği): **5 haber + 5 viral** (`config.json` → `daily_mix`).
+Günlük karışım (kanal sahibinin isteği, 27 Kasım'dan beri): **7 haber + 3 viral** (`config.json` →
+`daily_mix`; 20-27 Kasım'da viral medyanı haberin yarısıydı: 458'e 918). Cuma günleri haftalık
+belgeselin dikey tanıtımı (`#fragman`) o günün viral hakkından birini kullanır.
 - **Haber:** Türkiye'de şu an en çok konuşulan ve kanalda henüz işlenmemiş konu, kanalda en çok
   izlenen haber türlerine öncelik vererek.
 - **Viral:** ilgi çekici, bilgilendirici kısa video ("Dünyanın en...", "Neden...?", şaşırtıcı
@@ -82,14 +84,20 @@ değerlendir, sonra web aramasıyla konuyu derinleştir ve doğrula. `viral.py` 
   Her video, kanal medyanının kaç katı izlendiğiyle sıralanır (yalnızca 24 saati dolanlar).
   Listenin dibindeki çok düşük videoları (onlarca izlenme) konu zayıflığı sayma: bunlar 11 Kasım'da
   aynı anda toplu yüklenenler ve eski düzende günün 11.+ yüklemeleri; YouTube onları dağıtmadı.
-  13-17 Kasım verisine göre güçlü adaylar arasında bu sırayla öncelik ver:
-  1. **Futbol ve sporcular:** milli takım, büyük kulüpler, Türk ve yıldız sporcular (Alperen
-     Şengün 1349, Lukaku 1251, Galatasaray stadı 1180, milli maçlar 940-1172 izlenme).
-  2. **Cebe ve günlük hayata dokunan, geniş kitleyi ilgilendiren haberler:** zam, maaş, fiyat,
-     ceza, sınav, tatil, hava uyarısı (emekli zammı 1304, MEB sınav yasağı 1042, hız cezası 943).
-  3. **Büyük siyasi gelişmeler, tanınan isimlerle** (Özgür Özel 1796).
-  Geri planda kalsın: dar kitleli destek programları (KOBİ desteği 154, GSS prim borcu 251),
-  sıradan mahkeme ve yargı kararları, uzay/bilim (Voyager 373) ve eğlence (James Bond 314).
+  27 Kasım verisine göre (120 haber videosu; konu türüne göre medyan izlenme) güçlü adaylar
+  arasında bu sırayla öncelik ver:
+  1. **Emekli, maaş, zam** (medyan 1.420; "Erdoğan emekli aylığı için tarih verdi" 2.649).
+  2. **Büyük siyasi gelişmeler ve davalar, tanınan isimlerle** (1.020; en çok beğeni ve yorum:
+     Özgür Özel 1.881 izlenme, 51 beğeni).
+  3. **Sınav, atama, okul takvimi** (1.014; KPSS sonuçları 2.224 ve 1.655).
+  4. **Spor:** büyük kulüplerin maç sonuçları, milli takım, yıldız Türk sporcular (1.012;
+     Konyaspor-Beşiktaş 1.635, Alperen Şengün 1.361).
+  5. **Savunma sanayii** (1.012; etkileşimi en yüksek tür: KIZILELMA 47 beğeni, 4 yorum).
+  Orta: kaza ve afet (817), hava uyarıları (788), teknoloji ve bilim (652).
+  Geri planda kalsın: akaryakıt fiyatı, harç, kampanya gibi dar ya da sık tekrarlanan düzenlemeler
+  (406; benzin/motorin indirimleri 123-581), dış politika (378), piyasa ve büyüme verisi (315).
+  Bunları yalnızca çok geniş kitleyi doğrudan etkiliyorsa seç (ör. kredi kartı borcu 1.031,
+  köprü/tünel cezası 1.404).
   **Siyaset ve yargı haberleri günde en fazla 3:** `--recent` listesinde bugün bu türden 3 video
   varsa başka türden aday seç. Yine de önemli bir son dakika gelişmesini sırf türü yüzünden atlama;
   doğrulama, yayın yasağı ve tarafsızlık kuralları her zaman önce gelir; çeşitlilik kuralını koru.
@@ -111,8 +119,9 @@ değerlendir, sonra web aramasıyla konuyu derinleştir ve doğrula. `viral.py` 
 
 Amaç: izleyiciyi ilk saniyede durduran, sonuna kadar izleten ve yorum yazdıran **ilgi çekici,
 bilgilendirici** bir video. Konuyu `out/viral.md` ile o an etkileşim alan konulardan seç.
-Öncelik sırası, kendi kanalımızın 20-24 Kasım viral verisine göre (viral medyanı 388, haber
-medyanı 914 izlenme; en iyi viraller haber kadar izlendi):
+Günde yalnızca 3 viral var: **yalnızca aşağıdaki 1-3 türlerinden** seç (4. tür ancak çok güçlü
+bir aday varsa). Öncelik sırası, kendi kanalımızın viral verisine göre (27 Kasım: viral medyanı 458,
+haber medyanı 918; en iyi viraller haber kadar izlendi: dev mantar 962, kola kuyusu 1.119):
 1. **"Dünyanın en..." rekorlar ve uç örnekler, başlıkta rakamla:** "Kola kuyusu: Dünyanın en derin
    deliği 12 kilometre" 1.119, "Grönland köpekbalığı: Yaklaşık 400 yıl yaşayan canlı" 963,
    "Tabanca karidesi: Kıskacıyla 4.700 derece ısı üretiyor" 850 izlenme.

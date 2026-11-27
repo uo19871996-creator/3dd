@@ -43,8 +43,8 @@
   "grain": 0.025,
   "daily_upload_cap": 10,
   "daily_mix": {
-    "haber": 5,
-    "viral": 5
+    "haber": 7,
+    "viral": 3
   },
   "map3d": true,
   "belgesel_model": "eleven_v4",
