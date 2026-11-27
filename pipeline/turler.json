@@ -1,0 +1,75 @@
+{
+  "_aciklama": "Haber ve viral videolarını başlığa göre türlere ayıran kalıplar (ogren.py). Sıra önemli: ilk eşleşen tür alınır. Haftalık izlenme analizinde gerekirse güncellenir.",
+  "haber": [
+    [
+      "Emekli, maaş, zam",
+      "[Ee]mekli|refah payı|asgari ücret|memur maaş|maaş zammı|ikramiye"
+    ],
+    [
+      "Sınav, atama, okul takvimi",
+      "KPSS|ÖSYM|YKS|LGS|ALES|MEB|\\batama|personel alım|personel alacak|sömestr|ara tatil|öğretmen|karne"
+    ],
+    [
+      "Spor",
+      "\\bmaç|Galatasaray|Fenerbahçe|Beşiktaş|Trabzonspor|Süper Lig|Arda Güler|Alperen|Şengün|Lukaku|Salah|Milli Takım|Milliler|milli maç|Milli maç|EURO 20|FIFA|UEFA|Şampiyonlar Ligi|Uluslar|hakem|teknik direktör|transfer|\\bgol|Kenan Yıldız|Ronaldinho|Emre Mor|Volkan Demirel|Okan Buruk|Belözoğlu|spor\\b|[0-9]-[0-9] "
+    ],
+    [
+      "Kaza, afet",
+      "helikopter|uçak düştü|şehit|battı|çarptı|deprem|\\bsel\\b|yangın|patlama|aslan alarmı|\\bkaza"
+    ],
+    [
+      "Hava uyarıları",
+      "lodos|sarı kod|turuncu kod|yağış|fırtına|kar uyarısı|Meteoroloji"
+    ],
+    [
+      "Savunma sanayii",
+      "KIZILELMA|ASELSAN|TUSAŞ|\\bKAAN\\b|ROKETSAN|Baykar|SİHA|savunma anlaşması|EJDERHA"
+    ],
+    [
+      "Cebini ilgilendiren kurallar",
+      "[Bb]enzin|[Mm]otorin|akaryakıt|[Kk]redi kartı|Bonus|[Dd]oğal gaz|harc|GSS|ehliyet|[Kk]ış lastiği|[Cc]eza\\b|[Cc]ezası|otopark|Efsane Cuma|ikinci ev|KOBİ|Yargıtay|elektrik|fatura|\\bkira"
+    ],
+    [
+      "Ekonomi, altın, piyasa",
+      "[Aa]ltın|Cari açık|[Bb]orsa|büyüme|Konut|enflasyon|\\bfaiz|\\bdolar|\\bFon\\b|\\bfon\\b|TMSF|BDDK|TÜİK"
+    ],
+    [
+      "İç siyaset ve yargı",
+      "Özgür Özel|YENİ Parti|AK Parti|CHP|MHP|\\bDEM\\b|Bahçeli|Erdoğan|İmamoğlu|[Kk]urultay|Valiler|TBMM|Sözcü|Altaylı|Can Atalay|AYM|istifa|\\bdava|tutuklandı|gözaltı|medyum"
+    ],
+    [
+      "Dünya, dış politika",
+      "Trump|Putin|Kerç|ABD|Schengen|Çin|COP31|Tim Cook|Katar|İran|İsrail|Gazze|Ukrayna|Rusya|\\bAB\\b|NATO|\\bBM\\b"
+    ],
+    [
+      "Teknoloji, bilim, oyun",
+      "Riemann|Voyager|NASA|Microsoft|Nvidia|Apple|iPhone|Google|yapay zek|GTA|[Kk]uantum|Bond|hızlı tren|Hızlı tren|peynir|uzay"
+    ]
+  ],
+  "viral": [
+    [
+      "Doğru sanılan yanlışlar",
+      "aslında|değil\\b|sanılan|efsane|yanlış"
+    ],
+    [
+      "Gündem bağlantılı viral",
+      "GTA|Avengers|Marvel|\\bfilm|\\bdizi\\b|\\bdizisi|\\boyun\\b|\\boyunu|Netflix|Doom"
+    ],
+    [
+      "Rekorlar (Dünyanın en...)",
+      "\\ben (büyük|küçük|derin|uzun|yaşlı|hızlı|yüksek|kısa|sıcak|soğuk|ağır|zehirli|tehlikeli)|rekor"
+    ],
+    [
+      "Hayvanlar ve canlılar",
+      "köpekbalığı|\\bayı|kuş|hayvan|denizanası|karides|mantar|ağaç|balina|deve|böcek|yılan|kurbağa|ornitorenk|ahtapot"
+    ],
+    [
+      "Ülkeler ve coğrafya",
+      "ülke|\\bada\\b|Grönland|Vatikan|Lihtenştayn|mağara|\\bdeniz|göl|çukur|şehir|şelale"
+    ],
+    [
+      "Neden? soruları",
+      "[Nn]eden"
+    ]
+  ]
+}

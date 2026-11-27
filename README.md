@@ -7,6 +7,7 @@ bir YouTube Shorts videosu üreten ve kanala yükleyen otomasyon.
 
 | Adım | Dosya | Ne yapar |
 | --- | --- | --- |
+| İzlenme öğrenme | `pipeline/ogren.py`, `pipeline/turler.json` | Kanal verisinden hangi haber/viral türü, başlık kalıbı ve sürenin izlendiğini çıkarır (`out/ogrenim.md`); her çalışma konu seçmeden okur |
 | Aday toplama | `pipeline/trends.py` | Google Trends TR + Google Haberler TR başlıklarını listeler |
 | Video izleme | `araclar/izle.py` | Bir videoyu kare, OCR, döküm ve tempo olarak inceler (skill: `video-izle`) |
 | Viral araştırma | `pipeline/viral.py` | YouTube TR trendleri + en çok izlenen/etkileşim alan Türkçe kısa videolar (yalnız konu fikri) |

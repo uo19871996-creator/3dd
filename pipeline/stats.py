@@ -19,7 +19,7 @@ from datetime import datetime, timezone
 
 import requests
 
-from upload import API, access_token, die
+from upload import API, access_token, die, kind_of
 
 
 def _dur(iso):
@@ -63,7 +63,7 @@ def fetch(token):
                 "published": sn["publishedAt"], "age_h": round((now - pub).total_seconds() / 3600, 1),
                 "views": int(st.get("viewCount", 0)), "likes": int(st.get("likeCount", 0)),
                 "comments": int(st.get("commentCount", 0)), "duration": _dur(it["contentDetails"]["duration"]),
-                "kind": ("belgesel" if "#belgesel" in sn.get("description", "").lower() else "viral" if "#viral" in sn.get("description", "").lower() else "haber"),
+                "kind": kind_of(sn),
             })
     return out
 

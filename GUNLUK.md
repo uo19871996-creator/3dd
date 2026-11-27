@@ -43,6 +43,17 @@ yüklenir.
 
 ## 3. Adayları topla (araştırma her çalışmada yapılır)
 
+**Önce kanalın kendi verisine bak (her çalışmada, haber ve viral):**
+
+```bash
+mkdir -p out && python3 pipeline/ogren.py > /dev/null && cat out/ogrenim.md
+```
+
+Kanal sahibinin isteği: amaç yalnızca üretmek değil, **izletmek**. `out/ogrenim.md` son 21 günde
+hangi haber ve viral türlerinin, hangi başlık kalıplarının ve hangi sürenin daha çok izlendiğini
+kanalın kendi rakamlarıyla verir (izlenme oranı, Analytics açıksa). Konu türünü, başlığı ve süreyi
+bu rapora göre seç; aşağıdaki sabit listeler yalnızca rapor alınamazsa yedektir.
+
 Haber çalışması:
 
 ```bash
@@ -75,7 +86,10 @@ değerlendir, sonra web aramasıyla konuyu derinleştir ve doğrula. `viral.py` 
 - Çeşitlilik: kanalın son 5 videosunda aynı kategoriden (GÜNDEM, EKONOMİ, SPOR, SİYASET, DÜNYA,
   TEKNOLOJİ, MAGAZİN, SAĞLIK, EĞİTİM, YAŞAM, BİLİM, KÜLTÜR) 3'ten fazla olmasın; denk gelirse
   bir sonraki en güçlü konuya geç.
-- **En çok izlenen konu türlerinden üret** (kanal sahibinin isteği). Seçmeden önce bak:
+- **En çok izlenen konu türlerinden üret** (kanal sahibinin isteği). **Esas olan `out/ogrenim.md`'deki
+  güncel "Haber türleri" sıralamasıdır:** üst yarıdaki türlerden güçlü aday varsa onu seç; tablonun en
+  altındaki 3 türden günde en fazla 1 video, o da yalnızca çok büyük bir son dakika gelişmesiyse.
+  İki aday denkse etkileşimi (beğeni/1k, yorum/1k) yüksek türü seç. Ek olarak bak:
 
   ```bash
   python3 pipeline/stats.py --top 5
@@ -183,6 +197,15 @@ varsa açılış ve başlık için onlardan da yararlan; yoksa aşağıdaki kura
   - İlk sahne (`heading` yok): TEK cümle, en fazla 12 kelime; `title` ile aynı merakı açar.
     Selamlama yok ("Merhaba", "Bugün sizlere..."), kanal adı yok, boş giriş yok.
   - Vaat edilen bilgi videoda mutlaka verilir (tık tuzağı yok; yanıltıcı açılış izlenmeyi düşürür).
+- **İzletme kuralları (kanal verisi, 27 Kasım; `out/ogrenim.md` farklı söylüyorsa onu uygula):**
+  - Haberde kısa kazanır: 45 sn altı medyan 969, üstü 870 izlenme. Toplam 70-85 kelimeyi aşma.
+  - Haberde başlık soru ya da hizmet kalıbıysa daha çok izleniyor (soru 1.006 / 883; "ne zaman,
+    nasıl, kimler, hangi kanalda" 961 / 898): izleyicinin soracağı soruyu başlığa koy ve videoda
+    cevapla ("KPSS sonuçları açıklandı: Nasıl bakılır?" 2.224).
+  - Viralde başlıkta rakam şart gibi: rakamlı 597, rakamsız 388.
+  - İlk cümle izleyiciye "bu seni nasıl etkiliyor"u ya da en çarpıcı rakamı söyler; arka plan sonra.
+  - Viral videolar hiç yorum almıyor, haberler alıyor: viral kapanış sorusu tahmin ya da kişisel
+    deneyim istesin ("Sence kaç yıl? Yaz.").
 - `scenes`: 4-5 sahne, toplam 70-100 kelime (25-35 saniye; kapanış otomatik eklenir).
   - Diğer sahnelerde `heading` (en fazla 20 karakter) ve 1-2 kısa cümlelik `text`.
   - Her sahne YENİ bir bilgi verir; dolgu ve tekrar cümlesi yok. Videolar arasında aynı kalıp
